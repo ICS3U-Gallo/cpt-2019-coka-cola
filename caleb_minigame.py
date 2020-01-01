@@ -123,3 +123,11 @@ def main():
 if __name__ == "__main__":
     main()
 
+"""
+Things I still need to do:
+Let the objects fall for a specified amount of time. 
+When objects hit user, minus 1 life 
+When player loses all 3 lives, player dies 
+When player survives for the specified amount of time, a key is awarded 
+"""
+
