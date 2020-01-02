@@ -3,7 +3,6 @@ import settings
 import os
 
 class Player(arcade.Sprite):
-    
     def __init__(self):
         super().__init__()
 
@@ -55,10 +54,13 @@ class AlexGame(arcade.Window):
         os.chdir(file_path)
 
         # Variables that will hold sprite lists
+        self.diamonds_list = None
+        self.wall_list = None
         self.all_sprites_list = None
 
         # Set up the player info
         self.player_sprite = None
+        self.physics_engine = None
 
         # Set the background color
         arcade.set_background_color(arcade.color.AMAZON)
@@ -68,13 +70,35 @@ class AlexGame(arcade.Window):
         """ Set up the game and initialize the variables. """
 
         # Sprite lists
-        self.all_sprites_list = arcade.SpriteList()
+        self.player_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = settings.WIDTH / 2
-        self.player_sprite.center_y = settings.HEIGHT / 2
-        self.all_sprites_list.append(self.player_sprite)
+        self.player_sprite.center_x = 50
+        self.player_sprite.center_y = 64
+        self.player_list.append(self.player_sprite)
+
+        # -- Set up the walls
+        # Create a row of boxes
+        for x in range(173, 650, 64):
+            wall = arcade.Sprite("assets/sandblock.png", 0.64)
+            wall.center_x = x
+            wall.center_y = 200
+            self.wall_list.append(wall)
+
+        # Create a column of boxes
+        for y in range(273, 500, 64):
+            wall = arcade.Sprite("assets/sandblock.png", 0.64)
+            wall.center_x = 465
+            wall.center_y = y
+            self.wall_list.append(wall)
+        
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
+                                                         self.wall_list)
+
+        arcade.set_background_color(arcade.color.AMAZON)
+
 
     def on_draw(self):
         """
@@ -85,14 +109,15 @@ class AlexGame(arcade.Window):
         arcade.start_render()
 
         # Draw all the sprites.
-        self.all_sprites_list.draw()
+        self.wall_list.draw()
+        self.player_list.draw()
 
     def on_update(self, delta_time):
         """ Movement and game logic """
 
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
-        self.all_sprites_list.update()
+        self.physics_engine.update()
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -128,7 +153,6 @@ if __name__ == "__main__":
 
     # You can ignore this whole section. Keep it at the bottom
     # of your code.
-
     # It is advised you do not modify it unless you really know
     # what you are doing.
     # """
