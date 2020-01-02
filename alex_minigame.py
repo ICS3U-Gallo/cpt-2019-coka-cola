@@ -149,19 +149,16 @@ class AlexGame(arcade.Window):
 
             # Check this bullet to see if it hit a coin
             hit_list = arcade.check_for_collision_with_list(bullet, self.gem_list)
+            disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
 
             # If it did, get rid of the bullet
-            if len(hit_list) > 0:
+            if len(hit_list) > 0 or len(disappear_list) > 0:
                 bullet.remove_from_sprite_lists()
 
             # For every coin we hit, add to the score and remove the coin
             for coin in hit_list:
                 coin.remove_from_sprite_lists()
                 self.score += 1
-
-            # If the bullet flies off-screen, remove it.
-            if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
-                bullet.remove_from_sprite_lists()
 
         # --- Manage Scrolling ---
 
@@ -232,7 +229,7 @@ class AlexGame(arcade.Window):
         Called whenever the mouse moves.
         """
         # Create a bullet
-        bullet = arcade.Sprite("assets/bullet.png", 0.3)
+        bullet = arcade.Sprite("assets/bullet.png", 0.15)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
