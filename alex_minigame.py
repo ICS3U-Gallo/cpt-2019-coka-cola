@@ -1,6 +1,9 @@
 import arcade
 import settings
+import random
 import os
+
+VIEWPORT_MARGIN = 40
 
 class Player(arcade.Sprite):
     def __init__(self):
@@ -8,9 +11,9 @@ class Player(arcade.Sprite):
 
         # Load a left facing texture and a right facing texture.
         # mirrored=True will mirror the image we load.
-        texture = arcade.load_texture("assets/indiana_jones.png", mirrored=True, scale=settings.SPRITE_SCALING)
+        texture = arcade.load_texture("assets/indiana_jones.png", mirrored=True, scale=0.3)
         self.textures.append(texture)
-        texture = arcade.load_texture("assets/indiana_jones.png", scale=settings.SPRITE_SCALING)
+        texture = arcade.load_texture("assets/indiana_jones.png", scale=0.3)
         self.textures.append(texture)
 
         # By default, face right.
@@ -54,16 +57,16 @@ class AlexGame(arcade.Window):
         os.chdir(file_path)
 
         # Variables that will hold sprite lists
-        self.diamonds_list = None
+        self.player_list = None
+        self.coin_list = None
         self.wall_list = None
-        self.all_sprites_list = None
+
 
         # Set up the player info
         self.player_sprite = None
         self.physics_engine = None
-
-        # Set the background color
-        arcade.set_background_color(arcade.color.AMAZON)
+        self.view_bottom = 0
+        self.view_left = 0
 
     def setup(self):
     
@@ -75,29 +78,45 @@ class AlexGame(arcade.Window):
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = 50
-        self.player_sprite.center_y = 64
+        self.player_sprite.center_x = 64
+        self.player_sprite.center_y = 270 
         self.player_list.append(self.player_sprite)
 
-        # -- Set up the walls
-        # Create a row of boxes
-        for x in range(173, 650, 64):
-            wall = arcade.Sprite("assets/sandblock.png", 0.64)
-            wall.center_x = x
-            wall.center_y = 200
-            self.wall_list.append(wall)
+        # Setting the bottom boundaries
+        for x in range(32, 1824, 64):
+            self.add_boundary(x, -64)
+            self.add_boundary(x, 1024)
 
-        # Create a column of boxes
-        for y in range(273, 500, 64):
-            wall = arcade.Sprite("assets/sandblock.png", 0.64)
-            wall.center_x = 465
-            wall.center_y = y
-            self.wall_list.append(wall)
+        # Setting the left boundary
+        for y in range(-64, 1064, 64):
+            self.add_boundary(-32, y)
+            self.add_boundary(1824, y)
+
+
+        for x in range(200, 1650, 210):
+            for y in range(0, 1000, 64):
+                # Randomly skip a box so the player can find a way through
+                if random.randrange(5) > 0:
+                    wall = arcade.Sprite("assets/sandblock.png", 0.64)
+                    wall.center_x = x
+                    wall.center_y = y
+                    self.wall_list.append(wall)
+        
         
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                          self.wall_list)
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
+
+        # Set up the viewport boundaries
+        self.view_left = 0
+        self.view_bottom = 0
+
+    def add_boundary(self, x, y):
+        wall = arcade.Sprite("assets/sandblock.png", 0.64)
+        wall.center_x = x
+        wall.center_y = y
+        self.wall_list.append(wall)
 
 
     def on_draw(self):
@@ -115,9 +134,52 @@ class AlexGame(arcade.Window):
     def on_update(self, delta_time):
         """ Movement and game logic """
 
-        # Call update on all sprites (The sprites don't do much in this
-        # example though.)
+        # Call an update on all sprites
         self.physics_engine.update()
+
+        # --- Manage Scrolling ---
+
+        # Keep track of if we changed the boundary. We don't want to call the
+        # set_viewport command if we didn't change the view port.
+        changed = False
+
+        # Scroll left
+        left_boundary = self.view_left + VIEWPORT_MARGIN
+        if self.player_sprite.left < left_boundary:
+            self.view_left -= left_boundary - self.player_sprite.left
+            changed = True
+
+        # Scroll right
+        right_boundary = self.view_left + settings.WIDTH - VIEWPORT_MARGIN
+        if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+
+        # Scroll up
+        top_boundary = self.view_bottom + settings.HEIGHT - VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary
+            changed = True
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            changed = True
+
+        # Make sure our boundaries are integer values. While the view port does
+        # support floating point numbers, for this application we want every pixel
+        # in the view port to map directly onto a pixel on the screen. We don't want
+        # any rounding errors.
+        self.view_left = int(self.view_left)
+        self.view_bottom = int(self.view_bottom)
+
+        # If we changed the boundary values, update the view port to match
+        if changed:
+            arcade.set_viewport(self.view_left,
+                                settings.WIDTH + self.view_left - 1,
+                                self.view_bottom,
+                                settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -138,6 +200,7 @@ class AlexGame(arcade.Window):
             self.player_sprite.change_y = 0
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.player_sprite.change_x = 0
+
 
 
 def main():
