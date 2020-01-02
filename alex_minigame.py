@@ -20,24 +20,11 @@ class Player(arcade.Sprite):
         self.set_texture(settings.TEXTURE_RIGHT)
 
     def update(self):
-        self.center_x += self.change_x
-        self.center_y += self.change_y
-
         # Figure out if we should face left or right
         if self.change_x < 0:
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
-
-        if self.left < 0:
-            self.left = 0
-        elif self.right > settings.WIDTH - 1:
-            self.right = settings.WIDTH - 1
-
-        if self.bottom < 0:
-            self.bottom = 0
-        elif self.top > settings.HEIGHT - 1:
-            self.top = settings.HEIGHT - 1
 
 
 class AlexGame(arcade.Window):
@@ -49,10 +36,7 @@ class AlexGame(arcade.Window):
         # Call the parent class initializer
         super().__init__(width, height, title)
 
-        # Set the working directory (where we expect to find files) to the same
-        # directory this .py file is in. You can leave this out of your own
-        # code, but it is needed to easily run the examples using "python -m"
-        # as mentioned at the top of this program.
+        # Set the working directory
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
@@ -136,6 +120,7 @@ class AlexGame(arcade.Window):
 
         # Call an update on all sprites
         self.physics_engine.update()
+        self.player_sprite.update()
 
         # --- Manage Scrolling ---
 
