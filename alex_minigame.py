@@ -2,8 +2,13 @@ import arcade
 import settings
 import random
 import os
+import math
 
 VIEWPORT_MARGIN = 40
+GEM_COUNT = 10
+BULLET_SPEED = 5
+
+window = None
 
 class Player(arcade.Sprite):
     def __init__(self):
@@ -42,12 +47,14 @@ class AlexGame(arcade.Window):
 
         # Variables that will hold sprite lists
         self.player_list = None
-        self.coin_list = None
+        self.gem_list = None
         self.wall_list = None
 
 
         # Set up the player info
         self.player_sprite = None
+        self.score = 0
+        self.score_text = None
         self.physics_engine = None
         self.view_bottom = 0
         self.view_left = 0
@@ -59,6 +66,8 @@ class AlexGame(arcade.Window):
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
+        self.gem_list = arcade.SpriteList()
+        self.bullet_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
@@ -86,6 +95,13 @@ class AlexGame(arcade.Window):
                     wall.center_y = y
                     self.wall_list.append(wall)
         
+        # Creating the gems
+        for _ in range(GEM_COUNT):
+            gem = arcade.Sprite("assets/gem.png", 0.1)
+            gem.center_x = random.randrange(32, 1800, 210)
+            gem.center_y = random.randrange(120, 1000)
+
+            self.gem_list.append(gem)
         
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                          self.wall_list)
@@ -114,6 +130,11 @@ class AlexGame(arcade.Window):
         # Draw all the sprites.
         self.wall_list.draw()
         self.player_list.draw()
+        self.gem_list.draw()
+        self.bullet_list.draw()
+
+        output = f"Score: {self.score}"
+        arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -121,6 +142,26 @@ class AlexGame(arcade.Window):
         # Call an update on all sprites
         self.physics_engine.update()
         self.player_sprite.update()
+        self.bullet_list.update()
+        self.gem_list.update()
+
+        for bullet in self.bullet_list:
+
+            # Check this bullet to see if it hit a coin
+            hit_list = arcade.check_for_collision_with_list(bullet, self.gem_list)
+
+            # If it did, get rid of the bullet
+            if len(hit_list) > 0:
+                bullet.remove_from_sprite_lists()
+
+            # For every coin we hit, add to the score and remove the coin
+            for coin in hit_list:
+                coin.remove_from_sprite_lists()
+                self.score += 1
+
+            # If the bullet flies off-screen, remove it.
+            if bullet.bottom > self.width or bullet.top < 0 or bullet.right < 0 or bullet.left > self.width:
+                bullet.remove_from_sprite_lists()
 
         # --- Manage Scrolling ---
 
@@ -186,6 +227,44 @@ class AlexGame(arcade.Window):
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT or key == arcade.key.A or key == arcade.key.D:
             self.player_sprite.change_x = 0
 
+    def on_mouse_press(self, x, y, button, modifiers):
+        """
+        Called whenever the mouse moves.
+        """
+        # Create a bullet
+        bullet = arcade.Sprite("assets/bullet.png", 0.3)
+
+        # Position the bullet at the player's current location
+        start_x = self.player_sprite.center_x
+        start_y = self.player_sprite.center_y
+        bullet.center_x = start_x
+        bullet.center_y = start_y
+
+        # Get from the mouse the destination location for the bullet
+        # IMPORTANT! If you have a scrolling screen, you will also need
+        # to add in self.view_bottom and self.view_left.
+        dest_x = x + self.view_left
+        dest_y = y + self.view_bottom
+
+        # Do math to calculate how to get the bullet to the destination.
+        # Calculation the angle in radians between the start points
+        # and end points. This is the angle the bullet will travel.
+        x_diff = dest_x - start_x
+        y_diff = dest_y - start_y
+        angle = math.atan2(y_diff, x_diff)
+
+        # Angle the bullet sprite so it doesn't look like it is flying
+        # sideways.
+        bullet.angle = math.degrees(angle)
+        print(f"Bullet angle: {bullet.angle:.2f}")
+
+        # Taking into account the angle, calculate our change_x
+        # and change_y. Velocity is how fast the bullet travels.
+        bullet.change_x = math.cos(angle) * BULLET_SPEED
+        bullet.change_y = math.sin(angle) * BULLET_SPEED
+
+        # Add the bullet to the appropriate lists
+        self.bullet_list.append(bullet)
 
 def main():
     """ Main method """
