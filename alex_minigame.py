@@ -7,8 +7,13 @@ import math
 VIEWPORT_MARGIN = 40
 GEM_COUNT = 10
 BULLET_SPEED = 5
+WALL_SPRITE_NATIVE_SIZE = 100
+WALL_SPRITE_SCALING = 0.64
+WALL_SPRITE_SIZE = 64
+
 
 window = None
+
 
 class Player(arcade.Sprite):
     def __init__(self):
@@ -56,8 +61,8 @@ class AlexGame(arcade.Window):
         self.player_health = 60
         self.view_bottom = 0
         self.view_left = 0
-        self.score = 0
-        self.score_text = None
+        self.collected = 0
+        self.collected_text = None
         self.physics_engine = None
 
         # Set up the enemy info
@@ -81,14 +86,10 @@ class AlexGame(arcade.Window):
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
-        # Set up the enemy
-        self.enemy_sprite = arcade.Sprite("assets/test_enemy.png", 0.4)
-        self.enemy_sprite.center_x = 400
-        self.enemy_sprite.center_y = 270
-        self.enemy_list.append(self.enemy_sprite)
+        self.add_enemy(583, 46)
+        self.add_enemy(1278, 46)
 
         # Map of the maze
-        # Set up map info
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
                     [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
@@ -98,25 +99,20 @@ class AlexGame(arcade.Window):
                     [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
                     [1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
                     [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-                    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-                    [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1],
-                    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-                    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+                    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+                    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+                    [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1],
+                    [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
+                    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
-        # Setting the bottom and top boundaries
-        # for x in range(32, 1824, 64):
-        #     self.add_boundary(x, -64)
-        #     self.add_boundary(x, 1024)
 
-        # # Setting the left and right boundary
-        # for y in range(-64, 1064, 64):
-        #     self.add_boundary(-32, y)
-        #     self.add_boundary(1824, y)
-        
+        # Drawing the maze
         maze_y = 1000
 
         for row in maze_map:
@@ -124,18 +120,13 @@ class AlexGame(arcade.Window):
             for block in row:
                 if block == 1:
                     self.add_boundary(maze_x, maze_y)
-                    print(maze_x,maze_y)
-                maze_x += 64
-            maze_y -= 64
+                maze_x += WALL_SPRITE_SIZE
+            maze_y -= WALL_SPRITE_SIZE
         
-
         # Creating the gems
         for _ in range(GEM_COUNT):
-            gem = arcade.Sprite("assets/gem.png", 0.1)
-            gem.center_x = random.randrange(1800)
-            gem.center_y = random.randrange(120, 1000)
-            self.gem_list.append(gem)
-        
+            self.add_gem()
+                
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                          self.wall_list)
 
@@ -145,8 +136,20 @@ class AlexGame(arcade.Window):
         self.view_left = 0
         self.view_bottom = 0
 
+    def add_gem(self):
+        gem = arcade.Sprite("assets/gem.png", 0.1)
+        gem.center_x = random.randrange(0, 1800, 64)
+        gem.center_y = random.randrange(0, 1000, 64)
+        self.gem_list.append(gem)
+
+    def add_enemy(self, x, y):
+        self.enemy_sprite = arcade.Sprite("assets/test_enemy.png", 0.4)
+        self.enemy_sprite.center_x = x
+        self.enemy_sprite.center_y = y
+        self.enemy_list.append(self.enemy_sprite)
+
     def add_boundary(self, x, y):
-        wall = arcade.Sprite("assets/sandblock.png", 0.64)
+        wall = arcade.Sprite("assets/sandblock.png", WALL_SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = y
         self.wall_list.append(wall)
@@ -168,7 +171,7 @@ class AlexGame(arcade.Window):
 
         self.health_bars(self.player_health, self.enemy_health)
 
-        output = f"Score: {self.score}"
+        output = f"Gems collected: {self.collected}/10"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
@@ -180,10 +183,12 @@ class AlexGame(arcade.Window):
         self.bullet_list.update()
         self.gem_list.update()
 
+        print(self.player_sprite.center_x, self.player_sprite.center_y)
+
         gem_collected = arcade.check_for_collision_with_list(self.player_sprite, self.gem_list)
         for gem in gem_collected:
             gem.remove_from_sprite_lists()
-            self.score += 1
+            self.collected += 1
 
         for bullet in self.bullet_list:
             # Check this bullet to see if it hit a coin
@@ -202,11 +207,9 @@ class AlexGame(arcade.Window):
             if self.enemy_health <= 0:
                 self.enemy_sprite.remove_from_sprite_lists()
 
+        self.manage_scrolling()
 
-        # --- Manage Scrolling ---
-
-        # Keep track of if we changed the boundary. We don't want to call the
-        # set_viewport command if we didn't change the view port.
+    def manage_scrolling(self):
         changed = False
 
         # Scroll left
@@ -293,13 +296,11 @@ class AlexGame(arcade.Window):
         y_diff = dest_y - start_y
         angle = math.atan2(y_diff, x_diff)
 
-        # Angle the bullet sprite so it doesn't look like it is flying
-        # sideways.
+        # Angle the bullet sprite
         bullet.angle = math.degrees(angle)
         print(f"Bullet angle: {bullet.angle:.2f}")
 
-        # Taking into account the angle, calculate our change_x
-        # and change_y. Velocity is how fast the bullet travels.
+        # calculate our change_x and change_y
         bullet.change_x = math.cos(angle) * BULLET_SPEED
         bullet.change_y = math.sin(angle) * BULLET_SPEED
 
@@ -331,12 +332,17 @@ class AlexGame(arcade.Window):
             enemy_health_colour = arcade.color.RED
         
         # Player Health Bar
+        self.draw_player_health_bar(player_constant_x, player_y, player_x, player_health, player_health_colour)
+        
+        # Enemy 1 Health Bar
+        self.draw_enemy_health_bar(enemy_constant_x, enemy_y, enemy_x, enemy_health, enemy_health_colour)
+
+    def draw_player_health_bar(self, player_constant_x, player_y, player_x, player_health, player_health_colour):
         arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)
         arcade.draw_rectangle_filled(player_x, player_y, player_health, 5, player_health_colour)
         arcade.draw_rectangle_outline(player_constant_x, player_y, 61, 6, arcade.color.BLACK)
-        
 
-        # Enemy Health Bar
+    def draw_enemy_health_bar(self, enemy_constant_x, enemy_y, enemy_x, enemy_health, enemy_health_colour):
         arcade.draw_rectangle_filled(enemy_constant_x, enemy_y, 150, 5, arcade.color.WHITE)
         arcade.draw_rectangle_filled(enemy_x, enemy_y, enemy_health, 5, enemy_health_colour)
         arcade.draw_rectangle_outline(enemy_constant_x, enemy_y, 152, 6, arcade.color.BLACK)
