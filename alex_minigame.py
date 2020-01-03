@@ -15,17 +15,16 @@ class Player(arcade.Sprite):
         super().__init__()
 
         # Load a left facing texture and a right facing texture.
-        # mirrored=True will mirror the image we load.
-        texture = arcade.load_texture("assets/indiana_jones.png", mirrored=True, scale=0.3)
+        texture = arcade.load_texture("assets/indiana_jones.png", mirrored=True, scale=0.35)
         self.textures.append(texture)
-        texture = arcade.load_texture("assets/indiana_jones.png", scale=0.3)
+        texture = arcade.load_texture("assets/indiana_jones.png", scale=0.35)
         self.textures.append(texture)
 
         # By default, face right.
         self.set_texture(settings.TEXTURE_RIGHT)
 
     def update(self):
-        # Figure out if we should face left or right
+        # Check if player should face left or right
         if self.change_x < 0:
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
@@ -45,19 +44,25 @@ class AlexGame(arcade.Window):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-        # Variables that will hold sprite lists
+        # Variables to sprite lists
         self.player_list = None
-        self.gem_list = None
         self.wall_list = None
-
+        self.gem_list = None
+        self.bullet_list = None
+        self.enemy_list = None
 
         # Set up the player info
         self.player_sprite = None
+        self.player_health = 60
+        self.view_bottom = 0
+        self.view_left = 0
         self.score = 0
         self.score_text = None
         self.physics_engine = None
-        self.view_bottom = 0
-        self.view_left = 0
+
+        # Set up the enemy info
+        self.enemy_sprite = None
+        self.enemy_health = 150
 
     def setup(self):
     
@@ -68,39 +73,67 @@ class AlexGame(arcade.Window):
         self.wall_list = arcade.SpriteList()
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
+        self.enemy_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 270 
+        self.player_sprite.center_x = 0
+        self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
-        # Setting the bottom boundaries
-        for x in range(32, 1824, 64):
-            self.add_boundary(x, -64)
-            self.add_boundary(x, 1024)
+        # Set up the enemy
+        self.enemy_sprite = arcade.Sprite("assets/test_enemy.png", 0.4)
+        self.enemy_sprite.center_x = 400
+        self.enemy_sprite.center_y = 270
+        self.enemy_list.append(self.enemy_sprite)
 
-        # Setting the left boundary
-        for y in range(-64, 1064, 64):
-            self.add_boundary(-32, y)
-            self.add_boundary(1824, y)
+        # Map of the maze
+        # Set up map info
+        maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+                    [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+                    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1],
+                    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
+                    [1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
+                    [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+                    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+                    [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1],
+                    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+                    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+                    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
+        # Setting the bottom and top boundaries
+        # for x in range(32, 1824, 64):
+        #     self.add_boundary(x, -64)
+        #     self.add_boundary(x, 1024)
 
-        for x in range(200, 1650, 210):
-            for y in range(0, 1000, 64):
-                # Randomly skip a box so the player can find a way through
-                if random.randrange(5) > 0:
-                    wall = arcade.Sprite("assets/sandblock.png", 0.64)
-                    wall.center_x = x
-                    wall.center_y = y
-                    self.wall_list.append(wall)
+        # # Setting the left and right boundary
+        # for y in range(-64, 1064, 64):
+        #     self.add_boundary(-32, y)
+        #     self.add_boundary(1824, y)
         
+        maze_y = 1000
+
+        for row in maze_map:
+            maze_x = 0
+            for block in row:
+                if block == 1:
+                    self.add_boundary(maze_x, maze_y)
+                    print(maze_x,maze_y)
+                maze_x += 64
+            maze_y -= 64
+        
+
         # Creating the gems
         for _ in range(GEM_COUNT):
             gem = arcade.Sprite("assets/gem.png", 0.1)
-            gem.center_x = random.randrange(32, 1800, 210)
+            gem.center_x = random.randrange(1800)
             gem.center_y = random.randrange(120, 1000)
-
             self.gem_list.append(gem)
         
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
@@ -118,7 +151,6 @@ class AlexGame(arcade.Window):
         wall.center_y = y
         self.wall_list.append(wall)
 
-
     def on_draw(self):
         """
         Render the screen.
@@ -132,9 +164,12 @@ class AlexGame(arcade.Window):
         self.player_list.draw()
         self.gem_list.draw()
         self.bullet_list.draw()
+        self.enemy_list.draw()
+
+        self.health_bars(self.player_health, self.enemy_health)
 
         output = f"Score: {self.score}"
-        arcade.draw_text(output, 10, 20, arcade.color.WHITE, 14)
+        arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -145,20 +180,28 @@ class AlexGame(arcade.Window):
         self.bullet_list.update()
         self.gem_list.update()
 
+        gem_collected = arcade.check_for_collision_with_list(self.player_sprite, self.gem_list)
+        for gem in gem_collected:
+            gem.remove_from_sprite_lists()
+            self.score += 1
+
         for bullet in self.bullet_list:
-
             # Check this bullet to see if it hit a coin
-            hit_list = arcade.check_for_collision_with_list(bullet, self.gem_list)
             disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
-
             # If it did, get rid of the bullet
-            if len(hit_list) > 0 or len(disappear_list) > 0:
+            if len(disappear_list) > 0:
                 bullet.remove_from_sprite_lists()
 
-            # For every coin we hit, add to the score and remove the coin
-            for coin in hit_list:
-                coin.remove_from_sprite_lists()
-                self.score += 1
+            # Check if bullet hit enemys
+            enemy_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_list)
+            # If it did, enemy health goes down, bullet dissapears
+            if len(enemy_hit_list) > 0:
+                self.enemy_health -= 30
+                bullet.remove_from_sprite_lists()
+            
+            if self.enemy_health <= 0:
+                self.enemy_sprite.remove_from_sprite_lists()
+
 
         # --- Manage Scrolling ---
 
@@ -262,6 +305,42 @@ class AlexGame(arcade.Window):
 
         # Add the bullet to the appropriate lists
         self.bullet_list.append(bullet)
+    
+    def health_bars(self, player_health, enemy_health):
+
+        player_x = self.player_sprite.center_x - 30 + (player_health/2)
+        player_constant_x = self.player_sprite.center_x - 30 + (60/2)
+        player_y = self.player_sprite.center_y + 40
+        enemy_x = self.enemy_sprite.center_x - 78 + (enemy_health/2)
+        enemy_constant_x = self.enemy_sprite.center_x - 78 + (150/2)
+        enemy_y = self.enemy_sprite.center_y + 65
+
+
+        if player_health > 45:
+            player_health_colour = arcade.color.GREEN
+        elif player_health > 30:
+            player_health_colour = arcade.color.YELLOW
+        else:
+            player_health_colour = arcade.color.RED
+        
+        if enemy_health > 75:
+            enemy_health_colour = arcade.color.GREEN
+        elif enemy_health > 50:
+            enemy_health_colour = arcade.color.YELLOW
+        else:
+            enemy_health_colour = arcade.color.RED
+        
+        # Player Health Bar
+        arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)
+        arcade.draw_rectangle_filled(player_x, player_y, player_health, 5, player_health_colour)
+        arcade.draw_rectangle_outline(player_constant_x, player_y, 61, 6, arcade.color.BLACK)
+        
+
+        # Enemy Health Bar
+        arcade.draw_rectangle_filled(enemy_constant_x, enemy_y, 150, 5, arcade.color.WHITE)
+        arcade.draw_rectangle_filled(enemy_x, enemy_y, enemy_health, 5, enemy_health_colour)
+        arcade.draw_rectangle_outline(enemy_constant_x, enemy_y, 152, 6, arcade.color.BLACK)
+
 
 def main():
     """ Main method """
