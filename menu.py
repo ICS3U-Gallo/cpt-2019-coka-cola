@@ -5,15 +5,33 @@ import settings
 
 class MenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Menu", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=30, anchor_x="center")
+        title = arcade.Sprite("assets/title_indiana_jones.png", center_x=400, center_y=500)
+        title.draw()
+        chest = arcade.Sprite("assets/treasure_chest.png", center_x=400, center_y=300)
+        chest.draw()
+        arcade.draw_text("Press SPACE to start.", settings.WIDTH/2, 100,
+                         arcade.color.BLACK, font_size=15, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
-        self.director.next_view()
+        if key == arcade.key.SPACE:
+            self.director.next_view()
+
+class InstructionsView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("This is the instructions page, press space to advance.", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, font_size=15, anchor_x="center")
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.SPACE:
+            self.director.next_view()
 
 
 if __name__ == "__main__":
