@@ -14,8 +14,13 @@ class MyGame(arcade.Window):
 
         arcade.set_background_color(arcade.color.SKY_BLUE)
 
-        self.player = arcade.Sprite(center_x=WIDTH//2, center_y=100)
-        self.player.texture = arcade.make_soft_square_texture(50, arcade.color.BLUE, outer_alpha=255)
+        # Set up the player
+        #self.player = arcade.Sprite(center_x=WIDTH//2, center_y=100)
+        self.player = arcade.Sprite(os.path.expanduser("C:\Python-ex\myPython\images\indianajones.png"))
+        #self.player.texture = arcade.make_soft_square_texture(50, arcade.color.BLUE, outer_alpha=255)
+        self.player.center_x = 50
+        self.player.center_y = 50
+
 
         self.rock_texture = arcade.make_soft_circle_texture(40, arcade.color.GRAY, outer_alpha=255)
         self.rocks = arcade.SpriteList()
