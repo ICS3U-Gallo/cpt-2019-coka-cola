@@ -4,12 +4,24 @@ import random
 import os
 import math
 
+# Constant variables
 VIEWPORT_MARGIN = 40
 GEM_COUNT = 10
 BULLET_SPEED = 5
+
+# Sizes and scaling of sprites
 WALL_SPRITE_NATIVE_SIZE = 100
 WALL_SPRITE_SCALING = 0.64
-WALL_SPRITE_SIZE = 64
+WALL_SPRITE_SIZE = WALL_SPRITE_NATIVE_SIZE * WALL_SPRITE_SCALING
+
+# Variables to hold images for sprites
+PLAYER_IMAGE = "assets/indiana_jones.png"
+ENEMY_IMAGE = "assets/sand_devil.gif"
+GEM_BLUE_IMAGE = "assets/gem_blue.png"
+GEM_GREEN_IMAGE = "assets/gem_green.png"
+GEM_RED_IMAGE = "assets/gem_red.png"
+BULLET_IMAGE = "assets/bullet.png"
+WALL_IMAGE = "assets/sandblock.png"
 
 
 window = None
@@ -20,9 +32,9 @@ class Player(arcade.Sprite):
         super().__init__()
 
         # Load a left facing texture and a right facing texture.
-        texture = arcade.load_texture("assets/indiana_jones.png", mirrored=True, scale=0.35)
+        texture = arcade.load_texture(PLAYER_IMAGE, mirrored=True, scale=0.35)
         self.textures.append(texture)
-        texture = arcade.load_texture("assets/indiana_jones.png", scale=0.35)
+        texture = arcade.load_texture(PLAYER_IMAGE, scale=0.35)
         self.textures.append(texture)
 
         # By default, face right.
@@ -34,7 +46,6 @@ class Player(arcade.Sprite):
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
-
 
 class AlexGame(arcade.Window):
     def __init__(self, width, height, title):
@@ -105,11 +116,18 @@ class AlexGame(arcade.Window):
                     [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1],
                     [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+                    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],]
 
 
         # Drawing the maze
@@ -124,8 +142,16 @@ class AlexGame(arcade.Window):
             maze_y -= WALL_SPRITE_SIZE
         
         # Creating the gems
-        for _ in range(GEM_COUNT):
-            self.add_gem()
+        list_of_gem_types = [GEM_GREEN_IMAGE, GEM_BLUE_IMAGE, GEM_RED_IMAGE]
+        list_of_gem_coordinates = [(195, 490), (255, 812), (450, 490), (894, 683),
+                                   (835, 363), (1220, 938), (1345, 612), (1608, 235),
+                                   (1276, 363), (1665, 683)]
+
+        for gem_type in list_of_gem_types:
+            coordinates = list_of_gem_coordinates[random.randrange(1, 10)]
+            x = coordinates[0]
+            y = coordinates[1]
+            self.add_gem(gem_type, x, y)
                 
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
                                                          self.wall_list)
@@ -136,20 +162,20 @@ class AlexGame(arcade.Window):
         self.view_left = 0
         self.view_bottom = 0
 
-    def add_gem(self):
-        gem = arcade.Sprite("assets/gem.png", 0.1)
-        gem.center_x = random.randrange(0, 1800, 64)
-        gem.center_y = random.randrange(0, 1000, 64)
+    def add_gem(self, gem_type, x, y):
+        gem = arcade.Sprite(gem_type, 0.75)
+        gem.center_x = x
+        gem.center_y = y
         self.gem_list.append(gem)
 
     def add_enemy(self, x, y):
-        self.enemy_sprite = arcade.Sprite("assets/test_enemy.png", 0.4)
+        self.enemy_sprite = arcade.Sprite(ENEMY_IMAGE, 0.4)
         self.enemy_sprite.center_x = x
         self.enemy_sprite.center_y = y
         self.enemy_list.append(self.enemy_sprite)
 
     def add_boundary(self, x, y):
-        wall = arcade.Sprite("assets/sandblock.png", WALL_SPRITE_SCALING)
+        wall = arcade.Sprite(WALL_IMAGE, WALL_SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = y
         self.wall_list.append(wall)
@@ -205,7 +231,7 @@ class AlexGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
             
             if self.enemy_health <= 0:
-                self.enemy_sprite.remove_from_sprite_lists()
+                self.enemy_sprite.kill()
 
         self.manage_scrolling()
 
@@ -275,7 +301,7 @@ class AlexGame(arcade.Window):
         Called whenever the mouse moves.
         """
         # Create a bullet
-        bullet = arcade.Sprite("assets/bullet.png", 0.15)
+        bullet = arcade.Sprite(BULLET_IMAGE, 0.15)
 
         # Position the bullet at the player's current location
         start_x = self.player_sprite.center_x
