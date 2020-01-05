@@ -77,8 +77,10 @@ class AlexGame(arcade.Window):
         self.physics_engine = None
 
         # Set up the enemy info
-        self.enemy_sprite = None
-        self.enemy_health = 150
+        self.enemy_1_sprite = None
+        self.enemy_2_sprite = None
+        self.enemy_1_health = 150
+        self.enemy_2_health = 150
 
     def setup(self):
     
@@ -90,6 +92,8 @@ class AlexGame(arcade.Window):
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+        self.enemy_1_list = arcade.SpriteList()
+        self.enemy_2_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
@@ -97,8 +101,8 @@ class AlexGame(arcade.Window):
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
-        self.add_enemy(583, 46)
-        self.add_enemy(1278, 46)
+        self.add_enemy('enemy_1', 583, 46)
+        self.add_enemy('enemy_2', 1278, 46)
 
         # Map of the maze
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -168,11 +172,20 @@ class AlexGame(arcade.Window):
         gem.center_y = y
         self.gem_list.append(gem)
 
-    def add_enemy(self, x, y):
-        self.enemy_sprite = arcade.Sprite(ENEMY_IMAGE, 0.4)
-        self.enemy_sprite.center_x = x
-        self.enemy_sprite.center_y = y
-        self.enemy_list.append(self.enemy_sprite)
+    def add_enemy(self, enemy_type, x, y):
+        if enemy_type == 'enemy_1':
+            self.enemy_1_sprite = arcade.Sprite(ENEMY_IMAGE, 0.4)
+            self.enemy_1_sprite.center_x = x
+            self.enemy_1_sprite.center_y = y
+            self.enemy_1_list.append(self.enemy_1_sprite)
+            self.enemy_list.append(self.enemy_1_sprite)
+
+        elif enemy_type == 'enemy_2':            
+            self.enemy_2_sprite = arcade.Sprite(ENEMY_IMAGE, 0.4)
+            self.enemy_2_sprite.center_x = x
+            self.enemy_2_sprite.center_y = y
+            self.enemy_2_list.append(self.enemy_2_sprite)
+            self.enemy_list.append(self.enemy_2_sprite)
 
     def add_boundary(self, x, y):
         wall = arcade.Sprite(WALL_IMAGE, WALL_SPRITE_SCALING)
@@ -193,9 +206,11 @@ class AlexGame(arcade.Window):
         self.player_list.draw()
         self.gem_list.draw()
         self.bullet_list.draw()
-        self.enemy_list.draw()
+        self.enemy_1_list.draw()
+        self.enemy_2_list.draw()
 
-        self.health_bars(self.player_health, self.enemy_health)
+
+        self.health_bars(self.player_health, self.enemy_1_health, self.enemy_2_health)
 
         output = f"Gems collected: {self.collected}/10"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
@@ -223,16 +238,26 @@ class AlexGame(arcade.Window):
             if len(disappear_list) > 0:
                 bullet.remove_from_sprite_lists()
 
-            # Check if bullet hit enemys
-            enemy_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_list)
+            # Check if bullet hit enemy 1
+            enemy_1_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_1_list)
             # If it did, enemy health goes down, bullet dissapears
-            if len(enemy_hit_list) > 0:
-                self.enemy_health -= 30
+            if len(enemy_1_hit_list) > 0:
+                self.enemy_1_health -= 30
                 bullet.remove_from_sprite_lists()
             
-            if self.enemy_health <= 0:
-                self.enemy_sprite.kill()
+            # Check if bullet hit enemy 2
+            enemy_2_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_2_list)
+            # If it did, enemy health goes down, bullet dissapears
+            if len(enemy_2_hit_list) > 0:
+                self.enemy_2_health -= 30
+                bullet.remove_from_sprite_lists()
+            
+            if self.enemy_1_health <= 0:
+                self.enemy_1_sprite.remove_from_sprite_lists()
 
+            if self.enemy_2_health <= 0:
+                self.enemy_2_sprite.remove_from_sprite_lists()
+        
         self.manage_scrolling()
 
     def manage_scrolling(self):
@@ -333,14 +358,17 @@ class AlexGame(arcade.Window):
         # Add the bullet to the appropriate lists
         self.bullet_list.append(bullet)
     
-    def health_bars(self, player_health, enemy_health):
+    def health_bars(self, player_health, enemy_1_health, enemy_2_health):
 
         player_x = self.player_sprite.center_x - 30 + (player_health/2)
         player_constant_x = self.player_sprite.center_x - 30 + (60/2)
         player_y = self.player_sprite.center_y + 40
-        enemy_x = self.enemy_sprite.center_x - 78 + (enemy_health/2)
-        enemy_constant_x = self.enemy_sprite.center_x - 78 + (150/2)
-        enemy_y = self.enemy_sprite.center_y + 65
+        enemy_1_x = self.enemy_1_sprite.center_x - 78 + (enemy_1_health/2)
+        enemy_1_constant_x = self.enemy_1_sprite.center_x - 78 + (150/2)
+        enemy_1_y = self.enemy_1_sprite.center_y + 65
+        enemy_2_x = self.enemy_2_sprite.center_x - 78 + (enemy_2_health/2)
+        enemy_2_constant_x = self.enemy_2_sprite.center_x - 78 + (150/2)
+        enemy_2_y = self.enemy_2_sprite.center_y + 65
 
 
         if player_health > 45:
@@ -350,18 +378,28 @@ class AlexGame(arcade.Window):
         else:
             player_health_colour = arcade.color.RED
         
-        if enemy_health > 75:
-            enemy_health_colour = arcade.color.GREEN
-        elif enemy_health > 50:
-            enemy_health_colour = arcade.color.YELLOW
+        if enemy_1_health > 75:
+            enemy_1_health_colour = arcade.color.GREEN
+        elif enemy_1_health > 50:
+            enemy_1_health_colour = arcade.color.YELLOW
         else:
-            enemy_health_colour = arcade.color.RED
+            enemy_1_health_colour = arcade.color.RED
+
+        if enemy_2_health > 75:
+            enemy_2_health_colour = arcade.color.GREEN
+        elif enemy_2_health > 50:
+            enemy_2_health_colour = arcade.color.YELLOW
+        else:
+            enemy_2_health_colour = arcade.color.RED
         
         # Player Health Bar
         self.draw_player_health_bar(player_constant_x, player_y, player_x, player_health, player_health_colour)
         
         # Enemy 1 Health Bar
-        self.draw_enemy_health_bar(enemy_constant_x, enemy_y, enemy_x, enemy_health, enemy_health_colour)
+        self.draw_enemy_health_bar(enemy_1_constant_x, enemy_1_y, enemy_1_x, enemy_1_health, enemy_1_health_colour)
+
+        # Enemy 2 Health Bar
+        self.draw_enemy_health_bar(enemy_2_constant_x, enemy_2_y, enemy_2_x, enemy_2_health, enemy_2_health_colour)
 
     def draw_player_health_bar(self, player_constant_x, player_y, player_x, player_health, player_health_colour):
         arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)
