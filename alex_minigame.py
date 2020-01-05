@@ -396,10 +396,12 @@ class AlexGame(arcade.Window):
         self.draw_player_health_bar(player_constant_x, player_y, player_x, player_health, player_health_colour)
         
         # Enemy 1 Health Bar
-        self.draw_enemy_health_bar(enemy_1_constant_x, enemy_1_y, enemy_1_x, enemy_1_health, enemy_1_health_colour)
+        if enemy_1_health > 0:
+            self.draw_enemy_health_bar(enemy_1_constant_x, enemy_1_y, enemy_1_x, enemy_1_health, enemy_1_health_colour)
 
         # Enemy 2 Health Bar
-        self.draw_enemy_health_bar(enemy_2_constant_x, enemy_2_y, enemy_2_x, enemy_2_health, enemy_2_health_colour)
+        if enemy_2_health > 0:
+            self.draw_enemy_health_bar(enemy_2_constant_x, enemy_2_y, enemy_2_x, enemy_2_health, enemy_2_health_colour)
 
     def draw_player_health_bar(self, player_constant_x, player_y, player_x, player_health, player_health_colour):
         arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)

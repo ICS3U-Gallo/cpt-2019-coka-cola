@@ -1,0 +1,17 @@
+Story: Indiana Jones tries to find all the keys to open a magical treasure chest.
+
+Minigame: The player must maneuver through a maze on their way to an encounter with 2 sand devils and 1 sand boss who guard the key.
+          Throughout the maze, the player can find 3 powerups which will help them in the fight against the enemies.
+
+Gameplay:
+    - Arrow keys or WASD to move.
+    - Click with the mouse to shoot bullets at the enemies.
+    - ESC (escape) to pause the game.
+    - 1, 2, or 3 to use the powerups.
+
+Features:
+    - Player can see the powerups they have on the bottom left of their screen.
+    - The player's health, as well as the enemies' health can be seen in health bars above their heads.
+    - POWERUP 1 (red): Gives back 50% of the player's health.
+    - POWERUP 2 (blue): Makes the player invinsible for 6 seconds.
+    - POWERUP 3 (green): Makes the player's bullets 50% more powerful.
