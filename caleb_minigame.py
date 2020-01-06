@@ -3,12 +3,11 @@ import arcade
 import math 
 import random
 import os
+import settings
 
-WIDTH = 800
-HEIGHT = 600
 lives = 3 
 
-class MyGame(arcade.Window):
+class MyGame(arcade.Window): 
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
@@ -18,17 +17,19 @@ class MyGame(arcade.Window):
         os.chdir(file_path)
 
         # Set up the player
-        #self.player = arcade.Sprite(center_x=WIDTH//2, center_y=100)
-        self.player = arcade.Sprite("assets/indiana_jones.png")
-        #self.player.texture = arcade.make_soft_square_texture(50, arcade.color.BLUE, outer_alpha=255)
+        # self.player = arcade.Sprite(center_x=WIDTH//2, center_y=100)
+        self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
+        # self.player.texture = arcade.make_soft_square_texture(50, arcade.color.BLUE, outer_alpha=255)
         self.player.center_x = 50
         self.player.center_y = 50
 
 
-        self.rock_texture = arcade.make_soft_circle_texture(40, arcade.color.GRAY, outer_alpha=255)
+        self.rock_texture = arcade.make_soft_circle_texture(40, 
+                         arcade.color.GRAY, outer_alpha=255)
         self.rocks = arcade.SpriteList()
 
-        self.bullets_texture = arcade.make_soft_circle_texture(15, arcade.color.BLACK, outer_alpha=255)
+        self.bullets_texture = arcade.make_soft_circle_texture(15, 
+                         arcade.color.BLACK, outer_alpha=255)
         self.bullets = arcade.SpriteList()
 
         self.total_time = 0.0 
@@ -36,8 +37,8 @@ class MyGame(arcade.Window):
 
         for _ in range(55):
             rock = arcade.Sprite()
-            rock.center_x = random.randrange(0, WIDTH) 
-            rock.center_y = (HEIGHT + 100)
+            rock.center_x = random.randrange(0, settings.WIDTH) 
+            rock.center_y = (settings.HEIGHT, settings.HEIGHT + 100)
             rock.texture = self.rock_texture
             rock.speed = random.randrange(10, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -55,11 +56,14 @@ class MyGame(arcade.Window):
         minutes = int(self.total_time) // 60 
         seconds = int(self.total_time) % 60 
         output = f"Time: {minutes:02d}:{seconds:02d}"
-        arcade.draw_text(output, WIDTH - 200, 50, arcade.color.BLACK, 30)
+        arcade.draw_text(output, settings.WIDTH - 200, 50, arcade.color.BLACK, 30)
 
-        arcade.draw_rectangle_filled(WIDTH - 150, 125, 100, 50, arcade.color.BLACK)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, arcade.color.DARK_RED, 36)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, arcade.color.ORANGE, 36)
+        arcade.draw_rectangle_filled(settings.WIDTH - 115, 125, 170, 50, 
+                         arcade.color.BLACK)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 200, 
+                         settings.HEIGHT - 490, arcade.color.DARK_RED, 36)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 198,
+                         settings.HEIGHT - 490, arcade.color.ORANGE, 36)
 
     def update(self, delta_time):
         self.rocks.update()
@@ -81,7 +85,7 @@ class MyGame(arcade.Window):
             if rock.center_y < 0 or self.score < 55:
                 self.player.kill()
             elif self.score == 55:
-                arcade.draw_text("You Win", WIDTH//2, HEIGHT//2, arcade.color.BLACK, 36)
+                arcade.draw_text("You Win", settings.WIDTH//2, settings.HEIGHT//2, arcade.color.BLACK, 36)
 
 
 
@@ -124,7 +128,7 @@ class MyGame(arcade.Window):
 
 
 def main():
-    game = MyGame(WIDTH, HEIGHT, "My Game") 
+    game = MyGame(settings.WIDTH, settings.HEIGHT, "My Game") 
     arcade.run()
 
 
