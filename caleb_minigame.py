@@ -29,9 +29,15 @@ class MyGame(arcade.Window):
                          arcade.color.BLACK, outer_alpha=255)
         self.bullets = arcade.SpriteList()
 
+        self.hearts_list = arcade.SpriteList()
+        for x in range(50, 190, 60):
+            heart = arcade.Sprite("assets/heart.png", 0.025)
+            heart.center_y = 500
+            heart.center_x = x
+            self.hearts_list.append(heart)
+
         self.total_time = 0.0 
         self.score = 0
-        self.lives = 3 
 
         for _ in range(55):
             rock = arcade.Sprite()
@@ -50,6 +56,7 @@ class MyGame(arcade.Window):
         self.player.draw()
         self.rocks.draw()
         self.bullets.draw()
+        self.hearts_list.draw()
 
         minutes = int(self.total_time) // 60 
         seconds = int(self.total_time) % 60 
