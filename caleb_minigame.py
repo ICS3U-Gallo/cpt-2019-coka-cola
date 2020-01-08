@@ -6,7 +6,6 @@ import os
 
 WIDTH = 800
 HEIGHT = 600
-lives = 3 
 
 class MyGame(arcade.Window):
     def __init__(self, width, height, title):
@@ -22,14 +21,17 @@ class MyGame(arcade.Window):
         self.player.center_x = 50
         self.player.center_y = 50
 
-        self.rock_texture = arcade.make_soft_circle_texture(40, arcade.color.GRAY, outer_alpha=255)
+        self.rock_texture = arcade.make_soft_circle_texture(40, 
+                         arcade.color.GRAY, outer_alpha=255)
         self.rocks = arcade.SpriteList()
 
-        self.bullets_texture = arcade.make_soft_circle_texture(15, arcade.color.BLACK, outer_alpha=255)
+        self.bullets_texture = arcade.make_soft_circle_texture(15, 
+                         arcade.color.BLACK, outer_alpha=255)
         self.bullets = arcade.SpriteList()
 
         self.total_time = 0.0 
         self.score = 0
+        self.lives = 3 
 
         for _ in range(55):
             rock = arcade.Sprite()
@@ -54,9 +56,10 @@ class MyGame(arcade.Window):
         output = f"Time: {minutes:02d}:{seconds:02d}"
         arcade.draw_text(output, WIDTH - 200, 50, arcade.color.BLACK, 30)
 
-        arcade.draw_rectangle_filled(WIDTH - 115, 125, 170, 50, arcade.color.BLACK)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, arcade.color.DARK_RED, 36)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, arcade.color.ORANGE, 36)
+        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, 
+                         arcade.color.BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, 
+                         arcade.color.BABY_BLUE, 36)
 
     def update(self, delta_time):
         self.rocks.update()
