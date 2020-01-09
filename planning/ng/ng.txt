@@ -1,0 +1,14 @@
+Story: Indiana Jones tries to find all the keys to open a magical treasure chest.
+
+Minigame: There are rocks falling from the top of the screen and the player must destroy all of them to obtain a key. If a player 
+is hit by a rock or the rocks hit the bottom of the screen, the player loses a life (the player has 3 lives).
+
+Gameplay:
+    - Mouse to move around 
+    - A mouse click will make the player shoot bullets 
+
+Features:
+    - 3 hearts in the top left corner to show how many lives the player has 
+    - Score box in the bottom right corner to show how many rocks destroyed 
+    - Time in the bottom right corner to show how long it takes the player to destroy the rocks 
+    

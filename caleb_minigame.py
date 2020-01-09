@@ -1,35 +1,40 @@
-# Not Done Yet Lmao 
-import arcade
+# Not Done Yet Lmao
+import arcade 
 import math 
 import random
 import os
 
 WIDTH = 800
 HEIGHT = 600
-lives = 3 
 
 class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
-        arcade.set_background_color(arcade.color.SKY_BLUE)
+        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
 
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
         # Set up the player
-        #self.player = arcade.Sprite(center_x=WIDTH//2, center_y=100)
-        self.player = arcade.Sprite("assets/indiana_jones.png")
-        #self.player.texture = arcade.make_soft_square_texture(50, arcade.color.BLUE, outer_alpha=255)
+        self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
         self.player.center_x = 50
         self.player.center_y = 50
 
-
-        self.rock_texture = arcade.make_soft_circle_texture(40, arcade.color.GRAY, outer_alpha=255)
+        self.rock_texture = arcade.make_soft_circle_texture(40, 
+                         arcade.color.GRAY, outer_alpha=255)
         self.rocks = arcade.SpriteList()
 
-        self.bullets_texture = arcade.make_soft_circle_texture(15, arcade.color.BLACK, outer_alpha=255)
+        self.bullets_texture = arcade.make_soft_circle_texture(15, 
+                         arcade.color.BLACK, outer_alpha=255)
         self.bullets = arcade.SpriteList()
+
+        self.hearts_list = arcade.SpriteList()
+        for x in range(50, 190, 60):
+            heart = arcade.Sprite("assets/heart.png", 0.025)
+            heart.center_y = 500
+            heart.center_x = x
+            self.hearts_list.append(heart)
 
         self.total_time = 0.0 
         self.score = 0
@@ -51,15 +56,17 @@ class MyGame(arcade.Window):
         self.player.draw()
         self.rocks.draw()
         self.bullets.draw()
+        self.hearts_list.draw()
 
         minutes = int(self.total_time) // 60 
         seconds = int(self.total_time) % 60 
         output = f"Time: {minutes:02d}:{seconds:02d}"
         arcade.draw_text(output, WIDTH - 200, 50, arcade.color.BLACK, 30)
 
-        arcade.draw_rectangle_filled(WIDTH - 150, 125, 100, 50, arcade.color.BLACK)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, arcade.color.DARK_RED, 36)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, arcade.color.ORANGE, 36)
+        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, 
+                         arcade.color.BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, 
+                         arcade.color.BABY_BLUE, 36)
 
     def update(self, delta_time):
         self.rocks.update()
@@ -130,11 +137,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-"""
-Things I still need to do:
-Let the objects fall for a specified amount of time. 
-When objects hit user, minus 1 life 
-When player loses all 3 lives, player dies 
-When player survives for the specified amount of time, a key is awarded 
-"""
+     
