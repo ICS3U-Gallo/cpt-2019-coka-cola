@@ -39,7 +39,7 @@ class MyGame(arcade.Window):
         self.total_time = 0.0 
         self.score = 0
 
-        for _ in range(55):
+        for _ in range(40):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
             rock.center_y = (HEIGHT + 100)
@@ -76,15 +76,16 @@ class MyGame(arcade.Window):
         for rock in self.rocks:
             rock.center_y -= rock.speed * delta_time
             bullets_hit = rock.collides_with_list(self.bullets)
+            player_hit = rock.collides_with_sprite(self.player)
+            heart = arcade.Sprite("assets/heart.png", 0.025)
+
             if bullets_hit:
                 rock.kill()
                 self.score += 1 
                 for bullet in bullets_hit:
                     bullet.kill()  
-            if rock.collides_with_sprite(self.player):
-                global_lives -= 1 
-                if global_lives == 0: 
-                    arcade.draw_text("Game Over") 
+            if player_hit:
+                self.hearts_list.remove(heart)
             if rock.center_y < 0 or self.score < 55:
                 self.player.kill()
             elif self.score == 55:
