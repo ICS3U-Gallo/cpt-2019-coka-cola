@@ -78,7 +78,6 @@ class MyGame(arcade.Window):
             bullets_hit = rock.collides_with_list(self.bullets)
             player_hit = rock.collides_with_sprite(self.player)
             heart = arcade.Sprite("assets/heart.png", 0.025)
-
             if bullets_hit:
                 rock.kill()
                 self.score += 1 
@@ -138,4 +137,8 @@ def main():
 
 if __name__ == "__main__":
     main()
-     
+
+"""
+Fix How to Win and Lose Games 
+Reorganize Code 
+"""
