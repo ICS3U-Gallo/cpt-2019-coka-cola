@@ -44,7 +44,7 @@ class MyGame(arcade.Window):
                          arcade.color.GRAY_BLUE, outer_alpha=255)
 
         # Set up Monkeys 
-        
+        self.monkey = arcade.load.texture()
 
         # Set up Bullets 
         self.bullets_texture = arcade.make_soft_circle_texture(15, 
