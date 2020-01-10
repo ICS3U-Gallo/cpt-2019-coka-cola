@@ -81,8 +81,6 @@ class AlexGame(arcade.Window):
         # Set up the enemy info
         self.enemy_1_sprite = None
         self.enemy_2_sprite = None
-        self.enemy_1_health = 75
-        self.enemy_2_health = 75
         self.boss_health = 200
 
     def setup(self):
@@ -158,7 +156,7 @@ class AlexGame(arcade.Window):
                                    (1276, 363), (1665, 683)]
 
         for gem_type in list_of_gem_types:
-            coordinates = list_of_gem_coordinates[random.randrange(1, len(list_of_gem_coordinates) + 1)]
+            coordinates = list_of_gem_coordinates[random.randrange(len(list_of_gem_coordinates))]
             x = coordinates[0]
             y = coordinates[1]
             self.add_gem(gem_type, x, y)
@@ -184,14 +182,14 @@ class AlexGame(arcade.Window):
             self.enemy_1_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
             self.enemy_1_sprite.center_x = x
             self.enemy_1_sprite.center_y = y
-            self.enemy_1_list.append(self.enemy_1_sprite)
+            self.enemy_1_sprite.health = 75
             self.enemy_list.append(self.enemy_1_sprite)
 
-        elif enemy_type == 'enemy_2':            
+        elif enemy_type == 'enemy_2':
             self.enemy_2_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
             self.enemy_2_sprite.center_x = x
             self.enemy_2_sprite.center_y = y
-            self.enemy_2_list.append(self.enemy_2_sprite)
+            self.enemy_2_sprite.health = 75
             self.enemy_list.append(self.enemy_2_sprite)
 
     def add_boss(self, x, y):
@@ -219,14 +217,13 @@ class AlexGame(arcade.Window):
         self.player_list.draw()
         self.gem_list.draw()
         self.bullet_list.draw()
-        self.enemy_1_list.draw()
-        self.enemy_2_list.draw()
+        self.enemy_list.draw()
         self.boss_list.draw()
 
         # Draw the health bars
-        self.health_bars(self.player_health, self.enemy_1_health, self.enemy_2_health, self.boss_health)
+        self.health_bars(self.player_health, self.enemy_1_sprite.health, self.enemy_2_sprite.health, self.boss_health)
 
-        output = f"Gems collected: {self.collected}/10"
+        output = f"Gems collected: {self.collected}/3"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
@@ -251,18 +248,25 @@ class AlexGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
 
             # Check if bullet hit enemy 1
-            enemy_1_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_1_list)
-            # If it did, enemy health goes down, bullet dissapears
-            if len(enemy_1_hit_list) > 0:
-                self.enemy_1_health -= 30
+            enemy_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_list)
+            
+            if len(enemy_hit_list) > 0:
                 bullet.remove_from_sprite_lists()
+            
+            for enemy in enemy_hit_list:
+                enemy.health -= 30
+
+            # If it did, enemy health goes down, bullet dissapears
+            # if len(enemy_1_hit_list) > 0:
+            #     # TODO: add health property to each sprite, rather than have a seperate place for them
+            #     bullet.remove_from_sprite_lists()
 
             # Check if bullet hit enemy 2
-            enemy_2_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_2_list)
-            # If it did, enemy health goes down, bullet dissapears
-            if len(enemy_2_hit_list) > 0:
-                self.enemy_2_health -= 30
-                bullet.remove_from_sprite_lists()
+            # enemy_2_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_2_list)
+            # # If it did, enemy health goes down, bullet dissapears
+            # if len(enemy_2_hit_list) > 0:
+            #     self.enemy_2_health -= 30
+            #     bullet.remove_from_sprite_lists()
 
             # Check if bullet hit boss
             boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
@@ -271,10 +275,10 @@ class AlexGame(arcade.Window):
                 self.boss_health -= 30
                 bullet.remove_from_sprite_lists()
 
-            if self.enemy_1_health <= 0:
+            if self.enemy_1_sprite.health <= 0:
                 self.enemy_1_sprite.remove_from_sprite_lists()
 
-            if self.enemy_2_health <= 0:
+            if self.enemy_2_sprite.health <= 0:
                 self.enemy_2_sprite.remove_from_sprite_lists()
 
             if self.boss_health <= 0:
