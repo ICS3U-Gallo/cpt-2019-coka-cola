@@ -11,15 +11,27 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
 
-        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
-
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
+
+        self.player_list = None
+        self.rocks_list = None
+        self.bullets_list = None
+        self.hearts_list = None 
+
+        self.player = None
+    
+    def setup(self):
+        # Sprite Lists 
+        self.player_list = arcade.SpriteList()
+        self.rocks_list = arcade.SpriteList()
+        self.bullets_list = arcade.SpriteList()
 
         # Set up the player
         self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
         self.player.center_x = 50
         self.player.center_y = 50
+        self.player_list.append(self.player)
 
         self.rock_texture = arcade.make_soft_circle_texture(40, 
                          arcade.color.GRAY, outer_alpha=255)
@@ -30,6 +42,7 @@ class MyGame(arcade.Window):
         self.bullets = arcade.SpriteList()
 
         self.hearts_list = arcade.SpriteList()
+
         for x in range(50, 190, 60):
             heart = arcade.Sprite("assets/heart.png", 0.025)
             heart.center_y = 500
@@ -48,7 +61,7 @@ class MyGame(arcade.Window):
             rock.angle = random.uniform(math.pi, math.pi * 2)
             self.rocks.append(rock) 
            
-            
+        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
 
     def on_draw(self):
         arcade.start_render()  # keep as first line
@@ -132,8 +145,8 @@ class MyGame(arcade.Window):
 
 def main():
     game = MyGame(WIDTH, HEIGHT, "My Game") 
+    game.setup()
     arcade.run()
-
 
 if __name__ == "__main__":
     main()
