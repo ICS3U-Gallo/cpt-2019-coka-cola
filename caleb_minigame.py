@@ -18,6 +18,7 @@ class MyGame(arcade.Window):
         # Initialize the sprite lists 
         self.player_list = None
         self.rocks_list = None
+        self.monkeys_list = None 
         self.bullets_list = None
         self.hearts_list = None 
 
@@ -29,6 +30,7 @@ class MyGame(arcade.Window):
         # Sprite Lists 
         self.player_list = arcade.SpriteList()
         self.rocks_list = arcade.SpriteList()
+        self.monkey_list = arcade.SpriteList()
         self.bullets_list = arcade.SpriteList()
 
         # Set up the player
@@ -39,13 +41,14 @@ class MyGame(arcade.Window):
 
         # Set up Rocks 
         self.rock_texture = arcade.make_soft_circle_texture(40, 
-                         arcade.color.BROWN, outer_alpha=255)
-        self.rocks = arcade.SpriteList()
+                         arcade.color.GRAY_BLUE, outer_alpha=255)
+
+        # Set up Monkeys 
+        
 
         # Set up Bullets 
         self.bullets_texture = arcade.make_soft_circle_texture(15, 
                          arcade.color.BLACK, outer_alpha=255)
-        self.bullets = arcade.SpriteList()
 
         self.hearts_list = arcade.SpriteList()
 
@@ -59,15 +62,17 @@ class MyGame(arcade.Window):
         self.total_time = 0.0 
         self.score = 0
 
+        # Setup the falling rocks
         for _ in range(55):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
-            rock.center_y = (HEIGHT + 100)
+            rock.center_y = (HEIGHT + 200)
             rock.texture = self.rock_texture
             rock.speed = random.randrange(10, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
-            self.rocks.append(rock) 
-           
+            self.rocks_list.append(rock) 
+
+        # Import the jungle background 
         self.background = arcade.load_texture("assets/jungle.jpg")
 
     def on_draw(self):
@@ -79,8 +84,8 @@ class MyGame(arcade.Window):
                              settings.HEIGHT, self.background)
 
         self.player.draw()
-        self.rocks.draw()
-        self.bullets.draw()
+        self.rocks_list.draw()
+        self.bullets_list.draw()
         self.hearts_list.draw()
 
         minutes = int(self.total_time) // 60 
@@ -94,13 +99,13 @@ class MyGame(arcade.Window):
                          arcade.color.BABY_BLUE, 36)
 
     def update(self, delta_time):
-        self.rocks.update()
-        self.bullets.update()
+        self.rocks_list.update()
+        self.bullets_list.update()
         self.total_time += delta_time
 
-        for rock in self.rocks:
+        for rock in self.rocks_list:
             rock.center_y -= rock.speed * delta_time
-            bullets_hit = rock.collides_with_list(self.bullets)
+            bullets_hit = rock.collides_with_list(self.bullets_list)
             player_hit = rock.collides_with_sprite(self.player)
             heart = arcade.Sprite("assets/heart.png", 0.025)
             if bullets_hit:
@@ -137,8 +142,11 @@ class MyGame(arcade.Window):
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         self.player.center_x = x 
-        self.player.center_y = y
-
+        if y > 200:
+            self.player.center_y = y
+        else:
+            self.player.center_y = 200
+    
     def on_mouse_press(self, x, y, button, key_modifiers):
         bullet = arcade.Sprite()
         bullet.center_x = self.player.center_x
@@ -147,7 +155,7 @@ class MyGame(arcade.Window):
         bullet.texture = self.bullets_texture
         bullet.width = 5
 
-        self.bullets.append(bullet)
+        self.bullets_list.append(bullet)
 
     def on_mouse_release(self, x, y, button, key_modifiers):
         """
