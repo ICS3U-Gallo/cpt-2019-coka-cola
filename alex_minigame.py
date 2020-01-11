@@ -7,7 +7,7 @@ import math
 # Constant variables
 VIEWPORT_MARGIN = 100
 GEM_COUNT = 10
-BULLET_SPEED = 5
+BULLET_SPEED = 20
 
 # Sizes and scaling of sprites
 WALL_SPRITE_NATIVE_SIZE = 100
@@ -23,6 +23,7 @@ GEM_GREEN_IMAGE = "assets/gem_green.png"
 GEM_RED_IMAGE = "assets/gem_red.png"
 BULLET_IMAGE = "assets/bullet.png"
 WALL_IMAGE = "assets/sandblock.png"
+KEY_IMAGE = "assets/key.png"
 
 window = None
 
@@ -46,28 +47,16 @@ class Player(arcade.Sprite):
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
+        
+        
 
-
-class AlexGame(arcade.Window):
-    def __init__(self, width, height, title):
-        """
-        Initializer
-        """
-
-        # Call the parent class initializer
-        super().__init__(width, height, title)
-
+class AlexView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        
         # Set the working directory
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
-
-        # Variables to sprite lists
-        self.player_list = None
-        self.wall_list = None
-        self.gem_list = None
-        self.bullet_list = None
-        self.enemy_list = None
-        self.boss_list = None
 
         # Set up the player info
         self.player_sprite = None
@@ -76,16 +65,20 @@ class AlexGame(arcade.Window):
         self.view_left = 0
         self.collected = 0
         self.collected_text = None
-        self.physics_engine = None
 
         # Set up the enemy info
         self.enemy_1_sprite = None
         self.enemy_2_sprite = None
         self.boss_health = 200
 
-    def setup(self):
-
         """ Set up the game and initialize the variables. """
+        # Variables to sprite lists
+        self.player_list = None
+        self.wall_list = None
+        self.gem_list = None
+        self.bullet_list = None
+        self.enemy_list = None
+        self.key_list = None
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
@@ -93,15 +86,20 @@ class AlexGame(arcade.Window):
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
-        self.enemy_1_list = arcade.SpriteList()
-        self.enemy_2_list = arcade.SpriteList()
-        self.boss_list = arcade.SpriteList()
+        self.key_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
         self.player_sprite.center_x = 0
+        self.player_sprite.change_x = 0
         self.player_sprite.center_y = 40
+        self.player_sprite.change_y = 0
         self.player_list.append(self.player_sprite)
+    
+    def on_show(self):
+        global completed
+
+        completed = False
 
         # Add enemies
         self.add_enemy('enemy_1', 637, -533)
@@ -162,47 +160,14 @@ class AlexGame(arcade.Window):
             self.add_gem(gem_type, x, y)
             list_of_gem_coordinates.remove((x, y))
 
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite,
-                                                         self.wall_list)
+        
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
         arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
 
         # Set up the viewport boundaries
         self.view_left = 0
         self.view_bottom = 0
-
-    def add_gem(self, gem_type, x, y):
-        gem = arcade.Sprite(gem_type, 0.75)
-        gem.center_x = x
-        gem.center_y = y
-        self.gem_list.append(gem)
-
-    def add_enemy(self, enemy_type, x, y):
-        if enemy_type == 'enemy_1':
-            self.enemy_1_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
-            self.enemy_1_sprite.center_x = x
-            self.enemy_1_sprite.center_y = y
-            self.enemy_1_sprite.health = 75
-            self.enemy_list.append(self.enemy_1_sprite)
-
-        elif enemy_type == 'enemy_2':
-            self.enemy_2_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
-            self.enemy_2_sprite.center_x = x
-            self.enemy_2_sprite.center_y = y
-            self.enemy_2_sprite.health = 75
-            self.enemy_list.append(self.enemy_2_sprite)
-
-    def add_boss(self, x, y):
-        self.boss_sprite = arcade.Sprite(BOSS_IMAGE, 0.4)
-        self.boss_sprite.center_x = x
-        self.boss_sprite.center_y = y
-        self.boss_list.append(self.boss_sprite)
-
-    def add_boundary(self, x, y):
-        wall = arcade.Sprite(WALL_IMAGE, WALL_SPRITE_SCALING)
-        wall.center_x = x
-        wall.center_y = y
-        self.wall_list.append(wall)
 
     def on_draw(self):
         """
@@ -218,15 +183,17 @@ class AlexGame(arcade.Window):
         self.gem_list.draw()
         self.bullet_list.draw()
         self.enemy_list.draw()
-        self.boss_list.draw()
+        self.key_list.draw()
 
         # Draw the health bars
-        self.health_bars(self.player_health, self.enemy_1_sprite.health, self.enemy_2_sprite.health, self.boss_health)
+        self.health_bars(self.player_health, self.enemy_1_sprite.health, self.enemy_2_sprite.health, self.boss_sprite.health)
 
         output = f"Gems collected: {self.collected}/3"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
+        global completed
+        
         """ Movement and game logic """
 
         # Call an update on all sprites
@@ -234,6 +201,7 @@ class AlexGame(arcade.Window):
         self.player_sprite.update()
         self.bullet_list.update()
         self.gem_list.update()
+        self.enemy_list.update()
 
         gem_collected = arcade.check_for_collision_with_list(self.player_sprite, self.gem_list)
         for gem in gem_collected:
@@ -254,78 +222,25 @@ class AlexGame(arcade.Window):
                 bullet.remove_from_sprite_lists()
             
             for enemy in enemy_hit_list:
-                enemy.health -= 30
+                enemy.health -= 25
+                if enemy.health <= 0:
+                    enemy.remove_from_sprite_lists()
+            
+            if self.boss_sprite.health <= 0:
+                key_sprite = arcade.Sprite(KEY_IMAGE)
+                key_sprite.center_x = 930
+                key_sprite.center_y = -500
+                self.key_list.append(key_sprite)
 
-            # If it did, enemy health goes down, bullet dissapears
-            # if len(enemy_1_hit_list) > 0:
-            #     # TODO: add health property to each sprite, rather than have a seperate place for them
-            #     bullet.remove_from_sprite_lists()
-
-            # Check if bullet hit enemy 2
-            # enemy_2_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_2_list)
-            # # If it did, enemy health goes down, bullet dissapears
-            # if len(enemy_2_hit_list) > 0:
-            #     self.enemy_2_health -= 30
-            #     bullet.remove_from_sprite_lists()
-
-            # Check if bullet hit boss
-            boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
-            # If it did, boss health goes down, bullet dissapears
-            if len(boss_hit_list) > 0:
-                self.boss_health -= 30
-                bullet.remove_from_sprite_lists()
-
-            if self.enemy_1_sprite.health <= 0:
-                self.enemy_1_sprite.remove_from_sprite_lists()
-
-            if self.enemy_2_sprite.health <= 0:
-                self.enemy_2_sprite.remove_from_sprite_lists()
-
-            if self.boss_health <= 0:
-                self.boss_sprite.remove_from_sprite_lists()
+        key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
+        for key in key_collected:
+            key.remove_from_sprite_lists()    
+            completed = True
+        
+        if completed == True:
+            self.director.next_view()
 
         self.manage_scrolling()
-
-    def manage_scrolling(self):
-        changed = False
-
-        # Scroll left
-        left_boundary = self.view_left + VIEWPORT_MARGIN
-        if self.player_sprite.left < left_boundary:
-            self.view_left -= left_boundary - self.player_sprite.left
-            changed = True
-
-        # Scroll right
-        right_boundary = self.view_left + settings.WIDTH - VIEWPORT_MARGIN
-        if self.player_sprite.right > right_boundary:
-            self.view_left += self.player_sprite.right - right_boundary
-            changed = True
-
-        # Scroll up
-        top_boundary = self.view_bottom + settings.HEIGHT - VIEWPORT_MARGIN
-        if self.player_sprite.top > top_boundary:
-            self.view_bottom += self.player_sprite.top - top_boundary
-            changed = True
-
-        # Scroll down
-        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
-        if self.player_sprite.bottom < bottom_boundary:
-            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
-            changed = True
-
-        # Make sure our boundaries are integer values. While the view port does
-        # support floating point numbers, for this application we want every pixel
-        # in the view port to map directly onto a pixel on the screen. We don't want
-        # any rounding errors.
-        self.view_left = int(self.view_left)
-        self.view_bottom = int(self.view_bottom)
-
-        # If we changed the boundary values, update the view port to match
-        if changed:
-            arcade.set_viewport(self.view_left,
-                                settings.WIDTH + self.view_left - 1,
-                                self.view_bottom,
-                                settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -440,9 +355,8 @@ class AlexGame(arcade.Window):
         if enemy_2_health > 0:
             self.draw_enemy_health_bar(enemy_2_constant_x, enemy_2_y, enemy_2_x, enemy_2_health, enemy_2_health_colour)
 
-        if self.boss_health > 0:
-            self.draw_boss_health_bar(boss_constant_x, boss_y, boss_x, self.boss_health, boss_health_colour)
-
+        if boss_health > 0:
+            self.draw_boss_health_bar(boss_constant_x, boss_y, boss_x, boss_health, boss_health_colour)
 
     def draw_player_health_bar(self, player_constant_x, player_y, player_x, player_health, player_health_colour):
         arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)
@@ -459,12 +373,87 @@ class AlexGame(arcade.Window):
         arcade.draw_rectangle_filled(boss_x, boss_y, boss_health, 5, boss_health_colour)
         arcade.draw_rectangle_outline(boss_constant_x, boss_y, 202, 6, arcade.color.BLACK)
 
+    def add_gem(self, gem_type, x, y):
+        gem = arcade.Sprite(gem_type, 0.75)
+        gem.center_x = x
+        gem.center_y = y
+        self.gem_list.append(gem)
 
-def main():
-    """ Main method """
-    window = AlexGame(settings.WIDTH, settings.HEIGHT, settings.SCREEN_TITLE)
-    window.setup()
-    arcade.run()
+    def add_enemy(self, enemy_type, x, y):
+        if enemy_type == 'enemy_1':
+            self.enemy_1_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
+            self.enemy_1_sprite.center_x = x
+            self.enemy_1_sprite.center_y = y
+            self.enemy_1_sprite.health = 75
+            self.enemy_list.append(self.enemy_1_sprite)
+
+        elif enemy_type == 'enemy_2':
+            self.enemy_2_sprite = arcade.Sprite(ENEMY_IMAGE, 0.3)
+            self.enemy_2_sprite.center_x = x
+            self.enemy_2_sprite.center_y = y
+            self.enemy_2_sprite.health = 75
+            self.enemy_list.append(self.enemy_2_sprite)
+
+    def add_boss(self, x, y):
+        self.boss_sprite = arcade.Sprite(BOSS_IMAGE, 0.4)
+        self.boss_sprite.center_x = x
+        self.boss_sprite.center_y = y
+        self.boss_sprite.health = 200
+        self.enemy_list.append(self.boss_sprite)
+
+    def add_boundary(self, x, y):
+        wall = arcade.Sprite(WALL_IMAGE, WALL_SPRITE_SCALING)
+        wall.center_x = x
+        wall.center_y = y
+        self.wall_list.append(wall)
+    
+    def manage_scrolling(self):
+        changed = False
+
+        # Scroll left
+        left_boundary = self.view_left + VIEWPORT_MARGIN
+        if self.player_sprite.left < left_boundary:
+            self.view_left -= left_boundary - self.player_sprite.left
+            changed = True
+
+        # Scroll right
+        right_boundary = self.view_left + settings.WIDTH - VIEWPORT_MARGIN
+        if self.player_sprite.right > right_boundary:
+            self.view_left += self.player_sprite.right - right_boundary
+            changed = True
+
+        # Scroll up
+        top_boundary = self.view_bottom + settings.HEIGHT - VIEWPORT_MARGIN
+        if self.player_sprite.top > top_boundary:
+            self.view_bottom += self.player_sprite.top - top_boundary
+            changed = True
+
+        # Scroll down
+        bottom_boundary = self.view_bottom + VIEWPORT_MARGIN
+        if self.player_sprite.bottom < bottom_boundary:
+            self.view_bottom -= bottom_boundary - self.player_sprite.bottom
+            changed = True
+
+        # Make sure our boundaries are integer values. While the view port does
+        # support floating point numbers, for this application we want every pixel
+        # in the view port to map directly onto a pixel on the screen. We don't want
+        # any rounding errors.
+        self.view_left = int(self.view_left)
+        self.view_bottom = int(self.view_bottom)
+
+        # If we changed the boundary values, update the view port to match
+        if changed:
+            arcade.set_viewport(self.view_left,
+                                settings.WIDTH + self.view_left - 1,
+                                self.view_bottom,
+                                settings.HEIGHT + self.view_bottom - 1)
+
+
+# def main():
+#     """ Main method """
+#     window = AlexGame(settings.WIDTH, settings.HEIGHT, settings.SCREEN_TITLE)
+#     window.setup()
+#     arcade.run()
 
 
 if __name__ == "__main__":
@@ -476,10 +465,10 @@ if __name__ == "__main__":
     # It is advised you do not modify it unless you really know
     # what you are doing.
     # """
-    # from utils import FakeDirector
-    # window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    # my_view = AlexView()
-    # my_view.director = FakeDirector(close_on_next_view=True)
-    # window.show_view(my_view)
-    # arcade.run()
-    main()
+    from utils import FakeDirector
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    my_view = AlexView()
+    my_view.director = FakeDirector(close_on_next_view=True)
+    window.show_view(my_view)
+    arcade.run()
+    # main()
