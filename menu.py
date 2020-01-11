@@ -5,7 +5,7 @@ import settings
 
 class MenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
+        arcade.set_background_color(arcade.color.BLUE)
 
     def on_draw(self):
         arcade.start_render()
@@ -18,11 +18,11 @@ class MenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
-            self.director.next_view()
+            self.window.show_view(InstructionsView(self))
 
 class InstructionsView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
+        arcade.set_background_color(arcade.color.GREEN)
 
     def on_draw(self):
         arcade.start_render()
