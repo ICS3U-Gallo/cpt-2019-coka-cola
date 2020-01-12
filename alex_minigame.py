@@ -91,9 +91,7 @@ class AlexView(arcade.View):
         # Set up the player
         self.player_sprite = Player()
         self.player_sprite.center_x = 0
-        self.player_sprite.change_x = 0
         self.player_sprite.center_y = 40
-        self.player_sprite.change_y = 0
         self.player_list.append(self.player_sprite)
     
     def on_show(self):
@@ -105,7 +103,8 @@ class AlexView(arcade.View):
         self.add_enemy('enemy_1', 637, -533)
         self.add_enemy('enemy_2', 1213, -533)
 
-        self.add_boss(930, -500)
+        self.add_boss(-140, 140)
+        #self.add_boss(930, -500)
 
         # Map of the maze
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -228,13 +227,13 @@ class AlexView(arcade.View):
             
             if self.boss_sprite.health <= 0:
                 key_sprite = arcade.Sprite(KEY_IMAGE)
-                key_sprite.center_x = 930
-                key_sprite.center_y = -500
+                key_sprite.center_x = self.boss_sprite.center_x
+                key_sprite.center_y = self.boss_sprite.center_y
                 self.key_list.append(key_sprite)
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
         for key in key_collected:
-            key.remove_from_sprite_lists()    
+            key.remove_from_sprite_lists()
             completed = True
         
         if completed == True:
@@ -408,6 +407,8 @@ class AlexView(arcade.View):
         self.wall_list.append(wall)
     
     def manage_scrolling(self):
+        global completed
+        
         changed = False
 
         # Scroll left
@@ -443,6 +444,10 @@ class AlexView(arcade.View):
 
         # If we changed the boundary values, update the view port to match
         if changed:
+            if completed == True:
+                self.view_bottom = 0
+                self.view_left = 0
+            
             arcade.set_viewport(self.view_left,
                                 settings.WIDTH + self.view_left - 1,
                                 self.view_bottom,
