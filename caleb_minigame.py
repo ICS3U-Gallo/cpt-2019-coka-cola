@@ -30,7 +30,7 @@ class MyGame(arcade.Window):
         # Sprite Lists 
         self.player_list = arcade.SpriteList()
         self.rocks_list = arcade.SpriteList()
-        self.monkey_list = arcade.SpriteList()
+        self.monkeys_list = arcade.SpriteList()
         self.bullets_list = arcade.SpriteList()
 
         # Set up the player
@@ -44,7 +44,7 @@ class MyGame(arcade.Window):
                          arcade.color.GRAY_BLUE, outer_alpha=255)
 
         # Set up Monkeys 
-        # self.monkey = arcade.load.texture()
+        self.monkey = arcade.Sprite("assets/monkey.png")
 
         # Set up Bullets 
         self.bullets_texture = arcade.make_soft_circle_texture(15, 
@@ -72,8 +72,19 @@ class MyGame(arcade.Window):
             rock.angle = random.uniform(math.pi, math.pi * 2)
             self.rocks_list.append(rock) 
 
+        # Setup the falling monkeys 
+        for _ in range(30):
+            # monkey = arcade.Sprite()
+            # monkey.center_x = random.randrange(0, WIDTH)
+            # monkey.center_y = (HEIGHT + 1000)
+            # monkey.texture = self.monkey_texture
+            # monkey.speed = random.randrange(30, 80)
+            # monkey.angle = random.uniform(math.pi, math.pi * 2)
+            # self.monkeys_list.append(monkey)
+
+
         # Import the jungle background 
-        self.background = arcade.load_texture("assets/jungle.jpg")
+            self.background = arcade.load_texture("assets/jungle.PNG")
 
     def on_draw(self):
         # keep as first line
@@ -85,6 +96,7 @@ class MyGame(arcade.Window):
 
         self.player.draw()
         self.rocks_list.draw()
+        # self.monkeys_list.draw()
         self.bullets_list.draw()
         self.hearts_list.draw()
 
@@ -107,14 +119,18 @@ class MyGame(arcade.Window):
             rock.center_y -= rock.speed * delta_time
             bullets_hit = rock.collides_with_list(self.bullets_list)
             player_hit = rock.collides_with_sprite(self.player)
-            heart = arcade.Sprite("assets/heart.png", 0.025)
             if bullets_hit:
                 rock.kill()
                 self.score += 1 
                 for bullet in bullets_hit:
                     bullet.kill()  
             if player_hit:
-                self.hearts_list.remove(heart)
+                if  len(self.hearts_list) is not 0:
+                    heart = self.hearts_list[0]
+                    self.hearts_list.remove(heart)
+                    rock.kill()
+                else:
+                    self.player.kill()
             if rock.center_y < 0 or self.score < 55:
                 self.player.kill()
             elif self.score == 55:
@@ -142,10 +158,10 @@ class MyGame(arcade.Window):
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         self.player.center_x = x 
-        if y > 200:
+        if y > 100:
             self.player.center_y = y
         else:
-            self.player.center_y = 200
+            self.player.center_y = 100
     
     def on_mouse_press(self, x, y, button, key_modifiers):
         bullet = arcade.Sprite()
