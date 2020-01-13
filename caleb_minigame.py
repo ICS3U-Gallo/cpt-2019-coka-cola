@@ -8,9 +8,9 @@ import os
 WIDTH = 800
 HEIGHT = 600
 
-class MyGame(arcade.Window):
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
+class CalebView(arcade.View):
+    def __init__(self):
+        super().__init__()
 
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
@@ -25,7 +25,7 @@ class MyGame(arcade.Window):
         self.player = None
         self.background = None
     
-    def setup(self):
+    def on_show(self):
 
         # Sprite Lists 
         self.player_list = arcade.SpriteList()
@@ -54,7 +54,7 @@ class MyGame(arcade.Window):
 
         # Put 3 hearts in the top left corner 
         for x in range(50, 190, 60):
-            heart = arcade.Sprite("assets/heart.png", 0.025)
+            heart = arcade.Sprite("assets/heart.png", 0.1)
             heart.center_y = 500
             heart.center_x = x
             self.hearts_list.append(heart)
@@ -63,7 +63,7 @@ class MyGame(arcade.Window):
         self.score = 0
 
         # Setup the falling rocks
-        for _ in range(55):
+        for _ in range(30):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
             rock.center_y = (HEIGHT + 200)
@@ -73,14 +73,14 @@ class MyGame(arcade.Window):
             self.rocks_list.append(rock) 
 
         # Setup the falling monkeys 
-        for _ in range(40):
-            # monkey = arcade.Sprite()
-            # monkey.center_x = random.randrange(0, WIDTH)
-            # monkey.center_y = (HEIGHT + 1000)
-            # monkey.texture = self.monkey_texture
-            # monkey.speed = random.randrange(30, 80)
-            # monkey.angle = random.uniform(math.pi, math.pi * 2)
-            # self.monkeys_list.append(monkey)
+        # for _ in range(40):
+        #     monkey = arcade.Sprite()
+        #     monkey.center_x = random.randrange(0, WIDTH)
+        #     monkey.center_y = (HEIGHT + 1000)
+        #     monkey.texture = self.monkey_texture
+        #     monkey.speed = random.randrange(30, 80)
+        #     monkey.angle = random.uniform(math.pi, math.pi * 2)
+        #     self.monkeys_list.append(monkey)
 
 
         # Import the jungle background 
@@ -100,11 +100,13 @@ class MyGame(arcade.Window):
         self.bullets_list.draw()
         self.hearts_list.draw()
 
+        # Draw time 
         minutes = int(self.total_time) // 60 
         seconds = int(self.total_time) % 60 
         output = f"Time: {minutes:02d}:{seconds:02d}"
         arcade.draw_text(output, WIDTH - 200, 50, arcade.color.WHITE, 30)
 
+        # Draw score 
         arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490, 
                          arcade.color.BLUE, 36)
         arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, 
@@ -125,30 +127,21 @@ class MyGame(arcade.Window):
                 for bullet in bullets_hit:
                     bullet.kill()  
             if player_hit:
-                if  len(self.hearts_list) is not 0:
+                if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
                     rock.kill()
                 else:
                     self.player.kill()
-            if rock.center_y < 0 or self.score < 55:
+            if rock.center_y < 0 or self.score < 30:
                 self.player.kill()
-            elif self.score == 55:
+            elif self.score == 30:
                 arcade.draw_text("You Win", WIDTH//2, HEIGHT//2, 
                                  arcade.color.BLACK, 36)
 
-
-
-        # if output > "1:00":
-        #     arcade.draw_text("You Win", WIDTH - 200, 50, arcade.color.BLACK, 30)
-
     def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
-        For a full list of keys, see:
-        http://arcade.academy/arcade.key.html
-        """
-        pass
+        if key == arcade.key.A:
+            self.director.next_view()
 
     def on_key_release(self, key, key_modifiers):
         """
@@ -179,14 +172,15 @@ class MyGame(arcade.Window):
         """
         pass
 
-
-def main():
-    game = MyGame(WIDTH, HEIGHT, "My Game") 
-    game.setup()
+if __name__ == "__main__":
+    from utils import FakeDirector
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    my_view = CalebView()
+    my_view_director = FakeDirector(close_on_next_view=True)
+    window.show_view(my_view)
+    # main()
     arcade.run()
 
-if __name__ == "__main__":
-    main()
 
 """
 Fix How to Win and Lose Games 
