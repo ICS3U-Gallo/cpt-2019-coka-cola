@@ -73,7 +73,7 @@ class MyGame(arcade.Window):
             self.rocks_list.append(rock) 
 
         # Setup the falling monkeys 
-        for _ in range(30):
+        for _ in range(40):
             # monkey = arcade.Sprite()
             # monkey.center_x = random.randrange(0, WIDTH)
             # monkey.center_y = (HEIGHT + 1000)
