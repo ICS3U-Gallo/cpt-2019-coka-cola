@@ -21,6 +21,7 @@ class CalebView(arcade.View):
         self.monkeys_list = None 
         self.bullets_list = None
         self.hearts_list = None 
+        self.jungle_boss_list = None 
 
         self.player = None
         self.background = None
@@ -71,9 +72,9 @@ class CalebView(arcade.View):
 
         # Setup the falling monkeys 
         for _ in range(10):
-            monkey = arcade.Sprite("assets/monkey.png")
+            monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(0, WIDTH)
-            monkey.center_y = (HEIGHT + 200)
+            monkey.center_y = (HEIGHT + 1100)
             monkey.speed = random.randrange(30, 60)
             self.monkeys_list.append(monkey)
 
@@ -114,20 +115,20 @@ class CalebView(arcade.View):
 
         for rock in self.rocks_list:
             rock.center_y -= rock.speed * delta_time
-            bullets_hit = rock.collides_with_list(self.bullets_list)
-            player_hit = rock.collides_with_sprite(self.player)
-            if bullets_hit:
+            bullets_hit_rock = rock.collides_with_list(self.bullets_list)
+            player_hit_rock = rock.collides_with_sprite(self.player)
+            if bullets_hit_rock:
                 rock.kill()
                 self.score += 1 
-                for bullet in bullets_hit:
+                for bullet in bullets_hit_rock:
                     bullet.kill()  
-            if player_hit:
+            if player_hit_rock:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
                     rock.kill()
                 else:
-                    self.player.kill()
+                    self.player.remove_from_sprite_lists()
             if rock.center_y < 0 or self.score < 30:
                 self.player.kill()
             elif self.score == 30:
@@ -136,14 +137,14 @@ class CalebView(arcade.View):
 
         for monkey in self.monkeys_list:
             monkey.center_y -= monkey.speed * delta_time 
-            bullets_collide_with_monkey = monkey.collides_with_list(self.monkeys_list)
-            monkey_collide = monkey.collides_with_sprite(self.player)
-            if bullets_collide_with_monkey:
+            bullets_hit_monkey = monkey.collides_with_list(self.bullets_list)
+            monkey_hit_player = monkey.collides_with_sprite(self.player)
+            if bullets_hit_monkey and monkey.center_y <= 600:
                 monkey.kill()
                 self.score += 1 
-                for bullet in bullets_collide_with_monkey:
+                for bullet in bullets_hit_monkey:
                     bullet.kill()
-            if monkey_collide:
+            if monkey_hit_player:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
