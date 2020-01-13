@@ -195,5 +195,6 @@ if __name__ == "__main__":
 
 """
 Fix How to Win and Lose Games 
-Reorganize Code 
+Add Monkeys and have them shoot 
+Add "Jungle Boss" 
 """
