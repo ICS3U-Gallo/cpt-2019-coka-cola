@@ -43,9 +43,6 @@ class CalebView(arcade.View):
         self.rock_texture = arcade.make_soft_circle_texture(40, 
                          arcade.color.GRAY_BLUE, outer_alpha=255)
 
-        # Set up Monkeys 
-        self.monkey = arcade.Sprite("assets/monkey.png")
-
         # Set up Bullets 
         self.bullets_texture = arcade.make_soft_circle_texture(15, 
                          arcade.color.BLACK, outer_alpha=255)
@@ -73,14 +70,12 @@ class CalebView(arcade.View):
             self.rocks_list.append(rock) 
 
         # Setup the falling monkeys 
-        # for _ in range(40):
-        #     monkey = arcade.Sprite()
-        #     monkey.center_x = random.randrange(0, WIDTH)
-        #     monkey.center_y = (HEIGHT + 1000)
-        #     monkey.texture = self.monkey_texture
-        #     monkey.speed = random.randrange(30, 80)
-        #     monkey.angle = random.uniform(math.pi, math.pi * 2)
-        #     self.monkeys_list.append(monkey)
+        for _ in range(10):
+            monkey = arcade.Sprite("assets/monkey.png")
+            monkey.center_x = random.randrange(0, WIDTH)
+            monkey.center_y = (HEIGHT + 200)
+            monkey.speed = random.randrange(30, 60)
+            self.monkeys_list.append(monkey)
 
 
         # Import the jungle background 
@@ -96,7 +91,7 @@ class CalebView(arcade.View):
 
         self.player.draw()
         self.rocks_list.draw()
-        # self.monkeys_list.draw()
+        self.monkeys_list.draw()
         self.bullets_list.draw()
         self.hearts_list.draw()
 
@@ -138,6 +133,22 @@ class CalebView(arcade.View):
             elif self.score == 30:
                 arcade.draw_text("You Win", WIDTH//2, HEIGHT//2, 
                                  arcade.color.BLACK, 36)
+
+        for monkey in self.monkeys_list:
+            monkey.center_y -= monkey.speed * delta_time 
+            bullets_collide_with_monkey = monkey.collides_with_list(self.monkeys_list)
+            monkey_collide = monkey.collides_with_sprite(self.player)
+            if bullets_collide_with_monkey:
+                monkey.kill()
+                self.score += 1 
+                for bullet in bullets_collide_with_monkey:
+                    bullet.kill()
+            if monkey_collide:
+                if len(self.hearts_list) is not 0:
+                    heart = self.hearts_list[0]
+                    self.hearts_list.remove(heart)
+                    monkey.kill()
+
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.A:
