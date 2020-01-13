@@ -6,10 +6,13 @@ import settings
 class MenuView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.BLUE)
+        # Set up the viewport boundaries
+
 
     def on_draw(self):
+
         arcade.start_render()
-        title = arcade.Sprite("assets/title_indiana_jones.png", center_x=400, center_y=500)
+        title = arcade.Sprite("assets/title_indiana_jones.png", 0.5, center_x=400, center_y=475)
         title.draw()
         chest = arcade.Sprite("assets/treasure_chest.png", center_x=400, center_y=300)
         chest.draw()
@@ -18,21 +21,7 @@ class MenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
-            self.window.show_view(InstructionsView(self))
-
-class InstructionsView(arcade.View):
-    def on_show(self):
-        arcade.set_background_color(arcade.color.GREEN)
-
-    def on_draw(self):
-        arcade.start_render()
-        arcade.draw_text("This is the instructions page, press space to advance.", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=15, anchor_x="center")
-
-    def on_key_press(self, key, modifiers):
-        if key == arcade.key.SPACE:
             self.director.next_view()
-
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
