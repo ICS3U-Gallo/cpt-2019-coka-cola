@@ -176,7 +176,7 @@ if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
     my_view = CalebView()
-    my_view_director = FakeDirector(close_on_next_view=True)
+    my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     # main()
     arcade.run()
