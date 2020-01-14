@@ -83,11 +83,11 @@ class CalebView(arcade.View):
 
         # Setup the jungle boss 
         for _ in range(1):
-            jungle_monster = arcade.Sprite("assets/junglemonster.png")
+            jungle_monster = arcade.Sprite("assets/junglemonster.png", 0.75)
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 200
+            jungle_monster.center_y = HEIGHT + 120
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 50
+            jungle_monster.speed_y = 10
             self.jungle_monster_list.append(jungle_monster) 
 
 
@@ -147,13 +147,6 @@ class CalebView(arcade.View):
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
                     rock.kill()
-                else:
-                    self.player.remove_from_sprite_lists()
-            if rock.center_y < 0 or self.score < 30:
-                self.player.kill()
-            elif self.score == 30:
-                arcade.draw_text("You Win", WIDTH//2, HEIGHT//2, 
-                                 arcade.color.BLACK, 36)
 
         for monkey in self.monkeys_list:
             # Make monkeys move side to side 
@@ -179,7 +172,7 @@ class CalebView(arcade.View):
             
             # Get monkeys to shoot bananas
             if monkey.center_y < 600 and random.randrange(200) == 0:
-                banana = arcade.Sprite("assets/banana.gif", 0.1)
+                banana = arcade.Sprite("assets/banana.gif", 0.15)
                 banana.center_x = monkey.center_x 
                 banana.angle = -90 
                 banana.top = monkey.bottom
@@ -211,6 +204,12 @@ class CalebView(arcade.View):
         for jungle_monster in self.jungle_monster_list:
             if len(self.rocks_list) == 0 and len(self.monkeys_list) == 0:
                 jungle_monster.center_y -= jungle_monster.speed_y * delta_time
+                if jungle_monster.center_y == 300:
+                    jungle_monster.speed_y = 0
+
+        if len(self.hearts_list) == 0:
+            for self.player in self.player_list:
+                self.player.kill()
 
     def on_key_press(self, key, key_modifiers):
         # If A is pressed, switch to the next view
