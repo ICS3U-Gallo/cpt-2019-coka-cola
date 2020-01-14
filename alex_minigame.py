@@ -169,12 +169,6 @@ class AlexView(arcade.View):
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
         
-         # Set up the player
-        #self.en_sprite = Enemy(40, 40, 75)
-        #self.en_sprite.center_x = 40
-        #self.en_sprite.center_y = 40
-        #self.enemy_list.append(self.en_sprite)
-        
     
     def on_show(self):
         global completed
@@ -182,11 +176,9 @@ class AlexView(arcade.View):
         completed = False
 
         # Add enemies
-        
-        self.add_enemy(0, 0)
-        self.add_enemy(400, 0)
-        self.add_enemy(0, 400)
-        self.add_enemy(400, 400)
+        for x in range(620, 1221, 600):
+            for y in range(135, 536, 400):
+                self.add_enemy(x, -y)
 
         self.add_boss(-140, 140)
         #self.add_boss(930, -500)
@@ -218,8 +210,7 @@ class AlexView(arcade.View):
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],]
-        maze_map = [[0]]
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
         # Drawing the maze
         maze_y = 1000
@@ -427,11 +418,6 @@ class AlexView(arcade.View):
 
         # Player Health Bar
         self.draw_player_health_bar(player_constant_x, player_y, player_x, player_health, player_health_colour)
-
-        # Enemy 2 Health Bar
-        for enemy in self.enemy_list:
-            if enemy.health > 0:
-                self.draw_enemy_health_bar(enemy)
         
         self.health_bar_list.draw()
 
@@ -442,12 +428,6 @@ class AlexView(arcade.View):
         arcade.draw_rectangle_filled(player_constant_x, player_y, 60, 5, arcade.color.WHITE)
         arcade.draw_rectangle_filled(player_x, player_y, player_health, 5, player_health_colour)
         arcade.draw_rectangle_outline(player_constant_x, player_y, 61, 6, arcade.color.BLACK)
-
-    def draw_enemy_health_bar(self, enemy):
-        pass
-        # arcade.draw_rectangle_filled(enemy.health_max_x, enemy.health_y, 75, 5, arcade.color.WHITE)
-        # arcade.draw_rectangle_filled(enemy.health_x, enemy.health_y, enemy.health, 5, enemy.health_colour)
-        # arcade.draw_rectangle_outline(enemy.health_max_x, enemy.health_y, 77, 6, arcade.color.BLACK)
 
     def draw_boss_health_bar(self, boss_constant_x, boss_y, boss_x, boss_health, boss_health_colour):
         arcade.draw_rectangle_filled(boss_constant_x, boss_y, 200, 5, arcade.color.WHITE)
@@ -466,7 +446,6 @@ class AlexView(arcade.View):
         self.health_bar_list.append(self.enemy_sprite.health_outline_sprite)
         self.health_bar_list.append(self.enemy_sprite.health_background_sprite)
         self.health_bar_list.append(self.enemy_sprite.health_sprite)
-        
 
     def add_boss(self, x, y):
         self.boss_sprite = arcade.Sprite(BOSS_IMAGE, 0.4)
