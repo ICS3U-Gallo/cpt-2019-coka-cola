@@ -7,6 +7,7 @@ import os
 
 WIDTH = 800
 HEIGHT = 600
+JUNGLE_BULLET_SPEED = 5
 
 class CalebView(arcade.View):
     def __init__(self):
@@ -23,6 +24,7 @@ class CalebView(arcade.View):
         self.bullets_list = None
         self.hearts_list = None 
         self.jungle_monster_list = None 
+        self.jungle_bullets_list = None 
 
         self.player = None
         self.background = None
@@ -37,6 +39,7 @@ class CalebView(arcade.View):
         self.bullets_list = arcade.SpriteList()
         self.hearts_list = arcade.SpriteList()
         self.jungle_monster_list = arcade.SpriteList()
+        self.jungle_bullets_list = arcade.SpriteList()
 
         # Set up the player
         self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
@@ -83,12 +86,16 @@ class CalebView(arcade.View):
 
         # Setup the jungle boss 
         for _ in range(1):
-            jungle_monster = arcade.Sprite("assets/junglemonster.png", 0.75)
+            jungle_monster = arcade.Sprite("assets/junglemonster.PNG", 0.75)
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 120
+            jungle_monster.center_y = 300
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 10
+            jungle_monster.speed_y = 5
             self.jungle_monster_list.append(jungle_monster) 
+        
+        # Set up Jungle bullets 
+        self.jungle_bullets_texture = arcade.make_soft_circle_texture(30, 
+                         arcade.color.GREEN, outer_alpha=255)
 
 
         # Import the jungle background 
@@ -109,6 +116,7 @@ class CalebView(arcade.View):
         self.bullets_list.draw()
         self.hearts_list.draw()
         self.jungle_monster_list.draw()
+        self.jungle_bullets_list.draw()
 
         # Draw time 
         minutes = int(self.total_time) // 60 
@@ -126,6 +134,7 @@ class CalebView(arcade.View):
         self.rocks_list.update()
         self.bullets_list.update()
         self.banana_list.update()
+        self.jungle_bullets_list.update()
         self.total_time += delta_time
 
         for rock in self.rocks_list:
@@ -179,7 +188,7 @@ class CalebView(arcade.View):
                 banana.change_y = -5
                 self.banana_list.append(banana)        
 
-            # Get rid of a heart when a monkey collides with the player 
+            # Get rid of a heart when a monkey collides with the player
             if monkey_hit_player or monkey.center_y < 0:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
@@ -202,10 +211,23 @@ class CalebView(arcade.View):
                     bullet.kill()
 
         for jungle_monster in self.jungle_monster_list:
-            if len(self.rocks_list) == 0 and len(self.monkeys_list) == 0:
-                jungle_monster.center_y -= jungle_monster.speed_y * delta_time
-                if jungle_monster.center_y == 300:
-                    jungle_monster.speed_y = 0
+        #     if len(self.rocks_list) == 0 and len(self.monkeys_list) == 0:
+        #         jungle_monster.center_y -= jungle_monster.speed_y * delta_time
+        #         if jungle_monster.center_y == 300:
+        #             jungle_monster.speed_y = 0
+
+            # Get jungle monster to shoot
+            if jungle_monster.center_y < 900 and random.randrange(50) == 0:
+                jungle_bullets = arcade.Sprite()
+                jungle_bullets.center_x = jungle_monster.center_x 
+                jungle_bullets.top = jungle_monster.bottom
+                # jungle_bullets.angle = math.degrees(angle)
+                # jungle_bullets.change_x = math.cos(angle) * JUNGLE_BULLET_SPEED
+                jungle_bullets.change_y = -5
+                jungle_bullets.texture = self.jungle_bullets_texture
+                jungle_bullets.width = 7
+                # jungle_bullets.angle = random.randrange(-90, 90)
+                self.jungle_bullets_list.append(jungle_bullets) 
 
         if len(self.hearts_list) == 0:
             for self.player in self.player_list:
