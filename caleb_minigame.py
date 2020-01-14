@@ -22,9 +22,10 @@ class CalebView(arcade.View):
         self.banana_list = None 
         self.bullets_list = None
         self.hearts_list = None 
-        self.jungle_boss_list = None 
+        self.jungle_monster_list = None 
 
         self.player = None
+        self.jungle_monster = None 
         self.background = None
     
     def on_show(self):
@@ -36,7 +37,7 @@ class CalebView(arcade.View):
         self.banana_list = arcade.SpriteList()
         self.bullets_list = arcade.SpriteList()
         self.hearts_list = arcade.SpriteList()
-        self.jungle_boss_list = arcade.SpriteList()
+        self.jungle_monster_list = arcade.SpriteList()
 
         # Set up the player
         self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
@@ -81,9 +82,16 @@ class CalebView(arcade.View):
             monkey.speed_y = random.randrange(10, 30)
             self.monkeys_list.append(monkey)
 
+        # Setup the jungle boss 
+        for _ in range(1):
+            self.jungle_monster = arcade.Sprite("assets/junglemonster.png")
+            self.jungle_monster.center_x = 400
+            self.jungle_monster.center_y = 300
+            self.jungle_monster_list.append(self.jungle_monster) 
+
 
         # Import the jungle background 
-            self.background = arcade.load_texture("assets/jungle.PNG")
+        self.background = arcade.load_texture("assets/jungle.PNG")
 
     def on_draw(self):
         # keep as first line
@@ -99,6 +107,7 @@ class CalebView(arcade.View):
         self.banana_list.draw()
         self.bullets_list.draw()
         self.hearts_list.draw()
+        self.jungle_monster_list.draw()
 
         # Draw time 
         minutes = int(self.total_time) // 60 
@@ -244,7 +253,6 @@ if __name__ == "__main__":
 
 
 """
-Fix How to Win and Lose Games 
-Add Monkeys and have them shoot 
+Fix How to Win and Lose Games  
 Add "Jungle Boss" 
 """
