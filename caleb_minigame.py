@@ -19,6 +19,7 @@ class CalebView(arcade.View):
         self.player_list = None
         self.rocks_list = None
         self.monkeys_list = None 
+        self.banana_list = None 
         self.bullets_list = None
         self.hearts_list = None 
         self.jungle_boss_list = None 
@@ -32,7 +33,10 @@ class CalebView(arcade.View):
         self.player_list = arcade.SpriteList()
         self.rocks_list = arcade.SpriteList()
         self.monkeys_list = arcade.SpriteList()
+        self.banana_list = arcade.SpriteList()
         self.bullets_list = arcade.SpriteList()
+        self.hearts_list = arcade.SpriteList()
+        self.jungle_boss_list = arcade.SpriteList()
 
         # Set up the player
         self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
@@ -47,8 +51,6 @@ class CalebView(arcade.View):
         # Set up Bullets 
         self.bullets_texture = arcade.make_soft_circle_texture(15, 
                          arcade.color.BLACK, outer_alpha=255)
-
-        self.hearts_list = arcade.SpriteList()
 
         # Put 3 hearts in the top left corner 
         for x in range(50, 190, 60):
@@ -74,7 +76,7 @@ class CalebView(arcade.View):
         for _ in range(10):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(0, WIDTH)
-            monkey.center_y = (HEIGHT + 1100)
+            monkey.center_y = (HEIGHT + 300)
             monkey.speed = random.randrange(30, 60)
             self.monkeys_list.append(monkey)
 
@@ -93,6 +95,7 @@ class CalebView(arcade.View):
         self.player.draw()
         self.rocks_list.draw()
         self.monkeys_list.draw()
+        self.banana_list.draw()
         self.bullets_list.draw()
         self.hearts_list.draw()
 
@@ -111,18 +114,24 @@ class CalebView(arcade.View):
     def update(self, delta_time):
         self.rocks_list.update()
         self.bullets_list.update()
+        self.banana_list.update()
         self.total_time += delta_time
 
         for rock in self.rocks_list:
+            # Make rocks move 
             rock.center_y -= rock.speed * delta_time
             bullets_hit_rock = rock.collides_with_list(self.bullets_list)
             player_hit_rock = rock.collides_with_sprite(self.player)
+            
+            # Get rid of rock and bullets when they collide 
             if bullets_hit_rock:
                 rock.kill()
                 self.score += 1 
                 for bullet in bullets_hit_rock:
-                    bullet.kill()  
-            if player_hit_rock:
+                    bullet.kill()
+
+            # Get rid of a heart when rock collides with player or leaves screen  
+            if player_hit_rock or rock.center_y < 0:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
@@ -136,20 +145,52 @@ class CalebView(arcade.View):
                                  arcade.color.BLACK, 36)
 
         for monkey in self.monkeys_list:
+            # Make monkeys move down 
             monkey.center_y -= monkey.speed * delta_time 
+
+            # Make monkeys move side to side 
+            # monkey.center_x += monkey.speed * math.cos(monkey.angle) * delta_time 
+            # monkey.angle += 5 * delta_time
             bullets_hit_monkey = monkey.collides_with_list(self.bullets_list)
             monkey_hit_player = monkey.collides_with_sprite(self.player)
+
+            # Get rid of monkey and bullet when they collide 
             if bullets_hit_monkey and monkey.center_y <= 600:
                 monkey.kill()
                 self.score += 1 
                 for bullet in bullets_hit_monkey:
                     bullet.kill()
-            if monkey_hit_player:
+            
+            # Get monkeys to shoot bananas
+            if random.randrange(300) == 0:
+                banana = arcade.Sprite("assets/banana.gif", 0.1)
+                banana.center_x = monkey.center_x 
+                banana.angle = -90 
+                banana.top = monkey.bottom
+                banana.change_y = -5
+                self.banana_list.append(banana)        
+
+            # Get rid of a heart when a monkey collides with the player 
+            if monkey_hit_player or monkey.center_y < 0:
+                if len(self.hearts_list) is not 0:
+                    heart = self.hearts_list[0]
+                    self.hearts_list.remove(heart)
+                    monkey.kill()
+            
+        for banana in self.banana_list:
+            # If the banana hits the player, the banana is removed and so is a heart 
+            if banana.collides_with_sprite(self.player):
+                banana.kill()  
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
                     monkey.kill()
 
+            # If a bullet hits a banana, the bullet and banana is destroyed
+            if banana.collides_with_list(self.bullets_list):
+                banana.kill() 
+                for bullet in self.bullets_list:
+                    bullet.kill()
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.A:
