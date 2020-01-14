@@ -229,6 +229,14 @@ class CalebView(arcade.View):
                 # jungle_bullets.angle = random.randrange(-90, 90)
                 self.jungle_bullets_list.append(jungle_bullets) 
 
+                for jungle_bullets in self.jungle_bullets_list:
+                    if jungle_bullets.collides_with_sprite(self.player):
+                        jungle_bullets.kill()  
+                        if len(self.hearts_list) is not 0:
+                            heart = self.hearts_list[0]
+                            self.hearts_list.remove(heart)
+
+
         if len(self.hearts_list) == 0:
             for self.player in self.player_list:
                 self.player.kill()
