@@ -6,7 +6,7 @@ SPRITE_SCALING = 0.5
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Sprite Move with Scrolling Screen Example"
+SCREEN_TITLE = "Flappy Jones"
 
 VIEWPORT_MARGIN = 40
 
@@ -41,7 +41,6 @@ class MyGame(arcade.Window):
         self.view_left = 0
 
     def setup(self):
-        """ Set up the game and initialize the variables. """
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
@@ -49,13 +48,31 @@ class MyGame(arcade.Window):
 
         # Set up the player
         self.player_sprite = arcade.Sprite("assets/indiana_jones.png", 0.3)
-        self.player_sprite.center_x = 64
+        self.player_sprite.center_x = 64 
         self.player_sprite.center_y = 270
         self.player_list.append(self.player_sprite)
 
+        for x in range(200, 1650, 64):
+            wall = arcade.Sprite("assets/rock.png", 0.1)
+            wall.center_x = x
+            wall.center_y = 0
+            self.wall_list.append(wall)
+        
+        for x in range(200, 1650, 64):
+            wall = arcade.Sprite("assets/rock.png", 0.1)
+            wall.center_x = x
+            wall.center_y = 1035
+            self.wall_list.append(wall)
+
+        for y in range(0, 1035, 64):
+            wall = arcade.Sprite("assets/rock.png", 0.1)
+            wall.center_x = 1680
+            wall.center_y = y
+            self.wall_list.append(wall)
+
         # -- Set up several columns of walls
         for x in range(200, 1650, 210):
-            for y in range(0, 1000, 64):
+            for y in range(69, 1000, 64):
                 # Randomly skip a box so the player can find a way through
                 if random.randrange(5) > 0:
                     wall = arcade.Sprite("assets/rock.png", 0.1)
@@ -66,7 +83,7 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
         # Set the background color
-        arcade.set_background_color(arcade.color.YELLOW_GREEN)
+        arcade.set_background_color(arcade.color.YELLOW_ORANGE)
 
         # Set the viewport boundaries
         # These numbers set where we have 'scrolled' to.
@@ -155,6 +172,8 @@ class MyGame(arcade.Window):
                                 SCREEN_WIDTH + self.view_left - 1,
                                 self.view_bottom,
                                 SCREEN_HEIGHT + self.view_bottom - 1)
+        
+        "self.player_sprite.change_x = 1"
 
 
 def main():
