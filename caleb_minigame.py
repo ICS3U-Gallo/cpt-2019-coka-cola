@@ -68,16 +68,17 @@ class CalebView(arcade.View):
             rock.center_x = random.randrange(0, WIDTH) 
             rock.center_y = (HEIGHT + 200)
             rock.texture = self.rock_texture
-            rock.speed = random.randrange(10, 60)
+            rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
             self.rocks_list.append(rock) 
 
         # Setup the falling monkeys 
-        for _ in range(10):
+        for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(0, WIDTH)
-            monkey.center_y = (HEIGHT + 300)
-            monkey.speed = random.randrange(30, 60)
+            monkey.center_y = (HEIGHT + 550)
+            monkey.speed_x = 50
+            monkey.speed_y = random.randrange(10, 30)
             self.monkeys_list.append(monkey)
 
 
@@ -145,12 +146,17 @@ class CalebView(arcade.View):
                                  arcade.color.BLACK, 36)
 
         for monkey in self.monkeys_list:
-            # Make monkeys move down 
-            monkey.center_y -= monkey.speed * delta_time 
-
             # Make monkeys move side to side 
-            # monkey.center_x += monkey.speed * math.cos(monkey.angle) * delta_time 
-            # monkey.angle += 5 * delta_time
+            monkey.center_x += monkey.speed_x * delta_time
+
+            if monkey.center_x < 0:
+                monkey.speed_x = 50
+            elif monkey.center_x > 800:
+                monkey.speed_x = -50
+
+            # Make monkeys move down 
+            monkey.center_y -= monkey.speed_y * delta_time 
+
             bullets_hit_monkey = monkey.collides_with_list(self.bullets_list)
             monkey_hit_player = monkey.collides_with_sprite(self.player)
 
@@ -162,7 +168,7 @@ class CalebView(arcade.View):
                     bullet.kill()
             
             # Get monkeys to shoot bananas
-            if random.randrange(300) == 0:
+            if monkey.center_y < 600 and random.randrange(200) == 0:
                 banana = arcade.Sprite("assets/banana.gif", 0.1)
                 banana.center_x = monkey.center_x 
                 banana.angle = -90 
@@ -193,6 +199,7 @@ class CalebView(arcade.View):
                     bullet.kill()
 
     def on_key_press(self, key, key_modifiers):
+        # If A is pressed, switch to the next view
         if key == arcade.key.A:
             self.director.next_view()
 
@@ -203,6 +210,7 @@ class CalebView(arcade.View):
         pass
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
+        # Restricts where the player can go 
         self.player.center_x = x 
         if y > 100:
             self.player.center_y = y
