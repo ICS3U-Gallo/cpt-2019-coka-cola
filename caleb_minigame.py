@@ -25,7 +25,6 @@ class CalebView(arcade.View):
         self.jungle_monster_list = None 
 
         self.player = None
-        self.jungle_monster = None 
         self.background = None
     
     def on_show(self):
@@ -67,7 +66,7 @@ class CalebView(arcade.View):
         for _ in range(30):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
-            rock.center_y = (HEIGHT + 200)
+            rock.center_y = HEIGHT + 200
             rock.texture = self.rock_texture
             rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -77,17 +76,19 @@ class CalebView(arcade.View):
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(0, WIDTH)
-            monkey.center_y = (HEIGHT + 550)
+            monkey.center_y = HEIGHT + 550
             monkey.speed_x = 50
-            monkey.speed_y = random.randrange(10, 30)
+            monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
 
         # Setup the jungle boss 
         for _ in range(1):
-            self.jungle_monster = arcade.Sprite("assets/junglemonster.png")
-            self.jungle_monster.center_x = 400
-            self.jungle_monster.center_y = 300
-            self.jungle_monster_list.append(self.jungle_monster) 
+            jungle_monster = arcade.Sprite("assets/junglemonster.png")
+            jungle_monster.center_x = 400
+            jungle_monster.center_y = HEIGHT + 200
+            jungle_monster.speed_x = 0 
+            jungle_monster.speed_y = 50
+            self.jungle_monster_list.append(jungle_monster) 
 
 
         # Import the jungle background 
@@ -206,6 +207,10 @@ class CalebView(arcade.View):
                 banana.kill() 
                 for bullet in self.bullets_list:
                     bullet.kill()
+
+        for jungle_monster in self.jungle_monster_list:
+            if len(self.rocks_list) == 0 and len(self.monkeys_list) == 0:
+                jungle_monster.center_y -= jungle_monster.speed_y * delta_time
 
     def on_key_press(self, key, key_modifiers):
         # If A is pressed, switch to the next view
