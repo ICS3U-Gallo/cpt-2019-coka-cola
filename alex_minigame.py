@@ -52,14 +52,25 @@ class Player(arcade.Sprite):
 class Enemy(arcade.Sprite):
     def __init__(self, x, y, health):
         super().__init__()
+                # create healthbar textures
+        self.health_bar_textures = {
+            'full': arcade.make_soft_square_texture(5, arcade.color.GREEN, outer_alpha=255),
+            'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW, outer_alpha=255),
+            'critical': arcade.make_soft_square_texture(5, arcade.color.RED, outer_alpha=255),
+            'background': arcade.make_soft_square_texture(5, arcade.color.WHITE, outer_alpha=255),
+            'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK, outer_alpha=255)
+        }
+
         texture = arcade.load_texture(ENEMY_IMAGE, scale=0.3)
         self.textures.append(texture)
         self.set_texture(0)
         self.health_x = 0
         self.health_y = 0
-        self.health_colour = arcade.color.GREEN
+        # self.health_colour = arcade.color.GREEN
+        self.health_texture = self.health_bar_textures.get("full")
         self.health_max_x = 0
         self.max_health = -1
+        HEALTH_BAR_WIDTH = 76
 
         self.center_x = x
         self.center_y = y
@@ -71,17 +82,41 @@ class Enemy(arcade.Sprite):
         self.health_max_x = self.center_x - 48 + (75/2)
         self.health_y = self.center_y + 45
 
+        self.health_sprite = arcade.Sprite()
+        self.health_sprite.append_texture(self.health_bar_textures.get("full"))
+        self.health_sprite.append_texture(self.health_bar_textures.get("damaged"))
+        self.health_sprite.append_texture(self.health_bar_textures.get("critical"))
+        self.health_sprite.set_texture(0)
+        self.health_sprite.center_x = self.health_x
+        self.health_sprite.center_y = self.health_y
+
+        self.health_outline_sprite = arcade.Sprite()
+        self.health_outline_sprite.append_texture(self.health_bar_textures.get("outline"))
+        self.health_outline_sprite.set_texture(0)
+        self.health_outline_sprite.center_x = self.health_max_x
+        self.health_outline_sprite.center_y = self.health_y
+        self.health_outline_sprite.width = HEALTH_BAR_WIDTH
+        
+        self.health_background_sprite = arcade.Sprite()
+        self.health_background_sprite.append_texture(self.health_bar_textures.get("background"))
+        self.health_background_sprite.set_texture(0)
+        self.health_background_sprite.center_x = self.health_max_x
+        self.health_background_sprite.center_y = self.health_y
+        self.health_background_sprite.width = HEALTH_BAR_WIDTH - 2
+
     def update(self):
         self.health_x = self.center_x - 48 + (self.health/2)
         self.health_max_x = self.center_x - 48 + (75/2)
         self.health_y = self.center_y + 45
 
         if self.health > self.max_health * 2/3:
-            self.health_colour = arcade.color.GREEN
+            self.health_sprite.set_texture(0)
         elif self.health > self.max_health * 1/3:
-            self.health_colour = arcade.color.YELLOW
+            self.health_sprite.set_texture(1)
         else:
-            self.health_colour = arcade.color.RED
+            self.health_sprite.set_texture(2)
+
+        self.health_sprite.width = self.health
 
 
 class AlexView(arcade.View):
@@ -92,13 +127,7 @@ class AlexView(arcade.View):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-        # create healthbar textures
-        # self.health_bar_textures = {
-        #     'full': arcade.draw_texture_rectangle(, arcade.color.GREEN, outer_alpha=255),
-        #     'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW, outer_alpha=255),
-        #     'critical': arcade.make_soft_square_texture(5, arcade.color.RED, outer_alpha=255),
-        #     'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK, outer_alpha=255)
-        # }
+
 
         # Set up the player info
         self.player_sprite = None
@@ -122,6 +151,7 @@ class AlexView(arcade.View):
         self.enemy_list = None
         self.boss_list = None
         self.key_list = None
+        self.health_bar_list = None
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
@@ -131,6 +161,7 @@ class AlexView(arcade.View):
         self.enemy_list = arcade.SpriteList()
         self.boss_list = arcade.SpriteList()
         self.key_list = arcade.SpriteList()
+        self.health_bar_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
@@ -259,6 +290,7 @@ class AlexView(arcade.View):
         self.gem_list.update()
         self.enemy_list.update()
         self.boss_list.update()
+        self.health_bar_list.update()
 
         gem_collected = arcade.check_for_collision_with_list(self.player_sprite, self.gem_list)
         for gem in gem_collected:
@@ -282,6 +314,9 @@ class AlexView(arcade.View):
                 enemy.health -= 25
                 if enemy.health <= 0:
                     enemy.remove_from_sprite_lists()
+                    enemy.health_outline_sprite.remove_from_sprite_lists()
+                    enemy.health_background_sprite.remove_from_sprite_lists()
+                    enemy.health_sprite.remove_from_sprite_lists()
             
             # Check if boss hit
             boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
@@ -396,7 +431,9 @@ class AlexView(arcade.View):
         # Enemy 2 Health Bar
         for enemy in self.enemy_list:
             if enemy.health > 0:
-                self.draw_enemy_health_bar2(enemy)
+                self.draw_enemy_health_bar(enemy)
+        
+        self.health_bar_list.draw()
 
         if boss_health > 0:
             self.draw_boss_health_bar(boss_constant_x, boss_y, boss_x, boss_health, boss_health_colour)
@@ -406,11 +443,11 @@ class AlexView(arcade.View):
         arcade.draw_rectangle_filled(player_x, player_y, player_health, 5, player_health_colour)
         arcade.draw_rectangle_outline(player_constant_x, player_y, 61, 6, arcade.color.BLACK)
 
-    def draw_enemy_health_bar2(self, enemy):
-        # self.health_bar_textures['']
-        arcade.draw_rectangle_filled(enemy.health_max_x, enemy.health_y, 75, 5, arcade.color.WHITE)
-        arcade.draw_rectangle_filled(enemy.health_x, enemy.health_y, enemy.health, 5, enemy.health_colour)
-        arcade.draw_rectangle_outline(enemy.health_max_x, enemy.health_y, 77, 6, arcade.color.BLACK)
+    def draw_enemy_health_bar(self, enemy):
+        pass
+        # arcade.draw_rectangle_filled(enemy.health_max_x, enemy.health_y, 75, 5, arcade.color.WHITE)
+        # arcade.draw_rectangle_filled(enemy.health_x, enemy.health_y, enemy.health, 5, enemy.health_colour)
+        # arcade.draw_rectangle_outline(enemy.health_max_x, enemy.health_y, 77, 6, arcade.color.BLACK)
 
     def draw_boss_health_bar(self, boss_constant_x, boss_y, boss_x, boss_health, boss_health_colour):
         arcade.draw_rectangle_filled(boss_constant_x, boss_y, 200, 5, arcade.color.WHITE)
@@ -426,6 +463,10 @@ class AlexView(arcade.View):
     def add_enemy(self, x, y):
         self.enemy_sprite = Enemy(x, y, 75)
         self.enemy_list.append(self.enemy_sprite)
+        self.health_bar_list.append(self.enemy_sprite.health_outline_sprite)
+        self.health_bar_list.append(self.enemy_sprite.health_background_sprite)
+        self.health_bar_list.append(self.enemy_sprite.health_sprite)
+        
 
     def add_boss(self, x, y):
         self.boss_sprite = arcade.Sprite(BOSS_IMAGE, 0.4)
