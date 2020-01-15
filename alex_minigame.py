@@ -164,6 +164,38 @@ class Enemy(arcade.Sprite):
             self.change_y = math.sin(angle) * 5
 
 
+class AlexMenuView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.WHITE)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        instructions_view = AlexInstructionView()
+        self.window.show_view(instructions_view)
+
+
+class AlexInstructionView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.ORANGE_PEEL)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("Instructions Screen", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        game_view = AlexGameView()
+        self.window.show_view(game_view)
+
+
 class AlexGameView(arcade.View):
     def __init__(self):
         super().__init__()
@@ -589,7 +621,7 @@ if __name__ == "__main__":
     # """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = AlexGameView()
+    my_view = AlexMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     arcade.run()
