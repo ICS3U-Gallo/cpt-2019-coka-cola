@@ -13,7 +13,7 @@ HEIGHT = 600
 # GAME_OVER = 2
 
 
-class CalebView(arcade.View):
+class CalebGameView(arcade.View):
     def __init__(self):
         super().__init__()
 
@@ -261,7 +261,8 @@ class CalebView(arcade.View):
 
         # If the player doesn't have any hearts left, they lose 
         if len(self.hearts_list) == 0:
-            self.director.next_view()
+            game_over_view = GameOverView()
+            self.window.show_view(game_over_view)
 
     def on_key_press(self, key, key_modifiers):
         # If A is pressed, switch to the next view
@@ -305,10 +306,36 @@ class CalebView(arcade.View):
         """
         pass
 
+class GameOverView(arcade.View):
+    def __init__(self):
+        super().__init__()
+
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_draw(self):
+        arcade.start_render()
+        """
+        Draw "Game over" across the screen.
+        """
+        arcade.draw_text("Game Over", 200, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press R to Restart", 310, 300, arcade.color.WHITE, 24)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.R:
+            game_view = CalebGameView()
+            self.window.show_view(game_view)
+        
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        game_view = GameView()
+        self.window.show_view(game_view)
+
 if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = CalebView()
+    my_view = CalebGameView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     # main()
