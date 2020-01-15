@@ -133,9 +133,9 @@ class CalebGameView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG", 0.75)
             jungle_monster.center_x = 400
-            jungle_monster.center_y = 320
+            jungle_monster.center_y = HEIGHT + 150
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 0
+            jungle_monster.speed_y = 10
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -259,7 +259,7 @@ class CalebGameView(arcade.View):
         # Get jungle monster to shoot at player 
         for jungle_monster in self.jungle_monster_list: 
             jungle_monster.center_y -= jungle_monster.speed_y * delta_time
-            if jungle_monster.center_y < 750 and random.randrange(50) == 0:
+            if jungle_monster.center_y < 600 and random.randrange(50) == 0:
                 start_x = jungle_monster.center_x 
                 start_y = jungle_monster.center_y 
 
