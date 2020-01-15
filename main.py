@@ -27,6 +27,12 @@ class Director(arcade.Window):
         self.show_view(next_view)
         self.view_index = (self.view_index + 1) % len(self.views)
 
+    def previous_view(self):
+        prev_view = self.views[self.view_index-1]()
+        prev_view.director = self
+        self.show_view(prev_view)
+        self.view_index = (self.view_index - 1) % len(self.views)
+
 def main():
     window = Director(settings.WIDTH, settings.HEIGHT, "CPT Structure")
     arcade.run()
