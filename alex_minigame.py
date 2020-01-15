@@ -164,7 +164,7 @@ class Enemy(arcade.Sprite):
             self.change_y = math.sin(angle) * 5
 
 
-class AlexView(arcade.View):
+class AlexGameView(arcade.View):
     def __init__(self):
         super().__init__()
 
@@ -213,8 +213,7 @@ class AlexView(arcade.View):
         self.player_sprite.center_x = 0
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
-        
-    
+
     def on_show(self):
         global completed
 
@@ -375,11 +374,13 @@ class AlexView(arcade.View):
         for key in key_collected:
             key.remove_from_sprite_lists()
             completed = True
-        
+
+
         if completed is True:
             self.view_bottom = 0
             self.view_left = 0
-            self.director.next_view()
+            game_over_view = GameOverView()
+            self.window.show_view(game_over_view)
 
         self.manage_scrolling()
 
@@ -556,6 +557,27 @@ class AlexView(arcade.View):
                                 settings.HEIGHT + self.view_bottom - 1)
 
 
+class GameOverView(arcade.View):
+    def __init__(self):
+        super().__init__()
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_draw(self):
+        arcade.start_render()
+        """
+        Draw "Game over" across the screen.
+        """
+        arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press R to restart", 310, 300, arcade.color.WHITE, 24)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.R:
+            game_view = AlexGameView()
+            self.window.show_view(game_view)
+
+
 if __name__ == "__main__":
     # """This section of code will allow you to run your View
     # independently from the main.py file and its Director.
@@ -567,8 +589,7 @@ if __name__ == "__main__":
     # """
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = AlexView()
+    my_view = AlexGameView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     arcade.run()
-    # main()
