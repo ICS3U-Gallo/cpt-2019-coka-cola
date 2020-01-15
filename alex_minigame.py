@@ -172,12 +172,18 @@ class AlexMenuView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+        arcade.draw_text("Press I for instructions.", settings.WIDTH/2, settings.HEIGHT/2-150,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        instructions_view = AlexInstructionView()
-        self.window.show_view(instructions_view)
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.P:
+            game_view = AlexGameView()
+            self.window.show_view(game_view)
+        elif key == arcade.key.I:
+            instructions_view = AlexInstructionView()
+            self.window.show_view(instructions_view)
 
 
 class AlexInstructionView(arcade.View):
@@ -188,12 +194,13 @@ class AlexInstructionView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Instructions Screen", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("Press ESCAPE to go back to menu.", settings.WIDTH/2, settings.HEIGHT/2-75,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        game_view = AlexGameView()
-        self.window.show_view(game_view)
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ESCAPE:
+            menu_view = AlexMenuView()
+            self.window.show_view(menu_view)
 
 
 class AlexGameView(arcade.View):
@@ -427,6 +434,11 @@ class AlexGameView(arcade.View):
             self.player_sprite.change_x = -settings.MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = settings.MOVEMENT_SPEED
+        
+        elif key == arcade.key.ESCAPE:
+            # pass self, the current view, to preserve this view's state
+            pause = PauseView(self)
+            self.window.show_view(pause)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -587,6 +599,55 @@ class AlexGameView(arcade.View):
                                 settings.WIDTH + self.view_left - 1,
                                 self.view_bottom,
                                 settings.HEIGHT + self.view_bottom - 1)
+
+
+class PauseView(arcade.View):
+    def __init__(self, alex_game_view):
+        super().__init__()
+        self.alex_game_view = alex_game_view
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.ORANGE)
+
+    def on_draw(self):
+        arcade.start_render()
+
+        # Draw player, for effect, on pause screen.
+        # The previous View (GameView) was passed in
+        # and saved in self.game_view.
+        player_sprite = self.alex_game_view.player_sprite
+        player_sprite.draw()
+
+        # draw an orange filter over him
+        arcade.draw_lrtb_rectangle_filled(left=player_sprite.left,
+                                          right=player_sprite.right,
+                                          top=player_sprite.top,
+                                          bottom=player_sprite.bottom,
+                                          color=arcade.color.ORANGE + (200,))
+
+        arcade.draw_text("PAUSED", settings.WIDTH/2, settings.HEIGHT/2+50,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+
+        # Show tip to return or reset
+        arcade.draw_text("Press Esc. to return",
+                         settings.WIDTH/2,
+                         settings.HEIGHT/2,
+                         arcade.color.BLACK,
+                         font_size=20,
+                         anchor_x="center")
+        arcade.draw_text("Press Enter to reset",
+                         settings.WIDTH/2,
+                         settings.HEIGHT/2-30,
+                         arcade.color.BLACK,
+                         font_size=20,
+                         anchor_x="center")
+
+    def on_key_press(self, key, _modifiers):
+        if key == arcade.key.ESCAPE:   # resume game
+            self.window.show_view(self.alex_game_view)
+        elif key == arcade.key.ENTER:  # reset game
+            game_view = AlexGameView()
+            self.window.show_view(game_view)
 
 
 class GameOverView(arcade.View):
