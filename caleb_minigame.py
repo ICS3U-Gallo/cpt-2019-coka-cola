@@ -20,12 +20,17 @@ class CalebMenuView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("Press N for Instructions", settings.WIDTH/2, settings.HEIGHT/2-75,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         instructions_view = CalebInstructionView()
         self.window.show_view(instructions_view)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.N:
+            instruction_view = CalebInstructionView()
+            self.window.show_view(instruction_view)
 
 
 class CalebInstructionView(arcade.View):
@@ -36,12 +41,17 @@ class CalebInstructionView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Instructions Screen", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("Click S to Play", settings.WIDTH/2, settings.HEIGHT/2-75,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = CalebGameView()
         self.window.show_view(game_view)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.S:
+            game_view = CalebGameView()
+            self.window.show_view(game_view)
 
 class CalebGameView(arcade.View):
     def __init__(self):
@@ -349,7 +359,7 @@ class GameOverView(arcade.View):
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Game Over", 200, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Game Over", 210, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press R to Restart", 310, 200, arcade.color.WHITE, 24)
 
     def on_key_press(self, key, modifiers):
