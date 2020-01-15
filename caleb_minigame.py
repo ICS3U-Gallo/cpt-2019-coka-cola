@@ -12,20 +12,13 @@ HEIGHT = 600
 # GAME_RUNNING = 1
 # GAME_OVER = 2
 
+
 class CalebView(arcade.View):
     def __init__(self):
         super().__init__()
 
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
-
-        # Set the first page as the introduction
-        # self.current_state = INSTRUCTION_PAGE
-
-        # Put instruction page in an image 
-        # self.instructions = []
-        # texture = arcade.load_texture("assets/instructions_1.png")
-        # self.instructions.append(texture)
 
         # Initialize the sprite lists
         self.player_list = None
@@ -100,9 +93,9 @@ class CalebView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG", 0.75)
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 320
+            jungle_monster.center_y = 320
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 7
+            jungle_monster.speed_y = 0
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -112,33 +105,10 @@ class CalebView(arcade.View):
 
         # Import the jungle background 
         self.background = arcade.load_texture("assets/jungle.PNG")
-    
-    # def draw_instructions_page(self):
-    #     page_texture = self.instructions[page_number]
-    #     arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-    #                                   page_texture.width,
-    #                                   page_texture.height, page_texture, 0)
-
-         
-    # def draw_game_over(self):
-    #         output = "Game Over"
-    #         arcade.draw_text(output, 240, 400, arcade.color.WHITE, 54)
-
-    #         output = "Click to restart"
-    #         arcade.draw_text(output, 310, 300, arcade.color.WHITE, 24)
 
     def on_draw(self):
         # keep as first line
         arcade.start_render()  
-
-        # Draw Instruction, Game and Game Over Pages 
-        # if self.current_state == INSTRUCTION_PAGE:
-        #     self.draw_instructions_page(0)
-        # elif self.current_state == GAME_RUNNING:
-        #     self.draw_game()
-        # else: 
-        #     self.draw_game()
-        #     self.draw_game_over()
         
         arcade.draw_texture_rectangle(settings.WIDTH // 2, 
                              settings.HEIGHT // 2, settings.WIDTH, 
@@ -249,7 +219,7 @@ class CalebView(arcade.View):
         # Get jungle monster to shoot at player 
         for jungle_monster in self.jungle_monster_list: 
             jungle_monster.center_y -= jungle_monster.speed_y * delta_time
-            if jungle_monster.center_y < 600 and random.randrange(50) == 0:
+            if jungle_monster.center_y < 750 and random.randrange(50) == 0:
                 start_x = jungle_monster.center_x 
                 start_y = jungle_monster.center_y 
 
@@ -282,7 +252,7 @@ class CalebView(arcade.View):
                         jungle_bullets.kill()  
 
                 for bullet in self.bullets_list:
-                    if bullet.collides_with_list(self.jungle_monster_list):
+                    if bullet.collides_with_sprite(jungle_monster):
                         bullet.kill()
                         self.count += 1 
                         if self.count == 25: 
@@ -291,8 +261,7 @@ class CalebView(arcade.View):
 
         # If the player doesn't have any hearts left, they lose 
         if len(self.hearts_list) == 0:
-            for self.player in self.player_list:
-                self.player.kill()
+            self.director.next_view()
 
     def on_key_press(self, key, key_modifiers):
         # If A is pressed, switch to the next view
