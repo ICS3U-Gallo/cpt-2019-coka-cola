@@ -7,7 +7,10 @@ import os
 
 WIDTH = 800
 HEIGHT = 600
-JUNGLE_BULLET_SPEED = 5
+
+# INSTRUCTION_PAGE = 0
+# GAME_RUNNING = 1
+# GAME_OVER = 2
 
 class CalebView(arcade.View):
     def __init__(self):
@@ -16,7 +19,15 @@ class CalebView(arcade.View):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-        # Initialize the sprite lists 
+        # Set the first page as the introduction
+        # self.current_state = INSTRUCTION_PAGE
+
+        # Put instruction page in an image 
+        # self.instructions = []
+        # texture = arcade.load_texture("assets/instructions_1.png")
+        # self.instructions.append(texture)
+
+        # Initialize the sprite lists
         self.player_list = None
         self.rocks_list = None
         self.monkeys_list = None 
@@ -25,6 +36,7 @@ class CalebView(arcade.View):
         self.hearts_list = None 
         self.jungle_monster_list = None 
         self.jungle_bullets_list = None 
+        self.count = 0 
 
         self.player = None
         self.background = None
@@ -78,8 +90,8 @@ class CalebView(arcade.View):
         # Setup the falling monkeys 
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
-            monkey.center_x = random.randrange(0, WIDTH)
-            monkey.center_y = HEIGHT + 550
+            monkey.center_x = random.randrange(100, WIDTH)
+            monkey.center_y = HEIGHT + 425
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
@@ -88,22 +100,45 @@ class CalebView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG", 0.75)
             jungle_monster.center_x = 400
-            jungle_monster.center_y = 300
+            jungle_monster.center_y = HEIGHT + 320
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 5
+            jungle_monster.speed_y = 7
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
-        self.jungle_bullets_texture = arcade.make_soft_circle_texture(30, 
+        self.jungle_bullets_texture = arcade.make_soft_circle_texture(10, 
                          arcade.color.GREEN, outer_alpha=255)
 
 
         # Import the jungle background 
         self.background = arcade.load_texture("assets/jungle.PNG")
+    
+    # def draw_instructions_page(self):
+    #     page_texture = self.instructions[page_number]
+    #     arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
+    #                                   page_texture.width,
+    #                                   page_texture.height, page_texture, 0)
+
+         
+    # def draw_game_over(self):
+    #         output = "Game Over"
+    #         arcade.draw_text(output, 240, 400, arcade.color.WHITE, 54)
+
+    #         output = "Click to restart"
+    #         arcade.draw_text(output, 310, 300, arcade.color.WHITE, 24)
 
     def on_draw(self):
         # keep as first line
         arcade.start_render()  
+
+        # Draw Instruction, Game and Game Over Pages 
+        # if self.current_state == INSTRUCTION_PAGE:
+        #     self.draw_instructions_page(0)
+        # elif self.current_state == GAME_RUNNING:
+        #     self.draw_game()
+        # else: 
+        #     self.draw_game()
+        #     self.draw_game_over()
         
         arcade.draw_texture_rectangle(settings.WIDTH // 2, 
                              settings.HEIGHT // 2, settings.WIDTH, 
@@ -129,8 +164,10 @@ class CalebView(arcade.View):
                          arcade.color.BLUE, 36)
         arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490, 
                          arcade.color.BABY_BLUE, 36)
+    
 
     def update(self, delta_time):
+        # if self.current_state == GAME_RUNNING:
         self.rocks_list.update()
         self.bullets_list.update()
         self.banana_list.update()
@@ -202,7 +239,6 @@ class CalebView(arcade.View):
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
-                    monkey.kill()
 
             # If a bullet hits a banana, the bullet and banana is destroyed
             if banana.collides_with_list(self.bullets_list):
@@ -210,33 +246,50 @@ class CalebView(arcade.View):
                 for bullet in self.bullets_list:
                     bullet.kill()
 
-        for jungle_monster in self.jungle_monster_list:
-        #     if len(self.rocks_list) == 0 and len(self.monkeys_list) == 0:
-        #         jungle_monster.center_y -= jungle_monster.speed_y * delta_time
-        #         if jungle_monster.center_y == 300:
-        #             jungle_monster.speed_y = 0
+        # Get jungle monster to shoot at player 
+        for jungle_monster in self.jungle_monster_list: 
+            jungle_monster.center_y -= jungle_monster.speed_y * delta_time
+            if jungle_monster.center_y < 600 and random.randrange(50) == 0:
+                start_x = jungle_monster.center_x 
+                start_y = jungle_monster.center_y 
 
-            # Get jungle monster to shoot
-            if jungle_monster.center_y < 900 and random.randrange(50) == 0:
+                dest_x = self.player.center_x
+                dest_y = self.player.center_y
+
+                dist_x = dest_x - start_x
+                dist_y = dest_y - start_y 
+                angle = math.atan2(dist_y, dist_x)
+
                 jungle_bullets = arcade.Sprite()
-                jungle_bullets.center_x = jungle_monster.center_x 
-                jungle_bullets.top = jungle_monster.bottom
-                # jungle_bullets.angle = math.degrees(angle)
-                # jungle_bullets.change_x = math.cos(angle) * JUNGLE_BULLET_SPEED
-                jungle_bullets.change_y = -5
                 jungle_bullets.texture = self.jungle_bullets_texture
-                jungle_bullets.width = 7
-                # jungle_bullets.angle = random.randrange(-90, 90)
-                self.jungle_bullets_list.append(jungle_bullets) 
+                jungle_bullets_speed = 5 
+                jungle_bullets.width = 50
+                jungle_bullets.center_x = start_x
+                jungle_bullets.center_y = start_y
 
+                jungle_bullets.angle = math.degrees(angle) 
+
+                jungle_bullets.change_x = math.cos(angle) * jungle_bullets_speed
+                jungle_bullets.change_y = math.sin(angle) * jungle_bullets_speed
+                self.jungle_bullets_list.append(jungle_bullets)
+
+                # If jungle bullets hit player, remove a heart
                 for jungle_bullets in self.jungle_bullets_list:
                     if jungle_bullets.collides_with_sprite(self.player):
-                        jungle_bullets.kill()  
                         if len(self.hearts_list) is not 0:
                             heart = self.hearts_list[0]
                             self.hearts_list.remove(heart)
+                        jungle_bullets.kill()  
 
+                for bullet in self.bullets_list:
+                    if bullet.collides_with_list(self.jungle_monster_list):
+                        bullet.kill()
+                        self.count += 1 
+                        if self.count == 25: 
+                            jungle_monster.kill()
+                        
 
+        # If the player doesn't have any hearts left, they lose 
         if len(self.hearts_list) == 0:
             for self.player in self.player_list:
                 self.player.kill()
@@ -261,6 +314,13 @@ class CalebView(arcade.View):
             self.player.center_y = 100
     
     def on_mouse_press(self, x, y, button, key_modifiers):
+        # if self.current_state == INSTRUCTION_PAGE:
+        #     self.setup()
+        #     self.current_state = GAME_RUNNING
+        # elif self.current_state == GAME_OVER:
+        #     self.setup()
+        #     self.current_state = GAME_RUNNING
+
         bullet = arcade.Sprite()
         bullet.center_x = self.player.center_x
         bullet.center_y = self.player.center_y
