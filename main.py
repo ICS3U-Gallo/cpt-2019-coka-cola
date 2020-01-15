@@ -5,6 +5,7 @@ import settings
 from menu import MenuView
 from alex_minigame import AlexView
 from caleb_minigame import CalebView
+from kevin_minigame import KevinView
 
 class Director(arcade.Window):
     def __init__(self, width, height, title):
@@ -13,7 +14,8 @@ class Director(arcade.Window):
         self.views = [
             MenuView,
             AlexView,
-            CalebView
+            # CalebView,
+            KevinView
         ]
         self.next_view()
 
