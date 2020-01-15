@@ -12,6 +12,36 @@ HEIGHT = 600
 # GAME_RUNNING = 1
 # GAME_OVER = 2
 
+class CalebMenuView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.WHITE)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        instructions_view = CalebInstructionView()
+        self.window.show_view(instructions_view)
+
+
+class CalebInstructionView(arcade.View):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.ORANGE_PEEL)
+
+    def on_draw(self):
+        arcade.start_render()
+        arcade.draw_text("Instructions Screen", settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("Click to advance", settings.WIDTH/2, settings.HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        game_view = CalebGameView()
+        self.window.show_view(game_view)
 
 class CalebGameView(arcade.View):
     def __init__(self):
@@ -320,7 +350,7 @@ class GameOverView(arcade.View):
         Draw "Game over" across the screen.
         """
         arcade.draw_text("Game Over", 200, 400, arcade.color.WHITE, 54)
-        arcade.draw_text("Press R to Restart", 310, 300, arcade.color.WHITE, 24)
+        arcade.draw_text("Press R to Restart", 310, 200, arcade.color.WHITE, 24)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
@@ -335,7 +365,7 @@ class GameOverView(arcade.View):
 if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT)
-    my_view = CalebGameView()
+    my_view = CalebMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
     # main()
