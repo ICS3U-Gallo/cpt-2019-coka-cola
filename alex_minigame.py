@@ -16,7 +16,7 @@ WALL_SPRITE_SIZE = WALL_SPRITE_NATIVE_SIZE * WALL_SPRITE_SCALING
 
 # Variables to hold images for sprites
 PLAYER_IMAGE = "assets/indiana_jones.png"
-ENEMY_IMAGE = "assets/sand_devil.gif"
+ENEMY_IMAGE = "assets/sand_devil.png"
 BOSS_IMAGE = "assets/sand_boss.png"
 GEM_BLUE_IMAGE = "assets/gem_blue.png"
 GEM_GREEN_IMAGE = "assets/gem_green.png"
@@ -32,7 +32,7 @@ class Player(arcade.Sprite):
     def __init__(self):
         super().__init__()
 
-        # Load a left facing texture and a right facing texture.
+        # Load a left facing player and a right facing player.
         texture = arcade.load_texture(PLAYER_IMAGE, mirrored=True, scale=0.35)
         self.textures.append(texture)
         texture = arcade.load_texture(PLAYER_IMAGE, scale=0.35)
@@ -52,7 +52,8 @@ class Player(arcade.Sprite):
 class Enemy(arcade.Sprite):
     def __init__(self, x, y, health):
         super().__init__()
-                # create healthbar textures
+
+        # Dictionary to store health bar textures.
         self.health_bar_textures = {
             'full': arcade.make_soft_square_texture(5, arcade.color.GREEN, outer_alpha=255),
             'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW, outer_alpha=255),
@@ -60,13 +61,16 @@ class Enemy(arcade.Sprite):
             'background': arcade.make_soft_square_texture(5, arcade.color.WHITE, outer_alpha=255),
             'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK, outer_alpha=255)
         }
-
+        
+        # Load a right facing enemy, and a left facing enemy.
         texture = arcade.load_texture(ENEMY_IMAGE, scale=0.3)
         self.textures.append(texture)
-        self.set_texture(0)
-        self.health_x = 0
-        self.health_y = 0
-        # self.health_colour = arcade.color.GREEN
+        texture = arcade.load_texture(ENEMY_IMAGE, mirrored=True, scale=0.3)
+        self.textures.append(texture)
+
+        # By defalt, the enemy faces right.
+        self.set_texture(settings.TEXTURE_RIGHT)
+
         self.health_texture = self.health_bar_textures.get("full")
         self.health_max_x = 0
         self.max_health = -1
@@ -75,13 +79,16 @@ class Enemy(arcade.Sprite):
         self.center_x = x
         self.center_y = y
         self.health = health
+
         if self.max_health == -1:
             self.max_health = health
 
-        self.health_x = self.center_x - 48 + (self.health/2)
-        self.health_max_x = self.center_x - 48 + (75/2)
-        self.health_y = self.center_y + 45
+        # Initialize variables to use when drawing the health bar sprites.
+        self.health_x = self.center_x - 40 + (self.health/2)
+        self.health_max_x = self.center_x - 40 + (75/2)
+        self.health_y = self.center_y + 47
 
+        # Health bar that changes colour.
         self.health_sprite = arcade.Sprite()
         self.health_sprite.append_texture(self.health_bar_textures.get("full"))
         self.health_sprite.append_texture(self.health_bar_textures.get("damaged"))
@@ -90,6 +97,7 @@ class Enemy(arcade.Sprite):
         self.health_sprite.center_x = self.health_x
         self.health_sprite.center_y = self.health_y
 
+        # Outline of health bar.
         self.health_outline_sprite = arcade.Sprite()
         self.health_outline_sprite.append_texture(self.health_bar_textures.get("outline"))
         self.health_outline_sprite.set_texture(0)
@@ -97,6 +105,7 @@ class Enemy(arcade.Sprite):
         self.health_outline_sprite.center_y = self.health_y
         self.health_outline_sprite.width = HEALTH_BAR_WIDTH
         
+        # Background of health bar.
         self.health_background_sprite = arcade.Sprite()
         self.health_background_sprite.append_texture(self.health_bar_textures.get("background"))
         self.health_background_sprite.set_texture(0)
@@ -105,10 +114,12 @@ class Enemy(arcade.Sprite):
         self.health_background_sprite.width = HEALTH_BAR_WIDTH - 2
 
     def update(self):
-        self.health_x = self.center_x - 48 + (self.health/2)
-        self.health_max_x = self.center_x - 48 + (75/2)
-        self.health_y = self.center_y + 45
+        self.health_x = self.center_x - 40 + (self.health/2)
+        self.health_max_x = self.center_x - 40 + (75/2)
+        self.health_y = self.center_y + 47
 
+        # Check to see what colour the health bar should be based on
+        # how much health the enemy has.
         if self.health > self.max_health * 2/3:
             self.health_sprite.set_texture(0)
         elif self.health > self.max_health * 1/3:
@@ -116,7 +127,41 @@ class Enemy(arcade.Sprite):
         else:
             self.health_sprite.set_texture(2)
 
+        # Update the position of the health bars
+        self.health_sprite.center_x = self.health_x
+        self.health_sprite.center_y = self.health_y
+        self.health_outline_sprite.center_x = self.health_max_x
+        self.health_outline_sprite.center_y = self.health_y
+        self.health_background_sprite.center_x = self.health_max_x
+        self.health_background_sprite.center_y = self.health_y
+
         self.health_sprite.width = self.health
+    
+    def follow_player(self, player_sprite):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        # Random 1 in 100 chance that we'll change from our old direction and
+        # then re-aim toward the player
+        if random.randrange(100) == 0:
+            start_x = self.center_x
+            start_y = self.center_y
+
+            # Get the destination location for the bullet
+            dest_x = player_sprite.center_x
+            dest_y = player_sprite.center_y
+
+            # Do math to calculate how to get the bullet to the destination.
+            # Calculation the angle in radians between the start points
+            # and end points. This is the angle the bullet will travel.
+            x_diff = dest_x - start_x
+            y_diff = dest_y - start_y
+            angle = math.atan2(y_diff, x_diff)
+
+            # Taking into account the angle, calculate our change_x
+            # and change_y. Velocity is how fast the bullet travels.
+            self.change_x = math.cos(angle) * 5
+            self.change_y = math.sin(angle) * 5
 
 
 class AlexView(arcade.View):
@@ -322,6 +367,9 @@ class AlexView(arcade.View):
                 key_sprite.center_x = self.boss_sprite.center_x
                 key_sprite.center_y = self.boss_sprite.center_y
                 self.key_list.append(key_sprite)
+
+        for enemy in self.enemy_list:
+            enemy.follow_player(self.player_sprite)
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
         for key in key_collected:
