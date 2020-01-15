@@ -14,6 +14,7 @@ class GameOverView(arcade.View):
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press Space to Restart", 290, 200, arcade.color.WHITE, 18)
     
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         pass
