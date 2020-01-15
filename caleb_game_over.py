@@ -1,5 +1,6 @@
 import arcade
 import settings
+from caleb_minigame import CalebView
 
 class GameOverView(arcade.View):
     def __init__(self):
@@ -15,8 +16,13 @@ class GameOverView(arcade.View):
         arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
     
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-        game_view = CalebView()
-        self.window.show_view(game_view) 
+        pass
+    
+    def on_key_press(self, key, key_modifiers):
+        # If A is pressed, switch to the next view
+        if key == arcade.key.SPACE:
+            self.window.show_view(CalebView)     
+            
 
 if __name__ == "__main__":
     from utils import FakeDirector
