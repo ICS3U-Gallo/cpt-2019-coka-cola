@@ -1,31 +1,27 @@
 import random
 import arcade
 import os
+import settings
 
 SPRITE_SCALING = 0.5
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Flappy Jones"
-
-VIEWPORT_MARGIN = 40
-
+VIEWPORT_MARGIN = 600
 MOVEMENT_SPEED = 5
+BULLET_SPEED = 2
 
 
-class MyGame(arcade.Window):
+class OwenMenuView(arcade.View):
     """ Main application class. """
 
-    def __init__(self, width, height, title):
+    def __init__(self):
         """
-        Initializer
+        Initializer 
         """
-        super().__init__(width, height, title)
-
-        # Set the working directory (where we expect to find files) to the same
-        # directory this .py file is in. You can leave this out of your own
-        # code, but it is needed to easily run the examples using "python -m"
-        # as mentioned at the top of this program.
+        super().__init__()
+    
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
@@ -36,11 +32,15 @@ class MyGame(arcade.Window):
         # Set up the player
         self.player_sprite = None
         self.wall_list = None
-        self.physics_engine = None
         self.view_bottom = 0
         self.view_left = 0
 
-    def setup(self):
+        self.frame_count = 0
+        self.player_list = arcade.SpriteList()
+        self.enemy_list = arcade.SpriteList()
+        self.bullet_list = arcade.SpriteList()
+
+    def on_show(self):
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
@@ -71,7 +71,7 @@ class MyGame(arcade.Window):
             self.wall_list.append(wall)
 
         # -- Set up several columns of walls
-        for x in range(200, 1650, 210):
+        for x in range(200, 1650, 400):
             for y in range(69, 1000, 64):
                 # Randomly skip a box so the player can find a way through
                 if random.randrange(5) > 0:
@@ -90,6 +90,12 @@ class MyGame(arcade.Window):
         self.view_left = 0
         self.view_bottom = 0
 
+        enemy = arcade.Sprite("assets/rock.png", 0.1)
+        enemy.center_x = 390
+        enemy.center_y = 967
+        enemy.angle = 180
+        self.enemy_list.append(enemy)
+
     def on_draw(self):
         """
         Render the screen.
@@ -100,6 +106,10 @@ class MyGame(arcade.Window):
 
         # Draw all the sprites.
         self.wall_list.draw()
+        self.player_list.draw()
+
+        self.enemy_list.draw()
+        self.bullet_list.draw()
         self.player_list.draw()
 
     def on_key_press(self, key, modifiers):
@@ -125,15 +135,26 @@ class MyGame(arcade.Window):
     def on_update(self, delta_time):
         """ Movement and game logic """
 
-        # Call update on all sprites (The sprites don't do much in this
-        # example though.)
         self.physics_engine.update()
 
-        # --- Manage Scrolling ---
-
-        # Keep track of if we changed the boundary. We don't want to call the
-        # set_viewport command if we didn't change the view port.
         changed = False
+
+        self.frame_count += 1
+
+        for enemy in self.enemy_list:
+            if self.frame_count % 120 == 0:
+                bullet = arcade.Sprite("assets/bullet.png")
+                bullet.center_x = enemy.center_x
+                bullet.angle = -90
+                bullet.top = enemy.bottom
+                bullet.change_y = -2
+                self.bullet_list.append(bullet)
+        
+        for bullet in self.bullet_list:
+            if bullet.top < 0:
+                bullet.remove_from_sprite_lists()
+        
+        self.bullet_list.update()
 
         # Scroll left
         left_boundary = self.view_left + VIEWPORT_MARGIN
@@ -173,15 +194,13 @@ class MyGame(arcade.Window):
                                 self.view_bottom,
                                 SCREEN_HEIGHT + self.view_bottom - 1)
         
-        "self.player_sprite.change_x = 1"
-
-
-def main():
-    """ Main method """
-    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-    window.setup()
-    arcade.run()
-
+        #self.player_sprite.change_x = 1
 
 if __name__ == "__main__":
-    main()
+    from utils import FakeDirector
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    my_view = OwenMenuView()
+    my_view.director = FakeDirector(close_on_next_view=True)
+    window.show_view(my_view)
+    # main()
+    arcade.run()
