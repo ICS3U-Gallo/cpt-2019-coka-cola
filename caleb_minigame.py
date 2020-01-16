@@ -77,6 +77,7 @@ class CalebGameView(arcade.View):
         self.jungle_monster_list = None 
         self.jungle_bullets_list = None 
         self.count = 0 
+        self.key_list = None 
 
         self.player = None
         self.background = None
@@ -92,6 +93,7 @@ class CalebGameView(arcade.View):
         self.hearts_list = arcade.SpriteList()
         self.jungle_monster_list = arcade.SpriteList()
         self.jungle_bullets_list = arcade.SpriteList()
+        self.key_list = arcade.SpriteList()
 
         # Set up the player
         self.player = arcade.Sprite("assets/indiana_jones.png", 0.5)
@@ -131,14 +133,14 @@ class CalebGameView(arcade.View):
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 425
+            monkey.center_y = HEIGHT + 42500
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
 
         # Setup the jungle boss 
         for _ in range(1):
-            jungle_monster = arcade.Sprite("assets/sand_boss.png", 0.75)
+            jungle_monster = arcade.Sprite("assets/junglemonster.png")
             jungle_monster.center_x = 400
             jungle_monster.center_y = 400 # 450
             jungle_monster.speed_x = 0 
@@ -169,6 +171,7 @@ class CalebGameView(arcade.View):
         self.hearts_list.draw()
         self.jungle_monster_list.draw()
         self.jungle_bullets_list.draw()
+        self.key_list.draw()
 
         # Draw time 
         minutes = int(self.total_time) // 60 
@@ -184,7 +187,6 @@ class CalebGameView(arcade.View):
     
 
     def update(self, delta_time):
-        # if self.current_state == GAME_RUNNING:
         self.rocks_list.update()
         self.bullets_list.update()
         self.banana_list.update()
@@ -290,27 +292,38 @@ class CalebGameView(arcade.View):
                 jungle_bullets.change_y = math.sin(angle) * jungle_bullets_speed
                 self.jungle_bullets_list.append(jungle_bullets)
 
-                # If jungle bullets hit player, remove a heart
-                for jungle_bullets in self.jungle_bullets_list:
-                    if jungle_bullets.collides_with_sprite(self.player):
-                        if len(self.hearts_list) is not 0:
-                            heart = self.hearts_list[0]
-                            self.hearts_list.remove(heart)
-                        jungle_bullets.kill()  
 
-                for bullet in self.bullets_list:
-                    if bullet.collides_with_list(self.jungle_monster_list):
-                        bullet.kill()
-                        self.count += 1 
-                        if self.count == 25: 
-                            jungle_monster.kill()
+            # Player must hit the jungle monster 25 times to kill him
+            bullets_hit_jungle_monster = jungle_monster.collides_with_list(self.bullets_list)
+                
+            if bullets_hit_jungle_monster:
+                self.count += 1 
+                print(self.count)
+                for bullet in bullets_hit_jungle_monster:
+                    bullet.kill()
+                    if self.count == 25:
+                        jungle_monster.kill()  
+                        key_sprite = arcade.Sprite("assets/key.png")
+                        key_sprite.center_x = jungle_monster.center_x
+                        key_sprite.center_y = jungle_monster.center_y
+                        self.key_list.append(key_sprite)
+
+
+        # If jungle bullets hit player, remove a heart
+        for jungle_bullets in self.jungle_bullets_list:
+            jungle_bullets_hit_player = jungle_bullets.collides_with_sprite(self.player)
+            if jungle_bullets_hit_player:
+                if len(self.hearts_list) is not 0:
+                    heart = self.hearts_list[0]
+                    self.hearts_list.remove(heart)
+                    jungle_bullets.kill()  
                         
-
+        
         # If the player doesn't have any hearts left, they lose 
         if len(self.hearts_list) == 0:
             game_over_view = GameOverView()
             self.window.show_view(game_over_view)
-
+     
     def on_key_press(self, key, key_modifiers):
         # If A is pressed, switch to the next view
         if key == arcade.key.A:
