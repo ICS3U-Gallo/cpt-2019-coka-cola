@@ -133,18 +133,18 @@ class CalebGameView(arcade.View):
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 42500
+            monkey.center_y = HEIGHT + 425
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
-
+      
         # Setup the jungle boss 
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.png")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = 400 # 450
+            jungle_monster.center_y = HEIGHT + 425
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 0
+            jungle_monster.speed_y = 10
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -296,17 +296,30 @@ class CalebGameView(arcade.View):
             # Player must hit the jungle monster 25 times to kill him
             bullets_hit_jungle_monster = jungle_monster.collides_with_list(self.bullets_list)
                 
-            if bullets_hit_jungle_monster:
+            if bullets_hit_jungle_monster and jungle_monster.center_y < 700:
                 self.count += 1 
                 print(self.count)
                 for bullet in bullets_hit_jungle_monster:
                     bullet.kill()
-                    if self.count == 25:
+                    if self.count == 70:
                         jungle_monster.kill()  
+                        # When jungle monster is killed, show key
                         key_sprite = arcade.Sprite("assets/key.png")
                         key_sprite.center_x = jungle_monster.center_x
                         key_sprite.center_y = jungle_monster.center_y
                         self.key_list.append(key_sprite)
+
+                        key_collected = key_sprite.collides_with_sprite(self.player)
+
+                        if key_collected:
+                            for key in key_collected:
+                                key.remove_from_sprite_lists()
+                                completed = True
+
+                                if completed is True:
+                                    self.view_bottom = 0
+                                    self.view_left = 0
+                                    self.window.next_view()
 
 
         # If jungle bullets hit player, remove a heart
