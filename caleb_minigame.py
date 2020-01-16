@@ -4,6 +4,7 @@ import math
 import random
 import settings
 import os
+from kevin_minigame import KevinView
 
 WIDTH = 800
 HEIGHT = 600
@@ -18,10 +19,13 @@ class CalebMenuView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2, settings.HEIGHT//(3/2),
+        arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2, 
+                         settings.HEIGHT//(3/2),
                          arcade.color.BLACK, font_size=40, anchor_x="center")
-        arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2, settings.HEIGHT/2-75,
-                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
+        arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2, 
+                         settings.HEIGHT/2-75, arcade.color.GRAY, 
+                         font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         pass
@@ -123,7 +127,7 @@ class CalebGameView(arcade.View):
         for _ in range(30):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
-            rock.center_y = HEIGHT + 200
+            rock.center_y = HEIGHT + 20000
             rock.texture = self.rock_texture
             rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -133,18 +137,18 @@ class CalebGameView(arcade.View):
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 425
+            monkey.center_y = HEIGHT + 42500
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
       
         # Setup the jungle boss 
         for _ in range(1):
-            jungle_monster = arcade.Sprite("assets/junglemonster.png")
+            jungle_monster = arcade.Sprite("assets/junglemonster.PNG")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 425
+            jungle_monster.center_y = 500 # HEIGHT + 440
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 10
+            jungle_monster.speed_y = 0
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -252,9 +256,10 @@ class CalebGameView(arcade.View):
                     monkey.kill()
             
         for banana in self.banana_list:
-            # If the banana hits the player, the banana is removed and so is a heart 
+            # If the banana hits the player, the banana is removed 
             if banana.collides_with_sprite(self.player):
                 banana.kill()  
+                # Get rid of heart 
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
@@ -301,7 +306,7 @@ class CalebGameView(arcade.View):
                 print(self.count)
                 for bullet in bullets_hit_jungle_monster:
                     bullet.kill()
-                    if self.count == 70:
+                    if self.count == 1:
                         jungle_monster.kill()  
                         # When jungle monster is killed, show key
                         key_sprite = arcade.Sprite("assets/key.png")
@@ -309,18 +314,15 @@ class CalebGameView(arcade.View):
                         key_sprite.center_y = jungle_monster.center_y
                         self.key_list.append(key_sprite)
 
-                        key_collected = key_sprite.collides_with_sprite(self.player)
+        key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
+        for key in key_collected:
+            key.remove_from_sprite_lists()
+            completed = True
 
-                        if key_collected:
-                            for key in key_collected:
-                                key.remove_from_sprite_lists()
-                                completed = True
 
-                                if completed is True:
-                                    self.view_bottom = 0
-                                    self.view_left = 0
-                                    self.window.next_view()
-
+            if completed is True:
+                game_complete = GameCompleteView()
+                self.window.show_view(game_complete)
 
         # If jungle bullets hit player, remove a heart
         for jungle_bullets in self.jungle_bullets_list:
@@ -372,6 +374,7 @@ class CalebGameView(arcade.View):
         Called when a user releases a mouse button.
         """
         pass
+        
 
 class GameOverView(arcade.View):
     def __init__(self):
@@ -398,6 +401,33 @@ class GameOverView(arcade.View):
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = GameView()
         self.window.show_view(game_view)
+
+class GameCompleteView(arcade.View):
+    def __init__(self):
+        super().__init__()
+
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_draw(self):
+        arcade.start_render()
+        """
+        Draw "Game over" across the screen.
+        """
+        arcade.draw_text("Game Complete", 250, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press Space to Continue", 300, 200, arcade.color.WHITE, 24)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.SPACE:
+            next_game = KevinView
+            self.window.show_view(next_game)
+        
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        game_view = GameView()
+        self.window.show_view(game_view)
+        
 
 if __name__ == "__main__":
     from utils import FakeDirector
