@@ -420,7 +420,7 @@ class GameCompleteView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
-            next_game = KevinView
+            next_game = KevinView()
             self.window.show_view(next_game)
         
 
