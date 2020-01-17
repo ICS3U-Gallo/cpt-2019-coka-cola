@@ -63,7 +63,7 @@ class KevinInstructionView(arcade.View):
                          arcade.color.BLACK, font_size=40, anchor_x="center")
         arcade.draw_text("Dodge all the obstacles", settings.WIDTH/2, settings.HEIGHT/2 + 100,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Find the key and open the door", settings.WIDTH/2, settings.HEIGHT/2 + 50,
+        arcade.draw_text("Find the key on the LEFT and open the door on the RIGHT", settings.WIDTH/2, settings.HEIGHT/2 + 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
         arcade.draw_text("there MIGHT be an easter egg", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
@@ -293,6 +293,7 @@ class KevinView(arcade.View):
     def update(self, delta_time):
         self.physics_engine.update()
         self.player_sprite.update()
+        
         if self.haskey == True:
             self.key.center_x = self.player_sprite.center_x
             self.key.center_y = self.player_sprite.center_y + 70
@@ -313,6 +314,10 @@ class KevinView(arcade.View):
         if self.invincible == True:
             self.egg.center_x = self.player_sprite.center_x
             self.egg.center_y = self.player_sprite.center_y
+
+        if self.hasjet == True and self.player_sprite.center_x > 0:
+            self.jetpack.center_x = -2000
+            self.hasjet == False
         #check if invincible
         if self.invincible == False:
             for obstacle in self.obstacles_list:
@@ -331,9 +336,10 @@ class KevinView(arcade.View):
                     
                     self.haskey = True
             for jet in self.jetpack_list:
-                jet_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.jetpack_list)
-                if len(jet_hit_list) > 0:
-                    self.hasjet = True
+                if self.jetpack.center_x == -2900:
+                    jet_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.jetpack_list)
+                    if len(jet_hit_list) > 0:
+                        self.hasjet = True
         
             
             self.frame_count += 1
