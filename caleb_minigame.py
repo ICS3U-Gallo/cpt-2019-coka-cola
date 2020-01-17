@@ -148,9 +148,9 @@ class CalebGameView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 440
+            jungle_monster.center_y = HEIGHT + 480
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 10
+            jungle_monster.speed_y = 15
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -259,7 +259,6 @@ class CalebGameView(arcade.View):
             
         for banana in self.banana_list:
             banana_hit_player = banana.collides_with_sprite(self.player)
-            banana_hit_bullets = banana.collides_with_list(self.bullets_list)
 
             # If the banana hits the player, the banana is removed 
             if banana_hit_player:
@@ -269,16 +268,10 @@ class CalebGameView(arcade.View):
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
 
-            # If a bullet hits a banana, the bullet and banana is destroyed
-            if banana_hit_bullets:
-                banana.kill() 
-                for bullet in self.bullets_list:
-                    bullet.kill()
-
         # Get jungle monster to shoot at player 
         for jungle_monster in self.jungle_monster_list: 
             jungle_monster.center_y -= jungle_monster.speed_y * delta_time
-            if jungle_monster.center_y < 700 and random.randrange(50) == 0:
+            if jungle_monster.center_y < 700 and random.randrange(25) == 0:
                 start_x = jungle_monster.center_x 
                 start_y = jungle_monster.center_y 
 
@@ -291,7 +284,7 @@ class CalebGameView(arcade.View):
 
                 jungle_bullets = arcade.Sprite()
                 jungle_bullets.texture = self.jungle_bullets_texture
-                jungle_bullets_speed = 5 
+                jungle_bullets_speed = 8
                 jungle_bullets.width = 50
                 jungle_bullets.center_x = start_x
                 jungle_bullets.center_y = start_y
@@ -311,7 +304,7 @@ class CalebGameView(arcade.View):
                 print(self.count)
                 for bullet in bullets_hit_jungle_monster:
                     bullet.kill()
-                    if self.count == 50:
+                    if self.count == 100:
                         jungle_monster.kill()  
                         # When jungle monster is killed, show key
                         key_sprite = arcade.Sprite("assets/key.png")
