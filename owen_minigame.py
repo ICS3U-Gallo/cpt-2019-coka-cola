@@ -90,10 +90,16 @@ class OwenMenuView(arcade.View):
         self.view_left = 0
         self.view_bottom = 0
 
-        enemy = arcade.Sprite("assets/rock.png", 0.1)
+        enemy = arcade.Sprite("assets/sand_worm.png", 0.3)
         enemy.center_x = 390
         enemy.center_y = 967
         enemy.angle = 180
+        self.enemy_list.append(enemy)
+
+        enemy = arcade.Sprite("assets/sand_worm.png", 0.3)
+        enemy.center_x = 780
+        enemy.center_y = 70
+        enemy.angle = 0
         self.enemy_list.append(enemy)
 
     def on_draw(self):
@@ -153,7 +159,7 @@ class OwenMenuView(arcade.View):
                 self.bullet_list.append(bullet)
         
         for bullet in self.bullet_list:
-            if bullet.top < 0:
+            if bullet.top < 70:
                 bullet.remove_from_sprite_lists()
         
         self.bullet_list.update()
