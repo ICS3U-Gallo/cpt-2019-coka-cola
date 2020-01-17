@@ -44,15 +44,17 @@ class CalebInstructionView(arcade.View):
         arcade.start_render()
         arcade.draw_text("How to Play?", settings.WIDTH/2, 500,
                          arcade.color.BLACK, font_size=40, anchor_x="center")
-        arcade.draw_text("You have 3 lives. Destroy all the rocks, monkeys and kill", settings.WIDTH/2, settings.HEIGHT/2 + 100,
+        arcade.draw_text("Gameplay: Use the mouse to move around and click to shoot.", settings.WIDTH/2, 450,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("the jungle monster to obtain a key to advance to the next level.", settings.WIDTH/2, settings.HEIGHT/2 + 50,
+        arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the rocks, monkeys and kill", settings.WIDTH/2, settings.HEIGHT/2 + 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Be Careful! If any of them touch you or leave the screen, you will lose a life.", settings.WIDTH/2, settings.HEIGHT/2,
+        arcade.draw_text("the jungle monster to obtain a key to advance to the next level.", settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Good Luck!", settings.WIDTH/2, settings.HEIGHT/2 - 50,
+        arcade.draw_text("Be Careful! If any of them touch you or leave the screen, you will lose a life.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Click SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-150,
+        arcade.draw_text("Good Luck!", settings.WIDTH/2, settings.HEIGHT/2 - 100,
+                         arcade.color.BLACK, font_size=18, anchor_x="center")
+        arcade.draw_text("Click SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-200,
                          arcade.color.BLACK, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
@@ -127,7 +129,7 @@ class CalebGameView(arcade.View):
         for _ in range(30):
             rock = arcade.Sprite()
             rock.center_x = random.randrange(0, WIDTH) 
-            rock.center_y = HEIGHT + 20000
+            rock.center_y = HEIGHT + 200
             rock.texture = self.rock_texture
             rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -137,7 +139,7 @@ class CalebGameView(arcade.View):
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
             monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 42500
+            monkey.center_y = HEIGHT + 425
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
@@ -146,9 +148,9 @@ class CalebGameView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = 500 # HEIGHT + 440
+            jungle_monster.center_y = HEIGHT + 440
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 0
+            jungle_monster.speed_y = 10
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 
@@ -277,11 +279,11 @@ class CalebGameView(arcade.View):
                 start_x = jungle_monster.center_x 
                 start_y = jungle_monster.center_y 
 
-                dest_x = self.player.center_x
-                dest_y = self.player.center_y
+                final_x = self.player.center_x
+                final_y = self.player.center_y
 
-                dist_x = dest_x - start_x
-                dist_y = dest_y - start_y 
+                dist_x = final_x - start_x
+                dist_y = final_y - start_y 
                 angle = math.atan2(dist_y, dist_x)
 
                 jungle_bullets = arcade.Sprite()
@@ -306,13 +308,21 @@ class CalebGameView(arcade.View):
                 print(self.count)
                 for bullet in bullets_hit_jungle_monster:
                     bullet.kill()
-                    if self.count == 1:
+                    if self.count == 50:
                         jungle_monster.kill()  
                         # When jungle monster is killed, show key
                         key_sprite = arcade.Sprite("assets/key.png")
                         key_sprite.center_x = jungle_monster.center_x
                         key_sprite.center_y = jungle_monster.center_y
                         self.key_list.append(key_sprite)
+
+            # If player hits jungle monster, player loses lives 
+            jungle_monster_hit_player = jungle_monster.collides_with_sprite(self.player)
+
+            if jungle_monster_hit_player or jungle_monster.center_y < 0:
+                if len(self.hearts_list) is not 0:
+                    heart = self.hearts_list[0]
+                    self.hearts_list.remove(heart)
 
         key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
         for key in key_collected:
@@ -415,8 +425,8 @@ class GameCompleteView(arcade.View):
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Game Complete", 250, 400, arcade.color.WHITE, 54)
-        arcade.draw_text("Press Space to Continue", 300, 200, arcade.color.WHITE, 24)
+        arcade.draw_text("Game Complete", 200, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press Space to Advance", 255, 200, arcade.color.WHITE, 24)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
