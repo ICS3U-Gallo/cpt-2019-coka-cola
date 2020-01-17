@@ -3,6 +3,7 @@ import settings
 import random
 import os
 import math
+import time
 
 # Constant variables
 VIEWPORT_MARGIN = 100
@@ -25,7 +26,7 @@ BULLET_IMAGE = "assets/bullet.png"
 WALL_IMAGE = "assets/sandblock.png"
 KEY_IMAGE = "assets/key.png"
 
-window = None
+# window = None
 
 
 class Player(arcade.Sprite):
@@ -136,14 +137,36 @@ class Enemy(arcade.Sprite):
         self.health_background_sprite.center_y = self.health_y
 
         self.health_sprite.width = self.health
+
+        if self.change_x < 0:
+            self.set_texture(settings.TEXTURE_LEFT)
+        if self.change_x > 0:
+            self.set_texture(settings.TEXTURE_RIGHT)
     
     def follow_player(self, player_sprite):
-        self.center_x += self.change_x
-        self.center_y += self.change_y
+        
+        # print(self.center_x, self.change_x, self.center_y , self.change_y)
+        new_center_x = self.center_x + self.change_x
+        new_center_y = self.center_y + self.change_y
+
+        if self.check_x(new_center_x) and self.check_y(new_center_y):
+            # print("here", new_center_x, -new_center_y)
+            self.center_x = new_center_x
+            self.center_y = new_center_y
+        else:
+            # print("here1", new_center_x, -new_center_y)
+            new_center_x = self.center_x - self.change_x + 2
+            new_center_y = self.center_y - self.change_y + 2
+            if self.check_x(new_center_x) and self.check_y(new_center_y):
+                # print("here2", new_center_x, -new_center_y)
+                self.center_x = new_center_x
+                self.center_y = new_center_y
+            # else:
+            #     # print("here3", new_center_x, -new_center_y)
 
         # Random 1 in 100 chance that we'll change from our old direction and
         # then re-aim toward the player
-        if random.randrange(100) == 0:
+        if random.randrange(20) == 0:
             start_x = self.center_x
             start_y = self.center_y
 
@@ -162,6 +185,17 @@ class Enemy(arcade.Sprite):
             # and change_y. Velocity is how fast the bullet travels.
             self.change_x = math.cos(angle) * 5
             self.change_y = math.sin(angle) * 5
+            # time.sleep(1)
+            
+    def check_x(self, value):
+        if 565 <= value <= 1285:
+            return True
+        return False
+    
+    def check_y(self, value):
+        if -604 <= value <= -84:
+            return True
+        return False
 
 
 class AlexMenuView(arcade.View):
@@ -249,8 +283,8 @@ class AlexGameView(arcade.View):
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = 0
-        self.player_sprite.center_y = 40
+        self.player_sprite.center_x = 800
+        self.player_sprite.center_y = -500
         self.player_list.append(self.player_sprite)
 
     def on_show(self):
@@ -259,9 +293,7 @@ class AlexGameView(arcade.View):
         completed = False
 
         # Add enemies
-        for x in range(620, 1221, 600):
-            for y in range(135, 536, 400):
-                self.add_enemy(x, -y)
+        self.add_enemy(800, -400)
 
         self.add_boss(-140, 140)
         #self.add_boss(930, -500)
@@ -354,6 +386,8 @@ class AlexGameView(arcade.View):
 
     def on_update(self, delta_time):
         global completed
+
+        print(self.player_sprite.center_x, self.player_sprite.center_y)
         
         """ Movement and game logic """
 
