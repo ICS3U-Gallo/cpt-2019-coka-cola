@@ -204,11 +204,13 @@ class AlexMenuView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2,
+        arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2 + 100,
                          arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2 + 25,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
-        arcade.draw_text("Press I for instructions.", settings.WIDTH/2, settings.HEIGHT/2-150,
+        arcade.draw_text("Press I for instructions.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+        arcade.draw_text("Press N for the next game.", settings.WIDTH/2, settings.HEIGHT/2 - 125,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
@@ -218,6 +220,8 @@ class AlexMenuView(arcade.View):
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
             self.window.show_view(instructions_view)
+        elif key == arcade.key.N:
+            self.director.next_view()
 
 
 class AlexInstructionView(arcade.View):
@@ -283,8 +287,8 @@ class AlexGameView(arcade.View):
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = 800
-        self.player_sprite.center_y = -500
+        self.player_sprite.center_x = 0
+        self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
     def on_show(self):
@@ -443,17 +447,31 @@ class AlexGameView(arcade.View):
         for enemy in self.enemy_list:
             enemy.follow_player(self.player_sprite)
 
+            player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+            if len(player_hit_list) > 0:
+                self.player_health -= 10
+                enemy.remove_from_sprite_lists()
+                enemy.health_outline_sprite.remove_from_sprite_lists()
+                enemy.health_background_sprite.remove_from_sprite_lists()
+                enemy.health_sprite.remove_from_sprite_lists()
+                if self.player_health <= 0:
+                    self.player_sprite.remove_from_sprite_lists()    
+                    self.view_bottom = 0
+                    self.view_left = 0
+                    game_over_view = GameOverView()
+                    self.window.show_view(game_over_view)
+
+
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
         for key in key_collected:
             key.remove_from_sprite_lists()
             completed = True
 
-
         if completed is True:
             self.view_bottom = 0
             self.view_left = 0
-            game_over_view = GameOverView()
-            self.window.show_view(game_over_view)
+            alex_menu_view = AlexMenuView()
+            self.window.show_view(alex_menu_view)
 
         self.manage_scrolling()
 
@@ -703,6 +721,27 @@ class GameOverView(arcade.View):
         if key == arcade.key.R:
             game_view = AlexGameView()
             self.window.show_view(game_view)
+
+
+class GameCompletedView(arcade.View):
+    def __init__(self):
+        super().__init__()
+
+    def on_show(self):
+        arcade.set_background_color(arcade.color.YELLOW)
+
+    def on_draw(self):
+        arcade.start_render()
+        """
+        Draw "Game over" across the screen.
+        """
+        arcade.draw_text("YOU WIN!", 240, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Press ENTER to go back to main menu.", 310, 300, arcade.color.WHITE, 24)
+
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.ENTER:
+            alex_menu_view = AlexMenuView()
+            self.window.show_view(alex_menu_view)
 
 
 if __name__ == "__main__":
