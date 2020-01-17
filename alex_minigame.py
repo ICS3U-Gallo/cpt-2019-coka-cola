@@ -219,10 +219,10 @@ class AlexMenuView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.P:
             game_view = AlexGameView()
-            window.show_view(game_view)
+            self.window.show_view(game_view)
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
-            window.show_view(instructions_view)
+            self.window.show_view(instructions_view)
         elif key == arcade.key.N:
             self.director.next_view()
 
@@ -255,7 +255,7 @@ class AlexInstructionView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             menu_view = AlexMenuView()
-            window.show_view(menu_view)
+            self.window.show_view(menu_view)
 
 
 class AlexGameView(arcade.View):
@@ -476,7 +476,7 @@ class AlexGameView(arcade.View):
                     self.view_bottom = 0
                     self.view_left = 0
                     game_over_view = GameOverView()
-                    window.show_view(game_over_view)
+                    self.window.show_view(game_over_view)
 
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
@@ -488,7 +488,7 @@ class AlexGameView(arcade.View):
             self.view_bottom = 0
             self.view_left = 0
             game_completed_view = GameCompletedView()
-            window.show_view(game_completed_view)
+            self.window.show_view(game_completed_view)
 
         self.manage_scrolling()
 
@@ -507,7 +507,7 @@ class AlexGameView(arcade.View):
         elif key == arcade.key.ESCAPE:
             # pass self, the current view, to preserve this view's state
             pause = PauseView(self)
-            window.show_view(pause)
+            self.window.show_view(pause)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -713,10 +713,10 @@ class PauseView(arcade.View):
 
     def on_key_press(self, key, _modifiers):
         if key == arcade.key.ESCAPE:   # resume game
-            window.show_view(self.alex_game_view)
+            self.window.show_view(self.alex_game_view)
         elif key == arcade.key.ENTER:  # reset game
             game_view = AlexGameView()
-            window.show_view(game_view)
+            self.window.show_view(game_view)
 
 
 class GameOverView(arcade.View):
@@ -737,7 +737,7 @@ class GameOverView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             game_view = AlexGameView()
-            window.show_view(game_view)
+            self.window.show_view(game_view)
 
 
 class GameCompletedView(arcade.View):
@@ -755,7 +755,7 @@ class GameCompletedView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
             alex_menu_view = AlexMenuView()
-            window.show_view(alex_menu_view)
+            self.window.show_view(alex_menu_view)
 
 
 if __name__ == "__main__":
