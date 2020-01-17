@@ -8,7 +8,7 @@ SPRITE_SCALING = 0.5
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Flappy Jones"
-VIEWPORT_MARGIN = 600
+VIEWPORT_MARGIN = 300
 MOVEMENT_SPEED = 5
 BULLET_SPEED = 2
 
@@ -50,7 +50,7 @@ class OwenMenuView(arcade.View):
         self.player_sprite = arcade.Sprite("assets/indiana_jones.png", 0.3)
         self.player_sprite.center_x = 64 
         self.player_sprite.center_y = 270
-        self.player_list.append(self.player_sprite)
+        self.player_list.append(self.player_sprite) 
 
         for x in range(200, 1650, 64):
             wall = arcade.Sprite("assets/rock.png", 0.1)
@@ -58,7 +58,7 @@ class OwenMenuView(arcade.View):
             wall.center_y = 0
             self.wall_list.append(wall)
         
-        for x in range(200, 1650, 64):
+        for x in range(200, 1650, 64): 
             wall = arcade.Sprite("assets/rock.png", 0.1)
             wall.center_x = x
             wall.center_y = 1035
@@ -105,12 +105,14 @@ class OwenMenuView(arcade.View):
         arcade.start_render()
 
         # Draw all the sprites.
+        self.player_sprite.draw()
         self.wall_list.draw()
-        self.player_list.draw()
+        
 
         self.enemy_list.draw()
-        self.bullet_list.draw()
-        self.player_list.draw()
+        self.bullet_list.draw() 
+
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -143,7 +145,7 @@ class OwenMenuView(arcade.View):
 
         for enemy in self.enemy_list:
             if self.frame_count % 120 == 0:
-                bullet = arcade.Sprite("assets/bullet.png")
+                bullet = arcade.Sprite("assets/bullet.png", 0.3)
                 bullet.center_x = enemy.center_x
                 bullet.angle = -90
                 bullet.top = enemy.bottom
@@ -202,5 +204,4 @@ if __name__ == "__main__":
     my_view = OwenMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
-    # main()
     arcade.run()
