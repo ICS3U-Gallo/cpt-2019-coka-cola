@@ -4,6 +4,7 @@ import random
 import os
 import math
 import time
+from caleb_minigame import CalebMenuView
 
 # Constant variables
 VIEWPORT_MARGIN = 100
@@ -187,12 +188,12 @@ class Enemy(arcade.Sprite):
             self.change_x = math.cos(angle) * 5
             self.change_y = math.sin(angle) * 5
             # time.sleep(1)
-            
+
     def check_x(self, value):
         if 565 <= value <= 1285:
             return True
         return False
-    
+
     def check_y(self, value):
         if -604 <= value <= -84:
             return True
@@ -224,7 +225,8 @@ class AlexMenuView(arcade.View):
             instructions_view = AlexInstructionView()
             self.window.show_view(instructions_view)
         elif key == arcade.key.N:
-            self.director.next_view()
+            caleb_menu_view = CalebMenuView()
+            self.window.show_view(caleb_menu_view)
 
 
 class AlexInstructionView(arcade.View):
@@ -266,8 +268,6 @@ class AlexGameView(arcade.View):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-
-
         # Set up the player info
         self.player_sprite = None
         self.player_health = 60
@@ -287,6 +287,7 @@ class AlexGameView(arcade.View):
         self.wall_list = None
         self.gem_list = None
         self.bullet_list = None
+        self.boss_bullets_list = None
         self.enemy_list = None
         self.boss_list = None
         self.key_list = None
@@ -297,6 +298,7 @@ class AlexGameView(arcade.View):
         self.wall_list = arcade.SpriteList()
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
+        self.boss_bullets_list = arcade.SpriteList
         self.enemy_list = arcade.SpriteList()
         self.boss_list = arcade.SpriteList()
         self.key_list = arcade.SpriteList()
@@ -372,7 +374,9 @@ class AlexGameView(arcade.View):
             self.add_gem(gem_type, x, y)
             list_of_gem_coordinates.remove((x, y))
 
-        
+        self.boss_bullets_texture = arcade.make_soft_circle_texture(10, 
+                         arcade.color.RED, outer_alpha=255)
+
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
         arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
@@ -394,6 +398,7 @@ class AlexGameView(arcade.View):
         self.player_list.draw()
         self.gem_list.draw()
         self.bullet_list.draw()
+        self.boss_bullets_list.draw()
         self.enemy_list.draw()
         if self.boss_sprite.health > 0:
             self.boss_list.draw()
@@ -409,13 +414,14 @@ class AlexGameView(arcade.View):
         global completed
 
         print(self.player_sprite.center_x, self.player_sprite.center_y)
-        
+
         """ Movement and game logic """
 
         # Call an update on all sprites
         self.physics_engine.update()
         self.player_sprite.update()
         self.bullet_list.update()
+        self.boss_bullets_list.update()
         self.gem_list.update()
         self.enemy_list.update()
         self.boss_list.update()
@@ -438,7 +444,7 @@ class AlexGameView(arcade.View):
 
             if len(enemy_hit_list) > 0:
                 bullet.remove_from_sprite_lists()
-            
+
             for enemy in enemy_hit_list:
                 enemy.health -= 25
                 if enemy.health <= 0:
@@ -446,7 +452,7 @@ class AlexGameView(arcade.View):
                     enemy.health_outline_sprite.remove_from_sprite_lists()
                     enemy.health_background_sprite.remove_from_sprite_lists()
                     enemy.health_sprite.remove_from_sprite_lists()
-            
+
             # Check if boss hit
             boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
             if len(boss_hit_list) > 0:
@@ -478,6 +484,37 @@ class AlexGameView(arcade.View):
                     game_over_view = GameOverView()
                     self.window.show_view(game_over_view)
 
+        for boss in self.boss_list:
+            if random.randrange(50) == 0:
+                start_x = boss.center_x
+                start_y = boss.center_y
+
+                final_x = self.player_sprite.center_x
+                final_y = self.player_sprite.center_y
+
+                dist_x = final_x - start_x
+                dist_y = final_y - start_y
+                angle = math.atan2(dist_y, dist_x)
+
+                boss_bullets = arcade.Sprite()
+                boss_bullets.texture = self.boss_bullets_texture
+                boss_bullets_speed = 5
+                boss_bullets.width = 10
+                boss_bullets.center_x = start_x
+                boss_bullets.center_y = start_y
+
+                boss_bullets.angle = math.degrees(angle)
+
+                boss_bullets.change_x = math.cos(angle) * boss_bullets_speed
+                boss_bullets.change_y = math.sin(angle) * boss_bullets_speed
+                self.boss_bullets_list.append(boss_bullets)
+
+            # If player hits jungle monster, player loses lives
+            boss_hit_player = boss.collides_with_sprite(self.player_sprite)
+
+            if delta_time % 3 == 0:
+                if boss_hit_player:
+                    self.player_health -= 10
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
         for key in key_collected:

@@ -8,13 +8,14 @@ class MenuView(arcade.View):
         arcade.set_background_color(arcade.color.BLUE)
         # Set up the viewport boundaries
 
-
     def on_draw(self):
 
         arcade.start_render()
-        title = arcade.Sprite("assets/title_indiana_jones.png", 0.5, center_x=400, center_y=475)
+        title = arcade.Sprite("assets/title_indiana_jones.png", 0.5,
+                              center_x=400, center_y=475)
         title.draw()
-        chest = arcade.Sprite("assets/treasure_chest.png", center_x=400, center_y=300)
+        chest = arcade.Sprite("assets/treasure_chest.png", center_x=400,
+                              center_y=300)
         chest.draw()
         arcade.draw_text("Press SPACE to start.", settings.WIDTH/2, 100,
                          arcade.color.BLACK, font_size=15, anchor_x="center")
@@ -22,6 +23,7 @@ class MenuView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             self.director.next_view()
+
 
 if __name__ == "__main__":
     """This section of code will allow you to run your View
