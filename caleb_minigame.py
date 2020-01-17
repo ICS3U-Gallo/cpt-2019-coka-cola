@@ -203,7 +203,7 @@ class CalebGameView(arcade.View):
             # Make rocks move 
             rock.center_y -= rock.speed * delta_time
             bullets_hit_rock = rock.collides_with_list(self.bullets_list)
-            player_hit_rock = rock.collides_with_sprite(self.player)
+            rock_hit_player = rock.collides_with_sprite(self.player)
             
             # Get rid of rock and bullets when they collide 
             if bullets_hit_rock:
@@ -213,7 +213,7 @@ class CalebGameView(arcade.View):
                     bullet.kill()
 
             # Get rid of a heart when rock collides with player or leaves screen  
-            if player_hit_rock or rock.center_y < 0:
+            if rock_hit_player or rock.center_y < 0:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
@@ -258,8 +258,11 @@ class CalebGameView(arcade.View):
                     monkey.kill()
             
         for banana in self.banana_list:
+            banana_hit_player = banana.collides_with_sprite(self.player)
+            banana_hit_bullets = banana.collides_with_list(self.bullets_list)
+
             # If the banana hits the player, the banana is removed 
-            if banana.collides_with_sprite(self.player):
+            if banana_hit_player:
                 banana.kill()  
                 # Get rid of heart 
                 if len(self.hearts_list) is not 0:
@@ -267,7 +270,7 @@ class CalebGameView(arcade.View):
                     self.hearts_list.remove(heart)
 
             # If a bullet hits a banana, the bullet and banana is destroyed
-            if banana.collides_with_list(self.bullets_list):
+            if banana_hit_bullets:
                 banana.kill() 
                 for bullet in self.bullets_list:
                     bullet.kill()
