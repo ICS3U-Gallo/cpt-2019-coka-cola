@@ -25,6 +25,7 @@ GEM_RED_IMAGE = "assets/gem_red.png"
 BULLET_IMAGE = "assets/bullet.png"
 WALL_IMAGE = "assets/sandblock.png"
 KEY_IMAGE = "assets/key.png"
+ARCADE_FONT = "assets/arcade_font/PressStart2P-vaV7.ttf"
 
 # window = None
 
@@ -200,45 +201,61 @@ class Enemy(arcade.Sprite):
 
 class AlexMenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.WHITE)
+        arcade.set_background_color(arcade.color.SAND_DUNE)
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Menu Screen", settings.WIDTH/2, settings.HEIGHT/2 + 100,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
+        arcade.draw_text("The Sand Temple", settings.WIDTH/2, settings.HEIGHT/2 + 150,
+                         arcade.color.DARK_GRAY, font_size=40, anchor_x="center", font_name=ARCADE_FONT)
         arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2 + 25,
-                         arcade.color.GRAY, font_size=20, anchor_x="center")
+                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
         arcade.draw_text("Press I for instructions.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
-                         arcade.color.GRAY, font_size=20, anchor_x="center")
+                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
         arcade.draw_text("Press N for the next game.", settings.WIDTH/2, settings.HEIGHT/2 - 125,
-                         arcade.color.GRAY, font_size=20, anchor_x="center")
+                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
+        arcade.draw_text("Main Menu", settings.WIDTH/2, settings.HEIGHT/2 - 250,
+                         arcade.color.BLACK, font_size=10, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.P:
             game_view = AlexGameView()
-            self.window.show_view(game_view)
+            window.show_view(game_view)
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
-            self.window.show_view(instructions_view)
+            window.show_view(instructions_view)
         elif key == arcade.key.N:
             self.director.next_view()
 
 
 class AlexInstructionView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.ORANGE_PEEL)
+        arcade.set_background_color(arcade.color.SAND)
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_text("Instructions Screen", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
-        arcade.draw_text("Press ESCAPE to go back to menu.", settings.WIDTH/2, settings.HEIGHT/2-75,
+        arcade.draw_text("How to Play?", settings.WIDTH/2, settings.HEIGHT/2 + 150,
+                         arcade.color.BLACK, font_size=35, anchor_x="center", font_name=ARCADE_FONT)
+        arcade.draw_text("Gameplay: Use AWSD or the arrow keys to move around and click to shoot.",
+                         settings.WIDTH/2, settings.HEIGHT/2 + 75, arcade.color.BLACK, font_size=18,
+                         anchor_x="center")
+        arcade.draw_text("Goal: Find your way through the maze. Collect the gems along the way.",
+                         settings.WIDTH/2, settings.HEIGHT/2 + 25, arcade.color.BLACK, font_size=18,
+                         anchor_x="center")
+        arcade.draw_text("Once you reach the end of the maze, fight the sand enemies and the sand boss.",
+                         settings.WIDTH/2, settings.HEIGHT/2 - 25, arcade.color.BLACK, font_size=18,
+                         anchor_x="center")
+        arcade.draw_text("Kill the sand boss to obtain a key and progress to the next adventure!",
+                         settings.WIDTH/2, settings.HEIGHT/2 - 75, arcade.color.BLACK, font_size=18,
+                         anchor_x="center")
+        arcade.draw_text("Press ESCAPE to go back to menu.", settings.WIDTH/2, settings.HEIGHT/2 - 175,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
+        arcade.draw_text("Instructions", settings.WIDTH/2, settings.HEIGHT/2 - 250,
+                         arcade.color.BLACK, font_size=10, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             menu_view = AlexMenuView()
-            self.window.show_view(menu_view)
+            window.show_view(menu_view)
 
 
 class AlexGameView(arcade.View):
@@ -459,7 +476,7 @@ class AlexGameView(arcade.View):
                     self.view_bottom = 0
                     self.view_left = 0
                     game_over_view = GameOverView()
-                    self.window.show_view(game_over_view)
+                    window.show_view(game_over_view)
 
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
@@ -470,8 +487,8 @@ class AlexGameView(arcade.View):
         if completed is True:
             self.view_bottom = 0
             self.view_left = 0
-            alex_menu_view = AlexMenuView()
-            self.window.show_view(alex_menu_view)
+            game_completed_view = GameCompletedView()
+            window.show_view(game_completed_view)
 
         self.manage_scrolling()
 
@@ -490,7 +507,7 @@ class AlexGameView(arcade.View):
         elif key == arcade.key.ESCAPE:
             # pass self, the current view, to preserve this view's state
             pause = PauseView(self)
-            self.window.show_view(pause)
+            window.show_view(pause)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -696,10 +713,10 @@ class PauseView(arcade.View):
 
     def on_key_press(self, key, _modifiers):
         if key == arcade.key.ESCAPE:   # resume game
-            self.window.show_view(self.alex_game_view)
+            window.show_view(self.alex_game_view)
         elif key == arcade.key.ENTER:  # reset game
             game_view = AlexGameView()
-            self.window.show_view(game_view)
+            window.show_view(game_view)
 
 
 class GameOverView(arcade.View):
@@ -720,7 +737,7 @@ class GameOverView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             game_view = AlexGameView()
-            self.window.show_view(game_view)
+            window.show_view(game_view)
 
 
 class GameCompletedView(arcade.View):
@@ -732,16 +749,13 @@ class GameCompletedView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-        """
-        Draw "Game over" across the screen.
-        """
         arcade.draw_text("YOU WIN!", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press ENTER to go back to main menu.", 310, 300, arcade.color.WHITE, 24)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
             alex_menu_view = AlexMenuView()
-            self.window.show_view(alex_menu_view)
+            window.show_view(alex_menu_view)
 
 
 if __name__ == "__main__":
@@ -754,7 +768,7 @@ if __name__ == "__main__":
     # what you are doing.
     # """
     from utils import FakeDirector
-    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT, title=settings.TITLE)
     my_view = AlexMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
