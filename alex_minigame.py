@@ -289,6 +289,7 @@ class Boss(arcade.Sprite):
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
 
+
 class AlexMenuView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.SAND_DUNE)
@@ -309,13 +310,14 @@ class AlexMenuView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.P:
             game_view = AlexGameView()
+            game_view.director = self.director
             self.window.show_view(game_view)
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
+            instructions_view.director = self.director
             self.window.show_view(instructions_view)
         elif key == arcade.key.N:
-            caleb_menu_view = CalebMenuView()
-            self.window.show_view(caleb_menu_view)
+            self.director.next_view()
 
 
 class AlexInstructionView(arcade.View):
@@ -346,6 +348,7 @@ class AlexInstructionView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ESCAPE:
             menu_view = AlexMenuView()
+            menu_view.director = self.director
             self.window.show_view(menu_view)
 
 
@@ -602,15 +605,15 @@ class AlexGameView(arcade.View):
             for boss in self.boss_list:
                 # A 1 in 50 chance that the boss shoots
                 if random.randrange(50) == 0:
-                    # Where the bullet starts from
+                    # Position the bullet at the player's current location
                     start_x = boss.center_x
                     start_y = boss.center_y
 
-                    # Where the bullet should end
+                    # Get from the player the destination location for the bullet
                     final_x = self.player_sprite.center_x
                     final_y = self.player_sprite.center_y
 
-                    # Difference from the start to end
+                    # Get from the mouse the destination location for the bullet
                     dist_x = final_x - start_x
                     dist_y = final_y - start_y
                     angle = math.atan2(dist_y, dist_x)
@@ -672,7 +675,7 @@ class AlexGameView(arcade.View):
 
         # Check if player collected the key
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
-        
+
         # If player did, game is completed
         for key in key_collected:
             key.remove_from_sprite_lists()
@@ -686,6 +689,7 @@ class AlexGameView(arcade.View):
 
             # Show game completed view
             game_completed_view = GameCompletedView()
+            game_completed_view.director = self.director
             self.window.show_view(game_completed_view)
 
         # Called to manage screen scrolling
@@ -730,8 +734,6 @@ class AlexGameView(arcade.View):
         bullet.center_y = start_y
 
         # Get from the mouse the destination location for the bullet
-        # IMPORTANT! If you have a scrolling screen, you will also need
-        # to add in self.view_bottom and self.view_left.
         dest_x = x + self.view_left
         dest_y = y + self.view_bottom
 
@@ -744,7 +746,6 @@ class AlexGameView(arcade.View):
 
         # Angle the bullet sprite
         bullet.angle = math.degrees(angle)
-        print(f"Bullet angle: {bullet.angle:.2f}")
 
         # calculate our change_x and change_y
         bullet.change_x = math.cos(angle) * BULLET_SPEED
@@ -934,8 +935,7 @@ class GameCompletedView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
-            alex_menu_view = AlexMenuView()
-            self.window.show_view(alex_menu_view)
+            self.director.next_view()
 
 
 if __name__ == "__main__":
