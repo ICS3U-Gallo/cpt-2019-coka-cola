@@ -150,7 +150,7 @@ class CalebGameView(arcade.View):
             jungle_monster.center_x = 400
             jungle_monster.center_y = HEIGHT + 480
             jungle_monster.speed_x = 0 
-            jungle_monster.speed_y = 15
+            jungle_monster.speed_y = 10
             self.jungle_monster_list.append(jungle_monster) 
         
         # Set up Jungle bullets 

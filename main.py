@@ -4,7 +4,7 @@ import settings
 
 from menu import MenuView
 from alex_minigame import AlexMenuView
-from caleb_minigame import CalebGameView
+from caleb_minigame import CalebMenuView
 from kevin_minigame import KevinView
 
 
@@ -15,7 +15,7 @@ class Director(arcade.Window):
         self.views = [
             MenuView,
             AlexMenuView,
-            CalebGameView,
+            CalebMenuView,
             KevinView
         ]
         self.next_view()
