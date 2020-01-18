@@ -234,7 +234,7 @@ class Boss(arcade.Sprite):
         # Initialize variables to use when drawing the health bar sprites.
         self.health_x = self.center_x - 98 + (self.health/2)
         self.health_max_x = self.center_x - 98 + (200/2)
-        self.health_y = self.center_y + 95
+        self.health_y = self.center_y + 90
 
         # Health bar that changes colour.
         self.health_sprite = arcade.Sprite()
@@ -262,9 +262,9 @@ class Boss(arcade.Sprite):
         self.health_background_sprite.width = self.health_bar_width - 2
 
     def update(self):
-        self.health_x = self.center_x - 40 + (self.health/2)
-        self.health_max_x = self.center_x - 40 + (75/2)
-        self.health_y = self.center_y + 47
+        self.health_x = self.center_x - 98 + (self.health/2)
+        self.health_max_x = self.center_x - 98 + (200/2)
+        self.health_y = self.center_y + 90
 
         # Check to see what colour the health bar should be based on
         # how much health the enemy has.
@@ -360,7 +360,7 @@ class AlexGameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_health = 60
+        self.player_health = 700
         self.view_bottom = 0
         self.view_left = 0
         self.collected = 0
@@ -408,7 +408,7 @@ class AlexGameView(arcade.View):
         # Add enemies
         self.add_enemy(800, -400)
 
-        self.add_boss(800, -600)
+        self.add_boss(1000, -500)
         #self.add_boss(930, -500)
 
         # Map of the maze
@@ -546,10 +546,16 @@ class AlexGameView(arcade.View):
             # Check if boss hit
             boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
             if len(boss_hit_list) > 0:
-                self.boss_sprite.health -= 25
-                if self.boss_sprite.health <= 0:
-                    self.boss_sprite.remove_from_sprite_lists()
                 bullet.remove_from_sprite_lists()
+
+            for boss in boss_hit_list:
+                boss.health -= 25
+                if boss.health <= 0:
+                    boss.remove_from_sprite_lists()
+                    boss.health_outline_sprite.remove_from_sprite_lists()
+                    boss.health_background_sprite.remove_from_sprite_lists()
+                    boss.health_sprite.remove_from_sprite_lists()
+
 
             if self.boss_sprite.health <= 0:
                 key_sprite = arcade.Sprite(KEY_IMAGE)
