@@ -370,6 +370,8 @@ class AlexGameView(arcade.View):
         self.red_gem_collected = False
         self.frame_count = 0
         self.last_hit = 0
+        self.player_entered_boss_room = False
+        self.door = 0
 
         """ Set up the game and initialize the variables. """
         # Variables to sprite lists
@@ -408,7 +410,7 @@ class AlexGameView(arcade.View):
         completed = False
 
         # Add enemies
-        # self.add_enemy(800, -400)
+        self.add_enemy(800, -400)
 
         self.add_boss(1000, -500)
         #self.add_boss(930, -500)
@@ -430,7 +432,7 @@ class AlexGameView(arcade.View):
                     [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
                     [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, self.door, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -509,6 +511,10 @@ class AlexGameView(arcade.View):
 
         self.frame_count += 1
 
+        if self.player_sprite.center_y < -90:
+            self.player_entered_boss_room = True
+            self.door = 1
+
         # Call an update on all sprites
         self.physics_engine.update()
         self.player_sprite.update()
@@ -565,75 +571,76 @@ class AlexGameView(arcade.View):
                 key_sprite.center_y = self.boss_sprite.center_y
                 self.key_list.append(key_sprite)
 
-        for enemy in self.enemy_list:
-            enemy.follow_player(self.player_sprite)
+        if self.player_entered_boss_room:
+            for enemy in self.enemy_list:
+                enemy.follow_player(self.player_sprite)
 
-            player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
-            
-            if len(player_hit_list) > 0:
-                self.player_health -= 10
-                enemy.remove_from_sprite_lists()
-                enemy.health_outline_sprite.remove_from_sprite_lists()
-                enemy.health_background_sprite.remove_from_sprite_lists()
-                enemy.health_sprite.remove_from_sprite_lists()
+                player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+                
+                if len(player_hit_list) > 0:
+                    self.player_health -= 10
+                    enemy.remove_from_sprite_lists()
+                    enemy.health_outline_sprite.remove_from_sprite_lists()
+                    enemy.health_background_sprite.remove_from_sprite_lists()
+                    enemy.health_sprite.remove_from_sprite_lists()
+                    if self.player_health <= 0:
+                        self.player_sprite.remove_from_sprite_lists()    
+                        self.view_bottom = 0
+                        self.view_left = 0
+                        game_over_view = GameOverView()
+                        self.window.show_view(game_over_view)
+
+            for boss in self.boss_list:
+                if random.randrange(50) == 0:
+                    start_x = boss.center_x
+                    start_y = boss.center_y
+
+                    final_x = self.player_sprite.center_x
+                    final_y = self.player_sprite.center_y
+
+                    dist_x = final_x - start_x
+                    dist_y = final_y - start_y
+                    angle = math.atan2(dist_y, dist_x)
+
+                    boss_bullets = arcade.Sprite()
+                    boss_bullets.texture = self.boss_bullets_texture
+                    boss_bullets_speed = 5
+                    boss_bullets.width = 30
+                    boss_bullets.center_x = start_x
+                    boss_bullets.center_y = start_y
+
+                    boss_bullets.angle = math.degrees(angle)
+
+                    boss_bullets.change_x = math.cos(angle) * boss_bullets_speed
+                    boss_bullets.change_y = math.sin(angle) * boss_bullets_speed
+                    self.boss_bullets_list.append(boss_bullets)
+
+                # If player hits jungle monster, player loses lives
+                boss_hit_player = boss.collides_with_sprite(self.player_sprite)
+
+                if self.frame_count >= self.last_hit + 30:
+                    if boss_hit_player:
+                        self.player_health -= 10
+                        self.last_hit = self.frame_count
+
+            for bullet in self.boss_bullets_list:
+                # Check this bullet to see if it hit a coin
+                disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
+                # If it did, get rid of the bullet
+                if len(disappear_list) > 0:
+                    bullet.remove_from_sprite_lists()
+
+                player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullets_list)
+
+                if len(player_hit_list) > 0:
+                    self.player_health -= 10
+                    bullet.remove_from_sprite_lists()
+                
                 if self.player_health <= 0:
-                    self.player_sprite.remove_from_sprite_lists()    
-                    self.view_bottom = 0
-                    self.view_left = 0
+                    self.player_sprite.remove_from_sprite_lists()
+
                     game_over_view = GameOverView()
                     self.window.show_view(game_over_view)
-
-        for boss in self.boss_list:
-            if random.randrange(50) == 0:
-                start_x = boss.center_x
-                start_y = boss.center_y
-
-                final_x = self.player_sprite.center_x
-                final_y = self.player_sprite.center_y
-
-                dist_x = final_x - start_x
-                dist_y = final_y - start_y
-                angle = math.atan2(dist_y, dist_x)
-
-                boss_bullets = arcade.Sprite()
-                boss_bullets.texture = self.boss_bullets_texture
-                boss_bullets_speed = 5
-                boss_bullets.width = 30
-                boss_bullets.center_x = start_x
-                boss_bullets.center_y = start_y
-
-                boss_bullets.angle = math.degrees(angle)
-
-                boss_bullets.change_x = math.cos(angle) * boss_bullets_speed
-                boss_bullets.change_y = math.sin(angle) * boss_bullets_speed
-                self.boss_bullets_list.append(boss_bullets)
-
-            # If player hits jungle monster, player loses lives
-            boss_hit_player = boss.collides_with_sprite(self.player_sprite)
-
-            if self.frame_count >= self.last_hit + 30:
-                if boss_hit_player:
-                    self.player_health -= 10
-                    self.last_hit = self.frame_count
-
-        for bullet in self.boss_bullets_list:
-            # Check this bullet to see if it hit a coin
-            disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
-            # If it did, get rid of the bullet
-            if len(disappear_list) > 0:
-                bullet.remove_from_sprite_lists()
-
-            player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullets_list)
-
-            if len(player_hit_list) > 0:
-                self.player_health -= 10
-                bullet.remove_from_sprite_lists()
-            
-            if self.player_health <= 0:
-                self.player_sprite.remove_from_sprite_lists()
-
-                game_over_view = GameOverView()
-                self.window.show_view(game_over_view)
 
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
