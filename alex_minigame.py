@@ -8,7 +8,6 @@ from caleb_minigame import CalebMenuView
 
 # Constant variables
 VIEWPORT_MARGIN = 250
-GEM_COUNT = 10
 BULLET_SPEED = 20
 
 # Sizes and scaling of sprites
@@ -352,6 +351,8 @@ class AlexInstructionView(arcade.View):
 
 class AlexGameView(arcade.View):
     def __init__(self):
+        """ Set up of the game and initialization of the variables. """
+
         super().__init__()
 
         # Set the working directory
@@ -360,21 +361,26 @@ class AlexGameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_health = 400
+        self.player_health = 60
+
+        # Initialize the viewport bottom and left variables
         self.view_bottom = 0
         self.view_left = 0
+
+        # Set up collected gems info
         self.collected = 0
         self.collected_text = None
         self.green_gem_collected = False
         self.blue_gem_collected = False
         self.red_gem_collected = False
+
+        # Set up frame count and game logic variables
         self.frame_count = 0
         self.last_hit = 0
         self.player_entered_boss_room = False
         self.door = 0
 
-        """ Set up the game and initialize the variables. """
-        # Variables to sprite lists
+        # Variables to hold sprite lists
         self.player_list = None
         self.wall_list = None
         self.gem_list = None
@@ -409,11 +415,11 @@ class AlexGameView(arcade.View):
 
         completed = False
 
-        # Add enemies
+        # Add the enemies
         self.add_enemy(800, -400)
 
+        # Add the boss
         self.add_boss(1000, -500)
-        #self.add_boss(930, -500)
 
         # Map of the maze
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -446,7 +452,6 @@ class AlexGameView(arcade.View):
 
         # Drawing the maze
         maze_y = 1000
-
         for row in maze_map:
             maze_x = 0
             for block in row:
@@ -468,23 +473,17 @@ class AlexGameView(arcade.View):
             self.add_gem(gem_type, x, y)
             list_of_gem_coordinates.remove((x, y))
 
+        # Creating boss bullet texture
         self.boss_bullets_texture = arcade.make_soft_circle_texture(10, 
                          arcade.color.RED, outer_alpha=255)
 
+        # Physics engine so player can't go through walls
         self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
 
+        # Setting the background
         arcade.set_background_color(arcade.color.CADMIUM_ORANGE)
 
-        # Set up the viewport boundaries
-        self.view_left = 0
-        self.view_bottom = 0
-
     def on_draw(self):
-        """
-        Render the screen.
-        """
-
-        # This command has to happen before we start drawing
         arcade.start_render()
 
         # Draw all the sprites.
@@ -494,14 +493,14 @@ class AlexGameView(arcade.View):
         self.bullet_list.draw()
         self.boss_bullets_list.draw()
         self.enemy_list.draw()
-        if self.boss_sprite.health > 0:
-            self.boss_list.draw()
+        self.boss_list.draw()
         self.key_list.draw()
 
         # Draw the health bars
         self.health_bars(self.player_health, self.enemy_list, self.boss_sprite.health)
 
-        output = f"Gems collected: {self.collected}"
+        # Drawing the collected gems text in bottom left corner
+        output = f"Gems collected: {self.collected}/3"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
@@ -509,8 +508,12 @@ class AlexGameView(arcade.View):
 
         """ Movement and game logic """
 
-        self.frame_count += 1
+        # Increase frame count when player enters room
+        # Used to keep track of time for timed events
+        if self.player_entered_boss_room == True:
+            self.frame_count += 1
 
+        # To determine if player entered boss room
         if self.player_sprite.center_y < -90:
             self.player_entered_boss_room = True
             self.door = 1
@@ -525,24 +528,27 @@ class AlexGameView(arcade.View):
         self.boss_list.update()
         self.health_bar_list.update()
 
+        # Check if player collects a gem
         gem_collected = arcade.check_for_collision_with_list(self.player_sprite, self.gem_list)
         for gem in gem_collected:
             gem.remove_from_sprite_lists()
             self.collected += 1
 
+        # Check if bullets hit something
         for bullet in self.bullet_list:
-            # Check this bullet to see if it hit a coin
+            # Check this bullet to see if it hit a wall
             disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
             # If it did, get rid of the bullet
             if len(disappear_list) > 0:
                 bullet.remove_from_sprite_lists()
 
-            # Check if enemy hit
+            # Check this bullet to see if it hit an enemy
             enemy_hit_list = arcade.check_for_collision_with_list(bullet, self.enemy_list)
-
+            # If it did, get rid of bullet
             if len(enemy_hit_list) > 0:
                 bullet.remove_from_sprite_lists()
-
+            
+            # If hit, the enemy loses health
             for enemy in enemy_hit_list:
                 enemy.health -= 25
                 if enemy.health <= 0:
@@ -551,11 +557,13 @@ class AlexGameView(arcade.View):
                     enemy.health_background_sprite.remove_from_sprite_lists()
                     enemy.health_sprite.remove_from_sprite_lists()
 
-            # Check if boss hit
+            # Check this bullet to see if it hit the boss
             boss_hit_list = arcade.check_for_collision_with_list(bullet, self.boss_list)
+            # If it did, get rid of bullet
             if len(boss_hit_list) > 0:
                 bullet.remove_from_sprite_lists()
 
+            # If hit, the boss loses health
             for boss in boss_hit_list:
                 boss.health -= 25
                 if boss.health <= 0:
@@ -564,44 +572,50 @@ class AlexGameView(arcade.View):
                     boss.health_background_sprite.remove_from_sprite_lists()
                     boss.health_sprite.remove_from_sprite_lists()
 
+                    # Once boss is dead, key appears
+                    key_sprite = arcade.Sprite(KEY_IMAGE)
+                    key_sprite.center_x = self.boss_sprite.center_x
+                    key_sprite.center_y = self.boss_sprite.center_y
+                    self.key_list.append(key_sprite)
 
-            if self.boss_sprite.health <= 0:
-                key_sprite = arcade.Sprite(KEY_IMAGE)
-                key_sprite.center_x = self.boss_sprite.center_x
-                key_sprite.center_y = self.boss_sprite.center_y
-                self.key_list.append(key_sprite)
-
+        # If the player entered boss room:
+        # The enemies start to move
+        # The boss starts to shoot
         if self.player_entered_boss_room:
             for enemy in self.enemy_list:
+                # Called so enemy follows the player
                 enemy.follow_player(self.player_sprite)
 
+                # Check this enemy to see if it hit the player
                 player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
                 
+                # If it did, player loses health
+                # Enemy dies and dissapears
                 if len(player_hit_list) > 0:
                     self.player_health -= 10
                     enemy.remove_from_sprite_lists()
                     enemy.health_outline_sprite.remove_from_sprite_lists()
                     enemy.health_background_sprite.remove_from_sprite_lists()
                     enemy.health_sprite.remove_from_sprite_lists()
-                    if self.player_health <= 0:
-                        self.player_sprite.remove_from_sprite_lists()    
-                        self.view_bottom = 0
-                        self.view_left = 0
-                        game_over_view = GameOverView()
-                        self.window.show_view(game_over_view)
 
+            # Boss aims and shoots at player
             for boss in self.boss_list:
+                # A 1 in 50 chance that the boss shoots
                 if random.randrange(50) == 0:
+                    # Where the bullet starts from
                     start_x = boss.center_x
                     start_y = boss.center_y
 
+                    # Where the bullet should end
                     final_x = self.player_sprite.center_x
                     final_y = self.player_sprite.center_y
 
+                    # Difference from the start to end
                     dist_x = final_x - start_x
                     dist_y = final_y - start_y
                     angle = math.atan2(dist_y, dist_x)
 
+                    # Creating the bullet
                     boss_bullets = arcade.Sprite()
                     boss_bullets.texture = self.boss_bullets_texture
                     boss_bullets_speed = 5
@@ -609,51 +623,72 @@ class AlexGameView(arcade.View):
                     boss_bullets.center_x = start_x
                     boss_bullets.center_y = start_y
 
+                    # Tilting the bullet based on angle
                     boss_bullets.angle = math.degrees(angle)
 
+                    # Math for the trajectory of the bullet
                     boss_bullets.change_x = math.cos(angle) * boss_bullets_speed
                     boss_bullets.change_y = math.sin(angle) * boss_bullets_speed
                     self.boss_bullets_list.append(boss_bullets)
 
-                # If player hits jungle monster, player loses lives
+                # Check to see if player hit the boss
                 boss_hit_player = boss.collides_with_sprite(self.player_sprite)
 
+                # Every 30 frames, player loses health if it hit boss
                 if self.frame_count >= self.last_hit + 30:
                     if boss_hit_player:
                         self.player_health -= 10
                         self.last_hit = self.frame_count
 
+            # Check if boss bullets hit something
             for bullet in self.boss_bullets_list:
-                # Check this bullet to see if it hit a coin
+                # Check this bullet to see if it hit a wall
                 disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
                 # If it did, get rid of the bullet
                 if len(disappear_list) > 0:
                     bullet.remove_from_sprite_lists()
 
+                # Check this bullet to see if it hit the player
                 player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullets_list)
 
+                # If it did, get rid of bullet
+                # Player loses health
                 if len(player_hit_list) > 0:
                     self.player_health -= 10
                     bullet.remove_from_sprite_lists()
-                
-                if self.player_health <= 0:
-                    self.player_sprite.remove_from_sprite_lists()
+        
+        # Check if player is dead
+        if self.player_health <= 0:
+            # If player is dead, remove player
+            self.player_sprite.remove_from_sprite_lists()
+            
+            # Reset viewport
+            self.view_bottom = 0
+            self.view_left = 0
+            
+            # Show game over view
+            game_over_view = GameOverView()
+            self.window.show_view(game_over_view)
 
-                    game_over_view = GameOverView()
-                    self.window.show_view(game_over_view)
-
-
+        # Check if player collected the key
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
+        
+        # If player did, game is completed
         for key in key_collected:
             key.remove_from_sprite_lists()
             completed = True
 
-        if completed is True:
+        # Check if the game is completed
+        if completed:
+            # Reset viewport
             self.view_bottom = 0
             self.view_left = 0
+
+            # Show game completed view
             game_completed_view = GameCompletedView()
             self.window.show_view(game_completed_view)
 
+        # Called to manage screen scrolling
         self.manage_scrolling()
 
     def on_key_press(self, key, modifiers):
@@ -669,7 +704,7 @@ class AlexGameView(arcade.View):
             self.player_sprite.change_x = settings.MOVEMENT_SPEED
         
         elif key == arcade.key.ESCAPE:
-            # pass self, the current view, to preserve this view's state
+            # Pass self, the current view, to preserve this view's state
             pause = PauseView(self)
             self.window.show_view(pause)
 
