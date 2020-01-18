@@ -360,7 +360,7 @@ class AlexGameView(arcade.View):
 
         # Set up the player info
         self.player_sprite = None
-        self.player_health = 700
+        self.player_health = 400
         self.view_bottom = 0
         self.view_left = 0
         self.collected = 0
@@ -368,6 +368,8 @@ class AlexGameView(arcade.View):
         self.green_gem_collected = False
         self.blue_gem_collected = False
         self.red_gem_collected = False
+        self.frame_count = 0
+        self.last_hit = 0
 
         """ Set up the game and initialize the variables. """
         # Variables to sprite lists
@@ -406,7 +408,7 @@ class AlexGameView(arcade.View):
         completed = False
 
         # Add enemies
-        self.add_enemy(800, -400)
+        # self.add_enemy(800, -400)
 
         self.add_boss(1000, -500)
         #self.add_boss(930, -500)
@@ -503,9 +505,9 @@ class AlexGameView(arcade.View):
     def on_update(self, delta_time):
         global completed
 
-        print(self.player_sprite.center_x, self.player_sprite.center_y)
-
         """ Movement and game logic """
+
+        self.frame_count += 1
 
         # Call an update on all sprites
         self.physics_engine.update()
@@ -609,9 +611,10 @@ class AlexGameView(arcade.View):
             # If player hits jungle monster, player loses lives
             boss_hit_player = boss.collides_with_sprite(self.player_sprite)
 
-            if delta_time % 3 == 0:
+            if self.frame_count >= self.last_hit + 30:
                 if boss_hit_player:
                     self.player_health -= 10
+                    self.last_hit = self.frame_count
 
         for bullet in self.boss_bullets_list:
             # Check this bullet to see if it hit a coin
