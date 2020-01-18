@@ -7,7 +7,7 @@ import time
 from caleb_minigame import CalebMenuView
 
 # Constant variables
-VIEWPORT_MARGIN = 100
+VIEWPORT_MARGIN = 250
 GEM_COUNT = 10
 BULLET_SPEED = 20
 
@@ -27,8 +27,6 @@ BULLET_IMAGE = "assets/bullet.png"
 WALL_IMAGE = "assets/sandblock.png"
 KEY_IMAGE = "assets/key.png"
 ARCADE_FONT = "assets/arcade_font/PressStart2P-vaV7.ttf"
-
-# window = None
 
 
 class Player(arcade.Sprite):
@@ -275,6 +273,9 @@ class AlexGameView(arcade.View):
         self.view_left = 0
         self.collected = 0
         self.collected_text = None
+        self.green_gem_collected = False
+        self.blue_gem_collected = False
+        self.red_gem_collected = False
 
         # Set up the enemy info
         self.enemy_1_sprite = None
@@ -292,21 +293,23 @@ class AlexGameView(arcade.View):
         self.boss_list = None
         self.key_list = None
         self.health_bar_list = None
+        self.gem_display_list = None
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
-        self.boss_bullets_list = arcade.SpriteList
+        self.boss_bullets_list = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
         self.boss_list = arcade.SpriteList()
         self.key_list = arcade.SpriteList()
         self.health_bar_list = arcade.SpriteList()
+        self.gem_display_list = arcade.SpriteList()
 
         # Set up the player
         self.player_sprite = Player()
-        self.player_sprite.center_x = 0
+        self.player_sprite.center_x = 64
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
@@ -318,7 +321,7 @@ class AlexGameView(arcade.View):
         # Add enemies
         self.add_enemy(800, -400)
 
-        self.add_boss(-140, 140)
+        self.add_boss(800, -600)
         #self.add_boss(930, -500)
 
         # Map of the maze
@@ -337,7 +340,7 @@ class AlexGameView(arcade.View):
                     [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1],
                     [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+                    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -407,7 +410,7 @@ class AlexGameView(arcade.View):
         # Draw the health bars
         self.health_bars(self.player_health, self.enemy_list, self.boss_sprite.health)
 
-        output = f"Gems collected: {self.collected}/3"
+        output = f"Gems collected: {self.collected}"
         arcade.draw_text(output, 10 + self.view_left, 20 + self.view_bottom, arcade.color.BLACK, 14)
 
     def on_update(self, delta_time):
@@ -471,6 +474,7 @@ class AlexGameView(arcade.View):
             enemy.follow_player(self.player_sprite)
 
             player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
+            
             if len(player_hit_list) > 0:
                 self.player_health -= 10
                 enemy.remove_from_sprite_lists()
@@ -499,7 +503,7 @@ class AlexGameView(arcade.View):
                 boss_bullets = arcade.Sprite()
                 boss_bullets.texture = self.boss_bullets_texture
                 boss_bullets_speed = 5
-                boss_bullets.width = 10
+                boss_bullets.width = 30
                 boss_bullets.center_x = start_x
                 boss_bullets.center_y = start_y
 
@@ -515,6 +519,26 @@ class AlexGameView(arcade.View):
             if delta_time % 3 == 0:
                 if boss_hit_player:
                     self.player_health -= 10
+
+        for bullet in self.boss_bullets_list:
+            # Check this bullet to see if it hit a coin
+            disappear_list = arcade.check_for_collision_with_list(bullet, self.wall_list)
+            # If it did, get rid of the bullet
+            if len(disappear_list) > 0:
+                bullet.remove_from_sprite_lists()
+
+            player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.boss_bullets_list)
+
+            if len(player_hit_list) > 0:
+                self.player_health -= 10
+                bullet.remove_from_sprite_lists()
+            
+            if self.player_health <= 0:
+                self.player_sprite.remove_from_sprite_lists()
+
+                game_over_view = GameOverView()
+                self.window.show_view(game_over_view)
+
 
         key_collected = arcade.check_for_collision_with_list(self.player_sprite, self.key_list)
         for key in key_collected:
