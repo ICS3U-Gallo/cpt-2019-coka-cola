@@ -5,7 +5,6 @@ import random
 import settings
 import os
 
-
 WIDTH = 800
 HEIGHT = 600
 
@@ -14,15 +13,8 @@ HEIGHT = 600
 # GAME_OVER = 2
 
 class CalebMenuView(arcade.View):
-    def __init__(self):
-        super().__init__()
-        file_path = os.path.dirname(os.path.abspath(__file__))
-        os.chdir(file_path)
-
-        self.background_ = None 
-
     def on_show(self):
-        self.background_ = arcade.load_texture("assets/jungle_background.png")
+        arcade.set_background_color(arcade.color.PALE_GREEN)
 
     def on_draw(self):
         arcade.start_render()
@@ -46,7 +38,7 @@ class CalebMenuView(arcade.View):
 
 class CalebInstructionView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.ORANGE_PEEL)
+        arcade.set_background_color(arcade.color.PALE_GREEN)
 
     def on_draw(self):
         arcade.start_render()
@@ -423,8 +415,7 @@ class GameOverView(arcade.View):
         
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-        game_view = GameView()
-        self.window.show_view(game_view)
+        pass
 
 class GameCompleteView(arcade.View):
     def __init__(self):
@@ -448,8 +439,7 @@ class GameCompleteView(arcade.View):
         
 
     def on_mouse_press(self, _x, _y, _button, _modifiers): 
-        game_view = GameView()
-        self.window.show_view(game_view)
+        pass
         
 
 if __name__ == "__main__":
