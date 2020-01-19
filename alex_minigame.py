@@ -3,8 +3,6 @@ import settings
 import random
 import os
 import math
-import time
-from caleb_minigame import CalebMenuView
 
 # Constant variables
 VIEWPORT_MARGIN = 250
@@ -71,7 +69,10 @@ class Enemy(arcade.Sprite):
         # By defalt, the enemy faces right.
         self.set_texture(settings.TEXTURE_RIGHT)
 
+        # By default, set health bar texture to full
         self.health_texture = self.health_bar_textures.get("full")
+        
+        # Initialize variables to be used for health bar
         self.health_max_x = 0
         self.max_health = -1
         self.health_bar_width = 76
@@ -184,7 +185,6 @@ class Enemy(arcade.Sprite):
             # and change_y. Velocity is how fast the bullet travels.
             self.change_x = math.cos(angle) * 5
             self.change_y = math.sin(angle) * 5
-            # time.sleep(1)
 
     def check_x(self, value):
         if 565 <= value <= 1285:
@@ -289,10 +289,6 @@ class Boss(arcade.Sprite):
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
 
-        def disappear(self):
-            pass
-
-
 
 class AlexMenuView(arcade.View):
     def on_show(self):
@@ -313,9 +309,9 @@ class AlexMenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.P:
-            game_view = AlexGameView()
-            game_view.director = self.director
-            self.window.show_view(game_view)
+            alex_game_view = AlexGameView()
+            alex_game_view.director = self.director
+            self.window.show_view(alex_game_view)
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
             instructions_view.director = self.director
@@ -426,10 +422,12 @@ class AlexGameView(arcade.View):
         completed = False
 
         # Add the enemies
-        self.add_enemy(800, -400)
+        for x in range(640, 1217, 576):
+            for y in range(152, 537, 384):
+                self.add_enemy(x, -y)
 
         # Add the boss
-        self.add_boss(1000, -500)
+        self.add_boss(955, -500)
 
         # Map of the maze
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -448,7 +446,7 @@ class AlexGameView(arcade.View):
                     [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
                     [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -519,13 +517,15 @@ class AlexGameView(arcade.View):
 
         """ Movement and game logic """
 
+        print(self.player_sprite.center_x, self.player_sprite.center_y)
+
         # Increase frame count when player enters room
         # Used to keep track of time for timed events
         if self.player_entered_boss_room == True:
             self.frame_count += 1
 
         if self.door:
-            self.block = self.add_boundary(576, -24)
+            self.block = self.add_boundary(896, -24)
             self.door = False
 
         if self.collected == 1 and self.door_closed:
@@ -616,7 +616,7 @@ class AlexGameView(arcade.View):
                 player_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.enemy_list)
                 
                 # If it did, player loses health
-                # Enemy dies and dissapears
+                # Enemy dies and disapears
                 if len(player_hit_list) > 0:
                     self.player_health -= 10
                     enemy.remove_from_sprite_lists()
@@ -691,6 +691,7 @@ class AlexGameView(arcade.View):
 
             # Show game over view
             game_over_view = GameOverView()
+            game_over_view.director = self.director
             self.window.show_view(game_over_view)
 
         # Check if player collected the key
@@ -940,15 +941,16 @@ class GameOverView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
-            game_view = AlexGameView()
-            self.window.show_view(game_view)
+            alex_game_view = AlexGameView()
+            alex_game_view.director = self.director
+            self.window.show_view(alex_game_view)
 
 
 class GameCompletedView(arcade.View):
     def __init__(self):
         super().__init__()
         self.view_left = 0
-        self.view_right = 0
+        self.view_bottom = 0
 
     def on_show(self):
         arcade.set_background_color(arcade.color.YELLOW)
