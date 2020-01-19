@@ -163,7 +163,7 @@ class Enemy(arcade.Sprite):
             # else:
             #     # print("here3", new_center_x, -new_center_y)
 
-        # Random 1 in 100 chance that we'll change from our old direction and
+        # Random 1 in 20 chance that we'll change from our old direction and
         # then re-aim toward the player
         if random.randrange(20) == 0:
             start_x = self.center_x
@@ -289,6 +289,10 @@ class Boss(arcade.Sprite):
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
 
+        def disappear(self):
+            pass
+
+
 
 class AlexMenuView(arcade.View):
     def on_show(self):
@@ -381,7 +385,10 @@ class AlexGameView(arcade.View):
         self.frame_count = 0
         self.last_hit = 0
         self.player_entered_boss_room = False
-        self.door = 0
+        self.door = True
+        self.open_door = False
+        self.door_closed = True
+        self.is_in = False
 
         # Variables to hold sprite lists
         self.player_list = None
@@ -397,7 +404,7 @@ class AlexGameView(arcade.View):
 
         # Sprite lists
         self.player_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList(is_static=False)
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.boss_bullets_list = arcade.SpriteList()
@@ -441,7 +448,7 @@ class AlexGameView(arcade.View):
                     [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
                     [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, self.door, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -469,12 +476,14 @@ class AlexGameView(arcade.View):
                                    (835, 363), (1220, 938), (1345, 612), (1608, 235),
                                    (1276, 363), (1665, 683)]
 
-        for gem_type in list_of_gem_types:
-            coordinates = list_of_gem_coordinates[random.randrange(len(list_of_gem_coordinates))]
-            x = coordinates[0]
-            y = coordinates[1]
-            self.add_gem(gem_type, x, y)
-            list_of_gem_coordinates.remove((x, y))
+        self.add_gem(GEM_GREEN_IMAGE, 200, 40)
+
+        # for gem_type in list_of_gem_types:
+        #     coordinates = list_of_gem_coordinates[random.randrange(len(list_of_gem_coordinates))]
+        #     x = coordinates[0]
+        #     y = coordinates[1]
+        #     self.add_gem(gem_type, x, y)
+        #     list_of_gem_coordinates.remove((x, y))
 
         # Creating boss bullet texture
         self.boss_bullets_texture = arcade.make_soft_circle_texture(10, 
@@ -488,7 +497,6 @@ class AlexGameView(arcade.View):
 
     def on_draw(self):
         arcade.start_render()
-
         # Draw all the sprites.
         self.wall_list.draw()
         self.player_list.draw()
@@ -516,16 +524,30 @@ class AlexGameView(arcade.View):
         if self.player_entered_boss_room == True:
             self.frame_count += 1
 
+        if self.door:
+            self.block = self.add_boundary(576, -24)
+            self.door = False
+
+        if self.collected == 1 and self.door_closed:
+            self.open_door = True
+            self.door_closed = False
+
+        if self.open_door:
+            self.wall_list.remove(self.block)
+            self.open_door = False
+
         # To determine if player entered boss room
-        if self.player_sprite.center_y < -90:
+        if self.player_sprite.center_y < -90  and not self.is_in:
             self.player_entered_boss_room = True
-            self.door = 1
+            self.door = True
+            self.is_in = True
 
         # Call an update on all sprites
         self.physics_engine.update()
         self.player_sprite.update()
         self.bullet_list.update()
         self.boss_bullets_list.update()
+        self.wall_list.update()
         self.gem_list.update()
         self.enemy_list.update()
         self.boss_list.update()
@@ -585,6 +607,7 @@ class AlexGameView(arcade.View):
         # The enemies start to move
         # The boss starts to shoot
         if self.player_entered_boss_room:
+           
             for enemy in self.enemy_list:
                 # Called so enemy follows the player
                 enemy.follow_player(self.player_sprite)
@@ -602,7 +625,8 @@ class AlexGameView(arcade.View):
                     enemy.health_sprite.remove_from_sprite_lists()
 
             # Boss aims and shoots at player
-            for boss in self.boss_list:
+            for boss in self.boss_list:               
+
                 # A 1 in 50 chance that the boss shoots
                 if random.randrange(50) == 0:
                     # Position the bullet at the player's current location
@@ -664,11 +688,7 @@ class AlexGameView(arcade.View):
         if self.player_health <= 0:
             # If player is dead, remove player
             self.player_sprite.remove_from_sprite_lists()
-            
-            # Reset viewport
-            self.view_bottom = 0
-            self.view_left = 0
-            
+
             # Show game over view
             game_over_view = GameOverView()
             self.window.show_view(game_over_view)
@@ -683,10 +703,6 @@ class AlexGameView(arcade.View):
 
         # Check if the game is completed
         if completed:
-            # Reset viewport
-            self.view_bottom = 0
-            self.view_left = 0
-
             # Show game completed view
             game_completed_view = GameCompletedView()
             game_completed_view.director = self.director
@@ -797,11 +813,12 @@ class AlexGameView(arcade.View):
         self.health_bar_list.append(self.boss_sprite.health_background_sprite)
         self.health_bar_list.append(self.boss_sprite.health_sprite)
 
-    def add_boundary(self, x, y):
+    def add_boundary(self, x, y) -> arcade.Sprite:
         wall = arcade.Sprite(WALL_IMAGE, WALL_SPRITE_SCALING)
         wall.center_x = x
         wall.center_y = y
         self.wall_list.append(wall)
+        return wall
     
     def manage_scrolling(self):
         global completed
@@ -903,6 +920,8 @@ class PauseView(arcade.View):
 class GameOverView(arcade.View):
     def __init__(self):
         super().__init__()
+        self.view_left = 0
+        self.view_bottom = 0
 
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
@@ -914,6 +933,10 @@ class GameOverView(arcade.View):
         """
         arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press R to restart", 310, 300, arcade.color.WHITE, 24)
+        arcade.set_viewport(self.view_left,
+            settings.WIDTH + self.view_left - 1,
+            self.view_bottom,
+            settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
@@ -924,6 +947,8 @@ class GameOverView(arcade.View):
 class GameCompletedView(arcade.View):
     def __init__(self):
         super().__init__()
+        self.view_left = 0
+        self.view_right = 0
 
     def on_show(self):
         arcade.set_background_color(arcade.color.YELLOW)
@@ -932,6 +957,10 @@ class GameCompletedView(arcade.View):
         arcade.start_render()
         arcade.draw_text("YOU WIN!", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press ENTER to go back to main menu.", 310, 300, arcade.color.WHITE, 24)
+        arcade.set_viewport(self.view_left,
+            settings.WIDTH + self.view_left - 1,
+            self.view_bottom,
+            settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.ENTER:
