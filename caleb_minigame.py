@@ -15,7 +15,7 @@ ARCADE_FONT = "assets/hindsight_2020/Hindsight2020"
 
 class CalebMenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.PALE_GREEN)
+        arcade.set_background_color(arcade.color.JUNGLE_GREEN)
 
     def on_draw(self):
         arcade.start_render()
@@ -40,7 +40,7 @@ class CalebMenuView(arcade.View):
 
 class CalebInstructionView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.PALE_GREEN)
+        arcade.set_background_color(arcade.color.JUNGLE_GREEN)
 
     def on_draw(self):
         arcade.start_render()
@@ -353,6 +353,7 @@ class CalebGameView(arcade.View):
         # If the player doesn't have any hearts left, they lose 
         if len(self.hearts_list) == 0:
             game_over_view = GameOverView()
+            game_over_view.director = self.director
             self.window.show_view(game_over_view)
      
     def on_key_press(self, key, key_modifiers):
