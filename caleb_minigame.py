@@ -51,22 +51,24 @@ class CalebInstructionView(arcade.View):
         arcade.start_render()
         arcade.draw_text("How to Play?", settings.WIDTH/2, 500,
                          arcade.color.BLACK, font_size=40, anchor_x="center")
-        arcade.draw_text("Gameplay: Use the mouse to move around and click to shoot.",
-                         settings.WIDTH/2, 425, arcade.color.BLACK, font_size=18,
+        arcade.draw_text("Gameplay: Use the mouse to move around and click to\
+ shoot.", settings.WIDTH/2, 425, arcade.color.BLACK, font_size=18,
                          anchor_x="center")
-        arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the rocks, monkeys and kill",
-                         settings.WIDTH/2, settings.HEIGHT/2 + 50,
+        arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the\
+ rocks, monkeys and kill", settings.WIDTH/2, settings.HEIGHT/2 + 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("the jungle monster to obtain a key to advance to the next level.",
-                         settings.WIDTH/2, settings.HEIGHT/2,
+        arcade.draw_text("the jungle monster to obtain a key to advance to the\
+ next level.", settings.WIDTH/2, settings.HEIGHT/2, arcade.color.BLACK,
+                         font_size=18, anchor_x="center")
+        arcade.draw_text("Be Careful! If any of them touch you or leave the\
+ screen, you will lose a life.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Be Careful! If any of them touch you or leave the screen, you will lose a life.",
-                         settings.WIDTH/2, settings.HEIGHT/2 - 50,
-                         arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Good Luck!", settings.WIDTH/2, settings.HEIGHT/2 - 100,
-                         arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Press SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-200,
-                         arcade.color.WHITE_SMOKE, font_size=20, anchor_x="center")
+        arcade.draw_text("Good Luck!", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 100, arcade.color.BLACK,
+                         font_size=18, anchor_x="center")
+        arcade.draw_text("Press SPACE to Start", settings.WIDTH/2,
+                         settings.HEIGHT/2-200, arcade.color.WHITE_SMOKE,
+                         font_size=20, anchor_x="center")
 
     # If user presses space. go to the game
     def on_key_press(self, key, modifiers):
@@ -307,8 +309,8 @@ class CalebGameView(arcade.View):
                 jungle_bullets.angle = math.degrees(angle)
 
                 # Set up the jungle bullets's speed
-                jungle_bullets.change_x = math.cos(angle) * jungle_bullets_speed
-                jungle_bullets.change_y = math.sin(angle) * jungle_bullets_speed
+                jungle_bullets.change_x = math.cos(angle)*jungle_bullets_speed
+                jungle_bullets.change_y = math.sin(angle)*jungle_bullets_speed
                 self.jungle_bullets_list.append(jungle_bullets)
 
             # Player must hit the jungle monster 100 times to kill him
@@ -334,17 +336,17 @@ class CalebGameView(arcade.View):
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
 
-        # See if player got the key
-        key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
-        for key in key_collected:
-            key.remove_from_sprite_lists()
-            completed = True
+            # See if player got the key
+            key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
+            for key in key_collected:
+                key.remove_from_sprite_lists()
+                completed = True
 
-            # If player got the key, go to the game completed view
-            if completed is True:
-                game_completed_view = GameCompleteView()
-                game_completed_view.director = self.director
-                self.window.show_view(game_completed_view)
+                # If player got the key, go to the game completed view
+                if completed is True:
+                    game_completed_view = GameCompleteView()
+                    game_completed_view.director = self.director
+                    self.window.show_view(game_completed_view)
 
         # If jungle bullets hit player, remove a heart
         for jungle_bullets in self.jungle_bullets_list:
@@ -422,7 +424,7 @@ class GameCompleteView(arcade.View):
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Congratulations! Game Complete", 130, 400,
+        arcade.draw_text("Congratulations! Game Complete", 140, 400,
                          arcade.color.WHITE, font_size=35)
         arcade.draw_text("Press Space to Advance", 255, 200,
                          arcade.color.WHITE, font_size=24)
