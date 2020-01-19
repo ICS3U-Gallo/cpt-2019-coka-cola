@@ -1,4 +1,3 @@
-# Not Done Yet Lmao
 import arcade 
 import math 
 import random
@@ -7,30 +6,33 @@ import os
 
 WIDTH = 800
 HEIGHT = 600
-ARCADE_FONT = "assets/hindsight_2020/Hindsight2020"
+ARCADE_FONT = "assets/trench-font.zip/TrenchThin-aZ1J"
 
 # INSTRUCTION_PAGE = 0
 # GAME_RUNNING = 1
 # GAME_OVER = 2
 
 class CalebMenuView(arcade.View):
+    # Set the background color
     def on_show(self):
         arcade.set_background_color(arcade.color.JUNGLE_GREEN)
 
+    # Display text
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2, 
                          settings.HEIGHT//(3/2),
-                         arcade.color.BLACK, font_size=20, font_name = ARCADE_FONT, 
+                         arcade.color.BLACK, font_size=42, font_name = ARCADE_FONT, 
                          anchor_x="center")
 
         arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2, 
-                         settings.HEIGHT/2-75, arcade.color.GRAY, 
+                         settings.HEIGHT/2-125, arcade.color.WHITE_SMOKE, 
                          font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         pass
 
+    # If user presses space, go to instruction screen
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             instructions_view = CalebInstructionView()
@@ -39,15 +41,17 @@ class CalebMenuView(arcade.View):
 
 
 class CalebInstructionView(arcade.View):
+    # Set background color
     def on_show(self):
         arcade.set_background_color(arcade.color.JUNGLE_GREEN)
 
+    # Explain the rules and how to play 
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("How to Play?", settings.WIDTH/2, 500,
                          arcade.color.BLACK, font_size=40, anchor_x="center")
         arcade.draw_text("Gameplay: Use the mouse to move around and click to shoot.", 
-                         settings.WIDTH/2, 450, arcade.color.BLACK, font_size=18,
+                         settings.WIDTH/2, 425, arcade.color.BLACK, font_size=18,
                          anchor_x="center")
         arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the rocks, monkeys and kill", 
                          settings.WIDTH/2, settings.HEIGHT/2 + 50,
@@ -60,9 +64,10 @@ class CalebInstructionView(arcade.View):
                          arcade.color.BLACK, font_size=18, anchor_x="center")
         arcade.draw_text("Good Luck!", settings.WIDTH/2, settings.HEIGHT/2 - 100,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Click SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-200,
-                         arcade.color.BLACK, font_size=20, anchor_x="center")
+        arcade.draw_text("Press SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-200,
+                         arcade.color.WHITE_SMOKE, font_size=20, anchor_x="center")
 
+    # If user presses space. go to the game 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             game_view = CalebGameView()
@@ -172,6 +177,7 @@ class CalebGameView(arcade.View):
                              settings.HEIGHT // 2, settings.WIDTH, 
                              settings.HEIGHT, self.background)
 
+        # Draw the sprites
         self.player.draw()
         self.rocks_list.draw()
         self.monkeys_list.draw()
@@ -196,6 +202,7 @@ class CalebGameView(arcade.View):
     
 
     def update(self, delta_time):
+        # Update the sprites
         self.rocks_list.update()
         self.bullets_list.update()
         self.banana_list.update()
@@ -305,12 +312,11 @@ class CalebGameView(arcade.View):
                 self.jungle_bullets_list.append(jungle_bullets)
 
 
-            # Player must hit the jungle monster 25 times to kill him
+            # Player must hit the jungle monster 100 times to kill him
             bullets_hit_jungle_monster = jungle_monster.collides_with_list(self.bullets_list)
                 
             if bullets_hit_jungle_monster and jungle_monster.center_y < 700:
                 self.count += 1 
-                print(self.count)
                 for bullet in bullets_hit_jungle_monster:
                     bullet.kill()
                     if self.count == 100:
@@ -329,12 +335,13 @@ class CalebGameView(arcade.View):
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
 
+        # See if player got the key
         key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
         for key in key_collected:
             key.remove_from_sprite_lists()
             completed = True
 
-
+            # If player got the key, go to the game completed view
             if completed is True:
                 game_completed_view = GameCompleteView()
                 game_completed_view.director = self.director
@@ -361,12 +368,6 @@ class CalebGameView(arcade.View):
         if key == arcade.key.A:
             self.director.next_view()
 
-    def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-        pass
-
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         # Restricts where the player can go 
         self.player.center_x = x 
@@ -376,7 +377,7 @@ class CalebGameView(arcade.View):
             self.player.center_y = 100
     
     def on_mouse_press(self, x, y, button, key_modifiers):
-
+        # Setup the bullets and their properties
         bullet = arcade.Sprite()
         bullet.center_x = self.player.center_x
         bullet.center_y = self.player.center_y
@@ -386,64 +387,48 @@ class CalebGameView(arcade.View):
 
         self.bullets_list.append(bullet)
 
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
-        pass
-        
-
 class GameOverView(arcade.View):
-    def __init__(self):
-        super().__init__()
-
+    # Set the background color
 
     def on_show(self):
         arcade.set_background_color(arcade.color.RED_DEVIL)
 
+    # Draw the text
     def on_draw(self):
         arcade.start_render()
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Game Over", 250, 400, arcade.color.WHITE, 54)
+        arcade.draw_text("Game Over", 250, 400, arcade.color.WHITE, 54, font_name = ARCADE_FONT)
         arcade.draw_text("Press R to Restart", 300, 200, arcade.color.WHITE, 24)
 
+    # If player presses R, the game restarts
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             game_view = CalebGameView()
             game_view.director = self.director
             self.window.show_view(game_view)
-        
-
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        pass
 
 class GameCompleteView(arcade.View):
-    def __init__(self):
-        super().__init__()
-
+    # Setup the background color
 
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
 
+    # Draw the text
     def on_draw(self):
         arcade.start_render()
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Game Complete", 200, 400, arcade.color.WHITE, 54)
-        arcade.draw_text("Press Space to Advance", 255, 200, arcade.color.WHITE, 24)
+        arcade.draw_text("Congratulations! Game Complete", 140, 400, arcade.color.WHITE, font_size=35)
+        arcade.draw_text("Press Space to Advance", 255, 200, arcade.color.WHITE, font_size=24)
 
+    # If player presses Space go to the next minigame
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             self.director.next_view()
         
-
-    def on_mouse_press(self, _x, _y, _button, _modifiers): 
-        pass
-        
-
 if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT, title=settings.TITLE)
@@ -452,9 +437,3 @@ if __name__ == "__main__":
     window.show_view(my_view)
     # main()
     arcade.run()
-
-
-"""
-Fix How to Win and Lose Games  
-Add "Jungle Boss" 
-"""
