@@ -53,7 +53,7 @@ class Player(arcade.Sprite):
 
 class Enemy(arcade.Sprite):
     """A class to represent the enemies."""
-    
+
     def __init__(self, x: int, y: int, health: int):
         """Create a new enemy object.
 
@@ -66,13 +66,19 @@ class Enemy(arcade.Sprite):
 
         # Dictionary to store health bar textures.
         self.health_bar_textures = {
-            'full': arcade.make_soft_square_texture(5, arcade.color.GREEN, outer_alpha=255),
-            'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW, outer_alpha=255),
-            'critical': arcade.make_soft_square_texture(5, arcade.color.RED, outer_alpha=255),
-            'background': arcade.make_soft_square_texture(5, arcade.color.WHITE, outer_alpha=255),
-            'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK, outer_alpha=255)
+            'full': arcade.make_soft_square_texture(5, arcade.color.GREEN,
+                                                    outer_alpha=255),
+            'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW,
+                                                       outer_alpha=255),
+            'critical': arcade.make_soft_square_texture(5, arcade.color.RED,
+                                                        outer_alpha=255),
+            'background': arcade.make_soft_square_texture(5,
+                                                          arcade.color.WHITE,
+                                                          outer_alpha=255),
+            'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK,
+                                                       outer_alpha=255)
         }
-        
+
         # Load a right facing enemy, and a left facing enemy.
         texture = arcade.load_texture(ENEMY_IMAGE, scale=0.3)
         self.textures.append(texture)
@@ -84,7 +90,7 @@ class Enemy(arcade.Sprite):
 
         # By default, set health bar texture to full.
         self.health_texture = self.health_bar_textures.get("full")
-        
+
         # Initialize variables to be used for the health bar.
         self.health_max_x = 0
         self.max_health = -1
@@ -104,23 +110,27 @@ class Enemy(arcade.Sprite):
         # Health bar that changes colour.
         self.health_sprite = arcade.Sprite()
         self.health_sprite.append_texture(self.health_bar_textures.get("full"))
-        self.health_sprite.append_texture(self.health_bar_textures.get("damaged"))
-        self.health_sprite.append_texture(self.health_bar_textures.get("critical"))
+        self.health_sprite.append_texture(self.health_bar_textures.get
+                                          ("damaged"))
+        self.health_sprite.append_texture(self.health_bar_textures.get
+                                          ("critical"))
         self.health_sprite.set_texture(0)
         self.health_sprite.center_x = self.health_x
         self.health_sprite.center_y = self.health_y
 
         # Outline of health bar.
         self.health_outline_sprite = arcade.Sprite()
-        self.health_outline_sprite.append_texture(self.health_bar_textures.get("outline"))
+        self.health_outline_sprite.append_texture(self.health_bar_textures.get
+                                                  ("outline"))
         self.health_outline_sprite.set_texture(0)
         self.health_outline_sprite.center_x = self.health_max_x
         self.health_outline_sprite.center_y = self.health_y
         self.health_outline_sprite.width = self.health_bar_width
-        
+
         # Background of health bar.
         self.health_background_sprite = arcade.Sprite()
-        self.health_background_sprite.append_texture(self.health_bar_textures.get("background"))
+        self.health_background_sprite.append_texture(self.health_bar_textures.
+                                                     get("background"))
         self.health_background_sprite.set_texture(0)
         self.health_background_sprite.center_x = self.health_max_x
         self.health_background_sprite.center_y = self.health_y
@@ -166,35 +176,35 @@ class Enemy(arcade.Sprite):
         Returns:
             None
         """
-        # Calculates the new position
+        # Calculates the new position.
         new_center_x = self.center_x + self.change_x
         new_center_y = self.center_y + self.change_y
 
-        # Checks if new position is in the set area
+        # Checks if new position is in the set area.
         if self.check_x(new_center_x) and self.check_y(new_center_y):
-            # If it is, set the center of the enemy to the new center
+            # If it is, set the center of the enemy to the new center.
             self.center_x = new_center_x
             self.center_y = new_center_y
         else:
-            # If not, go the other way
+            # If not, go the other way.
             new_center_x = self.center_x - self.change_x + 2
             new_center_y = self.center_y - self.change_y + 2
 
-            # Checks if going the other way is in the set area
+            # Checks if going the other way is in the set area.
             if self.check_x(new_center_x) and self.check_y(new_center_y):
-                # If it is, set the center of the enemy to the new center
-                # If not, wait for the next loop
+                # If it is, set the center of the enemy to the new center.
+                # If not, wait for the next loop.
                 self.center_x = new_center_x
                 self.center_y = new_center_y
 
-        # Random 1 in 30 chance that the enemy will change from its old direction
-        # and then re-aim toward the player
+        # Random 1 in 30 chance that the enemy will change from its old
+        # direction and then re-aim toward the player.
         if random.randrange(30) == 0:
-            # Get the starting position of the enemy
+            # Get the starting position of the enemy.
             start_x = self.center_x
             start_y = self.center_y
 
-            # Get the destination location for the bullet
+            # Get the destination location for the bullet.
             dest_x = player_sprite.center_x
             dest_y = player_sprite.center_y
 
@@ -233,7 +243,7 @@ class Enemy(arcade.Sprite):
         if -604 <= value <= -84:
             return True
         return False
-    
+
 
 class Boss(arcade.Sprite):
     """A class to represent the boss."""
@@ -250,20 +260,26 @@ class Boss(arcade.Sprite):
 
         # Dictionary to store health bar textures.
         self.health_bar_textures = {
-            'full': arcade.make_soft_square_texture(5, arcade.color.GREEN, outer_alpha=255),
-            'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW, outer_alpha=255),
-            'critical': arcade.make_soft_square_texture(5, arcade.color.RED, outer_alpha=255),
-            'background': arcade.make_soft_square_texture(5, arcade.color.WHITE, outer_alpha=255),
-            'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK, outer_alpha=255)
+            'full': arcade.make_soft_square_texture(5, arcade.color.GREEN,
+                                                    outer_alpha=255),
+            'damaged': arcade.make_soft_square_texture(5, arcade.color.YELLOW,
+                                                       outer_alpha=255),
+            'critical': arcade.make_soft_square_texture(5, arcade.color.RED,
+                                                        outer_alpha=255),
+            'background': arcade.make_soft_square_texture(5,
+                                                          arcade.color.WHITE,
+                                                          outer_alpha=255),
+            'outline': arcade.make_soft_square_texture(7, arcade.color.BLACK,
+                                                       outer_alpha=255)
             }
-            
+
         # Load a right facing enemy, and a left facing enemy.
         texture = arcade.load_texture(BOSS_IMAGE, scale=0.3)
         self.textures.append(texture)
 
         # By defalt, the enemy faces left.
         self.set_texture(settings.TEXTURE_LEFT)
-        
+
         # Initialize variables to be used for health bar.
         self.health_max_x = 0
         self.max_health = -1
@@ -282,24 +298,29 @@ class Boss(arcade.Sprite):
 
         # Health bar that changes colour.
         self.health_sprite = arcade.Sprite()
-        self.health_sprite.append_texture(self.health_bar_textures.get("full"))
-        self.health_sprite.append_texture(self.health_bar_textures.get("damaged"))
-        self.health_sprite.append_texture(self.health_bar_textures.get("critical"))
+        self.health_sprite.append_texture(self.health_bar_textures.get
+                                          ("full"))
+        self.health_sprite.append_texture(self.health_bar_textures.get
+                                          ("damaged"))
+        self.health_sprite.append_texture(self.health_bar_textures.get
+                                          ("critical"))
         self.health_sprite.set_texture(0)
         self.health_sprite.center_x = self.health_x
         self.health_sprite.center_y = self.health_y
 
         # Outline of health bar.
         self.health_outline_sprite = arcade.Sprite()
-        self.health_outline_sprite.append_texture(self.health_bar_textures.get("outline"))
+        self.health_outline_sprite.append_texture(self.health_bar_textures.get
+                                                  ("outline"))
         self.health_outline_sprite.set_texture(0)
         self.health_outline_sprite.center_x = self.health_max_x
         self.health_outline_sprite.center_y = self.health_y
         self.health_outline_sprite.width = self.health_bar_width
-        
+
         # Background of health bar.
         self.health_background_sprite = arcade.Sprite()
-        self.health_background_sprite.append_texture(self.health_bar_textures.get("background"))
+        self.health_background_sprite.append_texture(self.health_bar_textures.
+                                                     get("background"))
         self.health_background_sprite.set_texture(0)
         self.health_background_sprite.center_x = self.health_max_x
         self.health_background_sprite.center_y = self.health_y
@@ -345,16 +366,24 @@ class AlexMenuView(arcade.View):
         arcade.start_render()
 
         # Draw all the text for the view.
-        arcade.draw_text("The Sand Temple", settings.WIDTH/2, settings.HEIGHT/2 + 150,
-                         arcade.color.DARK_GRAY, font_size=40, anchor_x="center", font_name=ARCADE_FONT)
-        arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2 + 25,
-                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
-        arcade.draw_text("Press I for instructions.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
-                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
-        arcade.draw_text("Press N for the next game.", settings.WIDTH/2, settings.HEIGHT/2 - 125,
-                         arcade.color.LIGHT_GRAY, font_size=20, anchor_x="center")
-        arcade.draw_text("Main Menu", settings.WIDTH/2, settings.HEIGHT/2 - 250,
-                         arcade.color.BLACK, font_size=10, anchor_x="center")
+        arcade.draw_text("The Sand Temple", settings.WIDTH/2,
+                         settings.HEIGHT/2 + 150, arcade.color.DARK_GRAY,
+                         font_size=40, anchor_x="center",
+                         font_name=ARCADE_FONT)
+        arcade.draw_text("Press P to play.", settings.WIDTH/2,
+                         settings.HEIGHT/2 + 25,
+                         arcade.color.LIGHT_GRAY, font_size=20,
+                         anchor_x="center")
+        arcade.draw_text("Press I for instructions.", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 50,
+                         arcade.color.LIGHT_GRAY, font_size=20,
+                         anchor_x="center")
+        arcade.draw_text("Press N for the next game.", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 125, arcade.color.LIGHT_GRAY,
+                         font_size=20, anchor_x="center")
+        arcade.draw_text("Main Menu", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 250, arcade.color.BLACK,
+                         font_size=10, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
         """Runs when a key is pressed."""
@@ -387,10 +416,12 @@ class AlexInstructionView(arcade.View):
         arcade.start_render()
 
         # Draw all the text for the view.
-        arcade.draw_text("How to Play?", settings.WIDTH/2, settings.HEIGHT/2 + 150,
-                         arcade.color.BLACK, font_size=35, anchor_x="center", font_name=ARCADE_FONT)
-        arcade.draw_text("Gameplay: Use AWSD or the arrow keys to move around and click to shoot.",
-                         settings.WIDTH/2, settings.HEIGHT/2 + 75, arcade.color.BLACK, font_size=18,
+        arcade.draw_text("How to Play?", settings.WIDTH/2,
+                         settings.HEIGHT/2 + 150, arcade.color.BLACK,
+                         font_size=35, anchor_x="center",
+                         font_name=ARCADE_FONT)
+        line1 = "Gameplay: Use AWSD or the arrow keys to move around and click to shoot."
+        arcade.draw_text(line1, settings.WIDTH/2, settings.HEIGHT/2 + 75, arcade.color.BLACK, font_size=18,
                          anchor_x="center")
         arcade.draw_text("Goal: Find your way through the maze. Collect the gems along the way.",
                          settings.WIDTH/2, settings.HEIGHT/2 + 25, arcade.color.BLACK, font_size=18,
@@ -492,33 +523,60 @@ class AlexGameView(arcade.View):
         self.add_boss(955, -500)
 
         # Map of the maze.
-        maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
-                    [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
-                    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1],
-                    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
-                    [1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
-                    [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
-                    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-                    [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1],
-                    [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-                    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                     0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                    [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1,
+                     1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
+                    [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1,
+                     0, 1, 0, 1, 0, 0, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+                     0, 1, 0, 1, 0, 1, 1, 1, 1, 1],
+                    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1,
+                     0, 0, 0, 1, 0, 1, 1, 0, 1, 1],
+                    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
+                     0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
+                    [1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+                     1, 1, 1, 1, 1, 0, 1, 0, 1, 1],
+                    [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+                     0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1,
+                     1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0,
+                     0, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+                    [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1,
+                     1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+                    [1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+                     0, 1, 1, 0, 1, 0, 0, 1, 0, 1],
+                    [1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
+                     0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
+                    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+                     0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+                    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
         # Adding the walls from the maze.
         maze_y = 1000
