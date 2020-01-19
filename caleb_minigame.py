@@ -7,6 +7,7 @@ import os
 
 WIDTH = 800
 HEIGHT = 600
+ARCADE_FONT = "assets/hindsight_2020/Hindsight2020"
 
 # INSTRUCTION_PAGE = 0
 # GAME_RUNNING = 1
@@ -20,7 +21,7 @@ class CalebMenuView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2, 
                          settings.HEIGHT//(3/2),
-                         arcade.color.BLACK, font_size=20, font_name = "assets/arcade_font/PressStart2P-vaV7.ttf", 
+                         arcade.color.BLACK, font_size=20, font_name = ARCADE_FONT, 
                          anchor_x="center")
 
         arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2, 
@@ -398,7 +399,7 @@ class GameOverView(arcade.View):
 
 
     def on_show(self):
-        arcade.set_background_color(arcade.color.BLACK)
+        arcade.set_background_color(arcade.color.RED_DEVIL)
 
     def on_draw(self):
         arcade.start_render()
