@@ -142,7 +142,7 @@ class Enemy(arcade.Sprite):
         else:
             self.health_sprite.set_texture(2)
 
-        # Update the position of the health bars
+        # Update the position of the health bars.
         self.health_sprite.center_x = self.health_x
         self.health_sprite.center_y = self.health_y
         self.health_outline_sprite.center_x = self.health_max_x
@@ -321,7 +321,7 @@ class Boss(arcade.Sprite):
         else:
             self.health_sprite.set_texture(2)
 
-        # Update the position of the health bars
+        # Update the position of the health bars.
         self.health_sprite.center_x = self.health_x
         self.health_sprite.center_y = self.health_y
         self.health_outline_sprite.center_x = self.health_max_x
@@ -333,11 +333,18 @@ class Boss(arcade.Sprite):
 
 
 class AlexMenuView(arcade.View):
+    """A class for the menu view."""
+
     def on_show(self):
+        """When view is shown, initializes variables."""
+        # Set the background colour.
         arcade.set_background_color(arcade.color.SAND_DUNE)
 
     def on_draw(self):
+        """Draws the menu on the screen."""
         arcade.start_render()
+
+        # Draw all the text for the view.
         arcade.draw_text("The Sand Temple", settings.WIDTH/2, settings.HEIGHT/2 + 150,
                          arcade.color.DARK_GRAY, font_size=40, anchor_x="center", font_name=ARCADE_FONT)
         arcade.draw_text("Press P to play.", settings.WIDTH/2, settings.HEIGHT/2 + 25,
@@ -350,24 +357,36 @@ class AlexMenuView(arcade.View):
                          arcade.color.BLACK, font_size=10, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
+        """Runs when a key is pressed."""
+        # If user presses P: load the game view
         if key == arcade.key.P:
             alex_game_view = AlexGameView()
             alex_game_view.director = self.director
             self.window.show_view(alex_game_view)
+
+        # If user presses I: load the instructions view
         elif key == arcade.key.I:
             instructions_view = AlexInstructionView()
             instructions_view.director = self.director
             self.window.show_view(instructions_view)
+
+        # If user presses N: load the next game
         elif key == arcade.key.N:
             self.director.next_view()
 
 
 class AlexInstructionView(arcade.View):
+    """A class for the instructions view."""
     def on_show(self):
+        """When view is shown, initializes variables."""
+        # Set the background colour.
         arcade.set_background_color(arcade.color.SAND)
 
     def on_draw(self):
+        """Draws the instructions on the screen."""
         arcade.start_render()
+
+        # Draw all the text for the view.
         arcade.draw_text("How to Play?", settings.WIDTH/2, settings.HEIGHT/2 + 150,
                          arcade.color.BLACK, font_size=35, anchor_x="center", font_name=ARCADE_FONT)
         arcade.draw_text("Gameplay: Use AWSD or the arrow keys to move around and click to shoot.",
@@ -388,6 +407,8 @@ class AlexInstructionView(arcade.View):
                          arcade.color.BLACK, font_size=10, anchor_x="center")
 
     def on_key_press(self, key, modifiers):
+        """Runs when a key is pressed."""
+        # If user presses ESCAPE: load the menu view.
         if key == arcade.key.ESCAPE:
             menu_view = AlexMenuView()
             menu_view.director = self.director
@@ -395,12 +416,13 @@ class AlexInstructionView(arcade.View):
 
 
 class AlexGameView(arcade.View):
+    """A class for the game view."""
     def __init__(self):
         """ Set up of the game and initialization of the variables. """
 
         super().__init__()
 
-        # Set the working directory
+        # Set the working directory.
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
@@ -408,18 +430,15 @@ class AlexGameView(arcade.View):
         self.player_sprite = None
         self.player_health = 60
 
-        # Initialize the viewport bottom and left variables
+        # Initialize the viewport bottom and left variables.
         self.view_bottom = 0
         self.view_left = 0
 
-        # Set up collected gems info
+        # Set up collected gems info.
         self.collected = 0
         self.collected_text = None
-        self.green_gem_collected = False
-        self.blue_gem_collected = False
-        self.red_gem_collected = False
 
-        # Set up frame count and game logic variables
+        # Set up frame count and game logic variables.
         self.frame_count = 0
         self.last_hit = 0
         self.player_entered_boss_room = False
@@ -428,7 +447,7 @@ class AlexGameView(arcade.View):
         self.door_closed = True
         self.is_in = False
 
-        # Variables to hold sprite lists
+        # Variables to hold sprite lists.
         self.player_list = None
         self.wall_list = None
         self.gem_list = None
@@ -440,9 +459,9 @@ class AlexGameView(arcade.View):
         self.health_bar_list = None
         self.gem_display_list = None
 
-        # Sprite lists
+        # Sprite lists.
         self.player_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList(is_static=False)
+        self.wall_list = arcade.SpriteList()
         self.gem_list = arcade.SpriteList()
         self.bullet_list = arcade.SpriteList()
         self.boss_bullets_list = arcade.SpriteList()
@@ -452,26 +471,27 @@ class AlexGameView(arcade.View):
         self.health_bar_list = arcade.SpriteList()
         self.gem_display_list = arcade.SpriteList()
 
-        # Set up the player
+        # Set up the player.
         self.player_sprite = Player()
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 40
         self.player_list.append(self.player_sprite)
 
     def on_show(self):
+        """Runs when screen is shown."""
         global completed
 
         completed = False
 
-        # Add the enemies
+        # Add the enemies.
         for x in range(640, 1217, 576):
             for y in range(152, 537, 384):
                 self.add_enemy(x, -y)
 
-        # Add the boss
+        # Add the boss.
         self.add_boss(955, -500)
 
-        # Map of the maze
+        # Map of the maze.
         maze_map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
                     [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1],
@@ -500,7 +520,7 @@ class AlexGameView(arcade.View):
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
-        # Drawing the maze
+        # Adding the walls from the maze.
         maze_y = 1000
         for row in maze_map:
             maze_x = 0
@@ -510,20 +530,19 @@ class AlexGameView(arcade.View):
                 maze_x += WALL_SPRITE_SIZE
             maze_y -= WALL_SPRITE_SIZE
 
-        # Creating the gems
+        # Creating lists for gem types and possible gem coordinates.
         list_of_gem_types = [GEM_GREEN_IMAGE, GEM_BLUE_IMAGE, GEM_RED_IMAGE]
         list_of_gem_coordinates = [(195, 490), (255, 812), (450, 490), (894, 683),
-                                   (835, 363), (1220, 938), (1345, 612), (1608, 235),
+                                   (835, 363), (1220, 938), (1345, 612), (1604, 235),
                                    (1276, 363), (1665, 683)]
 
-        self.add_gem(GEM_GREEN_IMAGE, 200, 40)
-
-        # for gem_type in list_of_gem_types:
-        #     coordinates = list_of_gem_coordinates[random.randrange(len(list_of_gem_coordinates))]
-        #     x = coordinates[0]
-        #     y = coordinates[1]
-        #     self.add_gem(gem_type, x, y)
-        #     list_of_gem_coordinates.remove((x, y))
+        # Creatings the gems.
+        for gem_type in list_of_gem_types:
+            coordinates = list_of_gem_coordinates[random.randrange(len(list_of_gem_coordinates))]
+            x = coordinates[0]
+            y = coordinates[1]
+            self.add_gem(gem_type, x, y)
+            list_of_gem_coordinates.remove((x, y))
 
         # Creating boss bullet texture
         self.boss_bullets_texture = arcade.make_soft_circle_texture(10, 
@@ -570,7 +589,7 @@ class AlexGameView(arcade.View):
             self.block = self.add_boundary(896, -24)
             self.door = False
 
-        if self.collected == 1 and self.door_closed:
+        if self.collected == 3 and self.door_closed:
             self.open_door = True
             self.door_closed = False
 
@@ -765,11 +784,7 @@ class AlexGameView(arcade.View):
             self.player_sprite.change_x = -settings.MOVEMENT_SPEED
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = settings.MOVEMENT_SPEED
-        
-        elif key == arcade.key.ESCAPE:
-            # Pass self, the current view, to preserve this view's state
-            pause = PauseView(self)
-            self.window.show_view(pause)
+
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
@@ -911,77 +926,34 @@ class AlexGameView(arcade.View):
                                 settings.HEIGHT + self.view_bottom - 1)
 
 
-class PauseView(arcade.View):
-    def __init__(self, alex_game_view):
-        super().__init__()
-        self.alex_game_view = alex_game_view
-
-    def on_show(self):
-        arcade.set_background_color(arcade.color.ORANGE)
-
-    def on_draw(self):
-        arcade.start_render()
-
-        # Draw player, for effect, on pause screen.
-        # The previous View (GameView) was passed in
-        # and saved in self.game_view.
-        player_sprite = self.alex_game_view.player_sprite
-        player_sprite.draw()
-
-        # draw an orange filter over him
-        arcade.draw_lrtb_rectangle_filled(left=player_sprite.left,
-                                          right=player_sprite.right,
-                                          top=player_sprite.top,
-                                          bottom=player_sprite.bottom,
-                                          color=arcade.color.ORANGE + (200,))
-
-        arcade.draw_text("PAUSED", settings.WIDTH/2, settings.HEIGHT/2+50,
-                         arcade.color.BLACK, font_size=50, anchor_x="center")
-
-        # Show tip to return or reset
-        arcade.draw_text("Press Esc. to return",
-                         settings.WIDTH/2,
-                         settings.HEIGHT/2,
-                         arcade.color.BLACK,
-                         font_size=20,
-                         anchor_x="center")
-        arcade.draw_text("Press Enter to reset",
-                         settings.WIDTH/2,
-                         settings.HEIGHT/2-30,
-                         arcade.color.BLACK,
-                         font_size=20,
-                         anchor_x="center")
-
-    def on_key_press(self, key, _modifiers):
-        if key == arcade.key.ESCAPE:   # resume game
-            self.window.show_view(self.alex_game_view)
-        elif key == arcade.key.ENTER:  # reset game
-            game_view = AlexGameView()
-            self.window.show_view(game_view)
-
-
 class GameOverView(arcade.View):
-    def __init__(self):
-        super().__init__()
+    """A class for the instructions view."""
+    def on_show(self):
+        """When view is shown, initializes variables."""
+        # Set the background colour.
+        arcade.set_background_color(arcade.color.BLACK)
+
+        # Set the viewport variables.
         self.view_left = 0
         self.view_bottom = 0
 
-    def on_show(self):
-        arcade.set_background_color(arcade.color.BLACK)
-
     def on_draw(self):
+        """Draws Game Over across the screen."""
         arcade.start_render()
-        """
-        Draw "Game over" across the screen.
-        """
+
+        # Draw all the text for the view.
         arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press R to restart", 310, 300, arcade.color.WHITE, 24)
+        
+        # Set the viewport
         arcade.set_viewport(self.view_left,
             settings.WIDTH + self.view_left - 1,
             self.view_bottom,
             settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
+        """Runs when a key is pressed."""
+        # If user presses R: load the game view.
         if key == arcade.key.R:
             alex_game_view = AlexGameView()
             alex_game_view.director = self.director
@@ -989,24 +961,33 @@ class GameOverView(arcade.View):
 
 
 class GameCompletedView(arcade.View):
-    def __init__(self):
-        super().__init__()
+    """A class for the instructions view."""
+    def on_show(self):
+        """When view is shown, initializes variables."""
+        # Set the background colour.
+        arcade.set_background_color(arcade.color.YELLOW)
+
+        # Set the viewport variables.
         self.view_left = 0
         self.view_bottom = 0
 
-    def on_show(self):
-        arcade.set_background_color(arcade.color.YELLOW)
-
     def on_draw(self):
+        """Draws Game Completed across the screen."""
         arcade.start_render()
+
+        # Draw all the text for the view.
         arcade.draw_text("YOU WIN!", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press ENTER to go back to main menu.", 310, 300, arcade.color.WHITE, 24)
+        
+        # Set the viewport.
         arcade.set_viewport(self.view_left,
             settings.WIDTH + self.view_left - 1,
             self.view_bottom,
             settings.HEIGHT + self.view_bottom - 1)
 
     def on_key_press(self, key, modifiers):
+        """Runs when a key is pressed."""
+        # If user presses ENTER: load the next game.
         if key == arcade.key.ENTER:
             self.director.next_view()
 
