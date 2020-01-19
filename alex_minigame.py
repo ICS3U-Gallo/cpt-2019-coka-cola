@@ -359,7 +359,7 @@ class AlexMenuView(arcade.View):
     def on_show(self):
         """When view is shown, initializes variables."""
         # Set the background colour.
-        arcade.set_background_color(arcade.color.SAND_DUNE)
+        arcade.set_background_color(arcade.color.SANDY_TAUPE)
 
     def on_draw(self):
         """Draws the menu on the screen."""
@@ -415,30 +415,36 @@ class AlexInstructionView(arcade.View):
         """Draws the instructions on the screen."""
         arcade.start_render()
 
+        # Variables for long lines of text.
+        line1 = "Gameplay: Use AWSD or the arrow keys to move\
+ around and click to shoot."
+        line2 = "Goal: Find your way through the maze. Collect the\
+ gems along the way."
+        line3 = "Once you reach the end of the maze and collect all the gems,"
+        line4 = "Enter the boss room and fight the sand enemies\
+ and the sand boss."
+        line5 = "Kill the sand boss to obtain a key and progress to the\
+ next adventure!"
+
         # Draw all the text for the view.
         arcade.draw_text("How to Play?", settings.WIDTH/2,
                          settings.HEIGHT/2 + 150, arcade.color.BLACK,
                          font_size=35, anchor_x="center",
                          font_name=ARCADE_FONT)
-        line1 = "Gameplay: Use AWSD or the arrow keys to move\
- around and click to shoot."
         arcade.draw_text(line1, settings.WIDTH/2, settings.HEIGHT/2 + 75,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        line2 = "Goal: Find your way through the maze. Collect the\
- gems along the way."
         arcade.draw_text(line2, settings.WIDTH/2, settings.HEIGHT/2 + 25,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        line3 = "Once you reach the end of the maze, fight the sand enemies\
- and the sand boss."
         arcade.draw_text(line3, settings.WIDTH/2, settings.HEIGHT/2 - 25,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        line4 = "Kill the sand boss to obtain a key and progress to the\
- next adventure!"
         arcade.draw_text(line4, settings.WIDTH/2, settings.HEIGHT/2 - 75,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
+        arcade.draw_text(line5, settings.WIDTH/2, settings.HEIGHT/2 - 125,
+                         arcade.color.BLACK, font_size=20, anchor_x="center")
         arcade.draw_text("Press ESCAPE to go back to menu.",
                          settings.WIDTH/2, settings.HEIGHT/2 - 175,
                          arcade.color.GRAY, font_size=20, anchor_x="center")
+
         arcade.draw_text("Instructions", settings.WIDTH/2,
                          settings.HEIGHT/2 - 250, arcade.color.BLACK,
                          font_size=10, anchor_x="center")
@@ -1112,7 +1118,7 @@ class GameCompletedView(arcade.View):
     def on_show(self):
         """When view is shown, initializes variables."""
         # Set the background colour.
-        arcade.set_background_color(arcade.color.YELLOW)
+        arcade.set_background_color(arcade.color.GOLDEN_POPPY)
 
         # Set the viewport variables.
         self.view_left = 0
@@ -1123,9 +1129,15 @@ class GameCompletedView(arcade.View):
         arcade.start_render()
 
         # Draw all the text for the view.
-        arcade.draw_text("YOU WIN!", 240, 400, arcade.color.WHITE, 54)
-        arcade.draw_text("Press ENTER to go back to main menu.", 310, 300,
-                         arcade.color.WHITE, 24)
+        arcade.draw_text("YOU WIN!", settings.WIDTH/2, 400, arcade.color.BLACK,
+                         54, anchor_x="center")
+        arcade.draw_text("Press ENTER to go to the next adventure.",
+                         settings.WIDTH/2, settings.HEIGHT/2,
+                         arcade.color.BLACK, 24, anchor_x="center")
+
+        arcade.draw_text("Game Completed", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 250, arcade.color.BLACK,
+                         font_size=10, anchor_x="center")
 
         # Set the viewport.
         arcade.set_viewport(self.view_left,

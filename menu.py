@@ -5,8 +5,7 @@ import settings
 
 class MenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.BLUE)
-        # Set up the viewport boundaries
+        arcade.set_background_color(arcade.color.SAND)
 
     def on_draw(self):
 
@@ -36,7 +35,7 @@ if __name__ == "__main__":
     what you are doing.
     """
     from utils import FakeDirector
-    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT, settings.TITLE)
     my_view = MenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
