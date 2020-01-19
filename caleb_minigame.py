@@ -445,7 +445,7 @@ class GameCompleteView(arcade.View):
 
 if __name__ == "__main__":
     from utils import FakeDirector
-    window = arcade.Window(settings.WIDTH, settings.HEIGHT)
+    window = arcade.Window(settings.WIDTH, settings.HEIGHT, title=settings.TITLE)
     my_view = CalebMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
