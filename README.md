@@ -1,5 +1,13 @@
 # Indiana Jones
-Program description. Replace with description of your program. Give a description of each scene.
+Game Story: You are Indiana Jones, the best adventurer of the century. Your task: find the 4 keys to prosperity. However, this is no easy task as you must go through 4 grueling adventures and uncover the keys one by one. Dr. Jones... good luck!
+
+Alexander's MiniGame: You are searching for the first key. You must go through a maze and collect all of the gems to progress. Once completed, you must enter the boss room and fight the sand boss and the sand enemies. Once you kill the sand boss, you will find the key. Collect the key to progress to the next adventure.
+
+Caleb's MiniGame:
+
+Owen's MiniGame:
+
+Kevins's MiniGame:
 
 ### Group Members:
 - Alexander Matros
