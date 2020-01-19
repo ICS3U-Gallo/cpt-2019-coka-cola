@@ -4,13 +4,6 @@ import random
 import settings
 import os
 
-WIDTH = 800
-HEIGHT = 600
-
-# INSTRUCTION_PAGE = 0
-# GAME_RUNNING = 1
-# GAME_OVER = 2
-
 
 class CalebMenuView(arcade.View):
     # Set the background color
@@ -142,8 +135,8 @@ class CalebGameView(arcade.View):
         # Setup the falling rocks
         for _ in range(30):
             rock = arcade.Sprite()
-            rock.center_x = random.randrange(0, WIDTH)
-            rock.center_y = HEIGHT + 200
+            rock.center_x = random.randrange(0, settings.WIDTH)
+            rock.center_y = settings.HEIGHT + 200
             rock.texture = self.rock_texture
             rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -152,8 +145,8 @@ class CalebGameView(arcade.View):
         # Setup the falling monkeys
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
-            monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 425
+            monkey.center_x = random.randrange(100, settings.WIDTH)
+            monkey.center_y = settings.HEIGHT + 425
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
@@ -162,7 +155,7 @@ class CalebGameView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 480
+            jungle_monster.center_y = settings.HEIGHT + 480
             jungle_monster.speed_x = 0
             jungle_monster.speed_y = 12
             self.jungle_monster_list.append(jungle_monster)
@@ -199,13 +192,14 @@ class CalebGameView(arcade.View):
         minutes = int(self.total_time) // 60
         seconds = int(self.total_time) % 60
         output = f"Time: {minutes:02d}:{seconds:02d}"
-        arcade.draw_text(output, WIDTH - 200, 50, arcade.color.WHITE, 30)
+        arcade.draw_text(output, settings.WIDTH - 200, 50, arcade.color.WHITE,
+                         30)
 
         # Draw score
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490,
-                         arcade.color.BLUE, 36)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490,
-                         arcade.color.BABY_BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 200,
+                         settings.HEIGHT - 490, arcade.color.BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 198,
+                         settings.HEIGHT - 490, arcade.color.BABY_BLUE, 36)
 
     def update(self, delta_time):
         # Update the sprites
@@ -372,11 +366,6 @@ class CalebGameView(arcade.View):
             game_over_view.director = self.director
             self.window.show_view(game_over_view)
 
-    def on_key_press(self, key, key_modifiers):
-        # If A is pressed, switch to the next view
-        if key == arcade.key.A:
-            self.director.next_view()
-
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         # Restricts where the player can go
         self.player.center_x = x
@@ -449,5 +438,4 @@ if __name__ == "__main__":
     my_view = CalebMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
-    # main()
     arcade.run()
