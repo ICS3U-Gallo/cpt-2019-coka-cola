@@ -4,7 +4,7 @@ import math
 import random
 import settings
 import os
-from kevin_minigame import KevinView
+
 
 WIDTH = 800
 HEIGHT = 600
@@ -15,13 +15,14 @@ HEIGHT = 600
 
 class CalebMenuView(arcade.View):
     def on_show(self):
-        arcade.set_background_color(arcade.color.WHITE)
+        self.background = arcade.load_texture("assets/jungle_background.png")
 
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2, 
                          settings.HEIGHT//(3/2),
-                         arcade.color.BLACK, font_size=40, anchor_x="center")
+                         arcade.color.BLACK, font_size=20, font_name = "assets/arcade_font/PressStart2P-vaV7.ttf", 
+                         anchor_x="center")
 
         arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2, 
                          settings.HEIGHT/2-75, arcade.color.GRAY, 
@@ -266,22 +267,27 @@ class CalebGameView(arcade.View):
                 # Get rid of heart 
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
-                    self.hearts_list.remove(heart)
+                    self.hearts_list.remove(heart) 
 
         # Get jungle monster to shoot at player 
         for jungle_monster in self.jungle_monster_list: 
             jungle_monster.center_y -= jungle_monster.speed_y * delta_time
             if jungle_monster.center_y < 700 and random.randrange(25) == 0:
+
+                # Have the bullets start at the jungle monster
                 start_x = jungle_monster.center_x 
                 start_y = jungle_monster.center_y 
 
+                # Have the bullets aim at the player 
                 final_x = self.player.center_x
                 final_y = self.player.center_y
 
+                # Calculate the distance to the player
                 dist_x = final_x - start_x
                 dist_y = final_y - start_y 
                 angle = math.atan2(dist_y, dist_x)
 
+                # Set up the Jungle Bullets 
                 jungle_bullets = arcade.Sprite()
                 jungle_bullets.texture = self.jungle_bullets_texture
                 jungle_bullets_speed = 8
@@ -291,6 +297,7 @@ class CalebGameView(arcade.View):
 
                 jungle_bullets.angle = math.degrees(angle) 
 
+                # Set up the jungle bullets's speed 
                 jungle_bullets.change_x = math.cos(angle) * jungle_bullets_speed
                 jungle_bullets.change_y = math.sin(angle) * jungle_bullets_speed
                 self.jungle_bullets_list.append(jungle_bullets)
@@ -426,11 +433,10 @@ class GameCompleteView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
-            next_game = KevinView()
-            self.window.show_view(next_game)
+            self.director.next_view()
         
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
+    def on_mouse_press(self, _x, _y, _button, _modifiers): 
         game_view = GameView()
         self.window.show_view(game_view)
         
