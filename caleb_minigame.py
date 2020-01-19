@@ -33,8 +33,9 @@ class CalebMenuView(arcade.View):
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
-            instruction_view = CalebInstructionView()
-            self.window.show_view(instruction_view)
+            instructions_view = CalebInstructionView()
+            instructions_view.director = self.director
+            self.window.show_view(instructions_view)
 
 
 class CalebInstructionView(arcade.View):
@@ -62,13 +63,10 @@ class CalebInstructionView(arcade.View):
         arcade.draw_text("Click SPACE to Start", settings.WIDTH/2, settings.HEIGHT/2-200,
                          arcade.color.BLACK, font_size=20, anchor_x="center")
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
-        game_view = CalebGameView()
-        self.window.show_view(game_view)
-
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             game_view = CalebGameView()
+            game_view.director = self.director
             self.window.show_view(game_view)
 
 class CalebGameView(arcade.View):
@@ -338,8 +336,9 @@ class CalebGameView(arcade.View):
 
 
             if completed is True:
-                game_complete = GameCompleteView()
-                self.window.show_view(game_complete)
+                game_completed_view = GameCompleteView()
+                game_completed_view.director = self.director
+                self.window.show_view(game_completed_view)
 
         # If jungle bullets hit player, remove a heart
         for jungle_bullets in self.jungle_bullets_list:
@@ -412,6 +411,7 @@ class GameOverView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.R:
             game_view = CalebGameView()
+            game_view.director = self.director
             self.window.show_view(game_view)
         
 
