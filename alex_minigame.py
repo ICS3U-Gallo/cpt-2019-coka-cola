@@ -4,16 +4,16 @@ import random
 import os
 import math
 
-# Constant variables
+# Constant variables.
 VIEWPORT_MARGIN = 250
 BULLET_SPEED = 20
 
-# Sizes and scaling of sprites
+# Sizes and scaling of sprites.
 WALL_SPRITE_NATIVE_SIZE = 100
 WALL_SPRITE_SCALING = 0.64
 WALL_SPRITE_SIZE = WALL_SPRITE_NATIVE_SIZE * WALL_SPRITE_SCALING
 
-# Variables to hold images for sprites
+# Variables to hold images for sprites.
 PLAYER_IMAGE = "assets/indiana_jones.png"
 ENEMY_IMAGE = "assets/sand_devil.png"
 BOSS_IMAGE = "assets/sand_boss.png"
@@ -27,7 +27,10 @@ ARCADE_FONT = "assets/arcade_font/PressStart2P-vaV7.ttf"
 
 
 class Player(arcade.Sprite):
+    """A class to represent the player."""
+
     def __init__(self):
+        """Create a new player object."""
         super().__init__()
 
         # Load a left facing player and a right facing player.
@@ -40,7 +43,8 @@ class Player(arcade.Sprite):
         self.set_texture(settings.TEXTURE_RIGHT)
 
     def update(self):
-        # Check if player should face left or right
+        """Update the player object."""
+        # Check if player should face left or right.
         if self.change_x < 0:
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
@@ -48,7 +52,16 @@ class Player(arcade.Sprite):
 
 
 class Enemy(arcade.Sprite):
-    def __init__(self, x, y, health):
+    """A class to represent the enemies."""
+    
+    def __init__(self, x: int, y: int, health: int):
+        """Create a new enemy object.
+
+        Args:
+            x: The center-x position of the enemy.
+            y: The center-y position of the enemy.
+            health: The initial health of the enemy.
+        """
         super().__init__()
 
         # Dictionary to store health bar textures.
@@ -69,14 +82,13 @@ class Enemy(arcade.Sprite):
         # By defalt, the enemy faces right.
         self.set_texture(settings.TEXTURE_RIGHT)
 
-        # By default, set health bar texture to full
+        # By default, set health bar texture to full.
         self.health_texture = self.health_bar_textures.get("full")
         
-        # Initialize variables to be used for health bar
+        # Initialize variables to be used for the health bar.
         self.health_max_x = 0
         self.max_health = -1
         self.health_bar_width = 76
-
         self.center_x = x
         self.center_y = y
         self.health = health
@@ -115,6 +127,8 @@ class Enemy(arcade.Sprite):
         self.health_background_sprite.width = self.health_bar_width - 2
 
     def update(self):
+        """Update the enemy object."""
+        # Update variables to use when drawing the health bar sprites.
         self.health_x = self.center_x - 40 + (self.health/2)
         self.health_max_x = self.center_x - 40 + (75/2)
         self.health_y = self.center_y + 47
@@ -138,35 +152,45 @@ class Enemy(arcade.Sprite):
 
         self.health_sprite.width = self.health
 
+        # Check if enemy should face left or right.
         if self.change_x < 0:
             self.set_texture(settings.TEXTURE_LEFT)
         if self.change_x > 0:
             self.set_texture(settings.TEXTURE_RIGHT)
 
-    def follow_player(self, player_sprite):
-        
-        # print(self.center_x, self.change_x, self.center_y , self.change_y)
+    def follow_player(self, player_sprite: arcade.Sprite) -> None:
+        """Makes the enemy follow the player.
+
+        Args:
+            player_sprite: The sprite the enemy should follow
+        Returns:
+            None
+        """
+        # Calculates the new position
         new_center_x = self.center_x + self.change_x
         new_center_y = self.center_y + self.change_y
 
+        # Checks if new position is in the set area
         if self.check_x(new_center_x) and self.check_y(new_center_y):
-            # print("here", new_center_x, -new_center_y)
+            # If it is, set the center of the enemy to the new center
             self.center_x = new_center_x
             self.center_y = new_center_y
         else:
-            # print("here1", new_center_x, -new_center_y)
+            # If not, go the other way
             new_center_x = self.center_x - self.change_x + 2
             new_center_y = self.center_y - self.change_y + 2
+
+            # Checks if going the other way is in the set area
             if self.check_x(new_center_x) and self.check_y(new_center_y):
-                # print("here2", new_center_x, -new_center_y)
+                # If it is, set the center of the enemy to the new center
+                # If not, wait for the next loop
                 self.center_x = new_center_x
                 self.center_y = new_center_y
-            # else:
-            #     # print("here3", new_center_x, -new_center_y)
 
-        # Random 1 in 20 chance that we'll change from our old direction and
-        # then re-aim toward the player
-        if random.randrange(20) == 0:
+        # Random 1 in 30 chance that the enemy will change from its old direction
+        # and then re-aim toward the player
+        if random.randrange(30) == 0:
+            # Get the starting position of the enemy
             start_x = self.center_x
             start_y = self.center_y
 
@@ -181,24 +205,47 @@ class Enemy(arcade.Sprite):
             y_diff = dest_y - start_y
             angle = math.atan2(y_diff, x_diff)
 
-            # Taking into account the angle, calculate our change_x
+            # Taking into account the angle, calculate the change_x
             # and change_y. Velocity is how fast the bullet travels.
             self.change_x = math.cos(angle) * 5
             self.change_y = math.sin(angle) * 5
 
-    def check_x(self, value):
-        if 565 <= value <= 1285:
+    def check_x(self, value: float) -> bool:
+        """Checks to see if a value is between 570 and 1280.
+
+        Args:
+            value: A number.
+        Returns:
+            True if the number is in between, False if otherwise.
+        """
+        if 570 <= value <= 1280:
             return True
         return False
 
-    def check_y(self, value):
+    def check_y(self, value: float) -> bool:
+        """Checks to see if a value is between 570 and 1280.
+
+        Args:
+            value: A number.
+        Returns:
+            True if the number is in between, False if otherwise.
+        """
         if -604 <= value <= -84:
             return True
         return False
     
 
 class Boss(arcade.Sprite):
-    def __init__(self, x, y, health):
+    """A class to represent the boss."""
+
+    def __init__(self, x: int, y: int, health: int):
+        """Create a new boss object.
+
+        Args:
+            x: The center-x position of the boss.
+            y: The center-y position of the boss.
+            health: The initial health of the boss.
+        """
         super().__init__()
 
         # Dictionary to store health bar textures.
@@ -213,16 +260,14 @@ class Boss(arcade.Sprite):
         # Load a right facing enemy, and a left facing enemy.
         texture = arcade.load_texture(BOSS_IMAGE, scale=0.3)
         self.textures.append(texture)
-        texture = arcade.load_texture(BOSS_IMAGE, mirrored=True, scale=0.3)
-        self.textures.append(texture)
 
-        # By defalt, the enemy faces right.
-        self.set_texture(settings.TEXTURE_RIGHT)
+        # By defalt, the enemy faces left.
+        self.set_texture(settings.TEXTURE_LEFT)
         
+        # Initialize variables to be used for health bar.
         self.health_max_x = 0
         self.max_health = -1
         self.health_bar_width = 200
-
         self.center_x = x
         self.center_y = y
         self.health = health
@@ -261,12 +306,14 @@ class Boss(arcade.Sprite):
         self.health_background_sprite.width = self.health_bar_width - 2
 
     def update(self):
+        """Update the boss object."""
+        # Update variables to use when drawing the health bar sprites.
         self.health_x = self.center_x - 98 + (self.health/2)
         self.health_max_x = self.center_x - 98 + (200/2)
         self.health_y = self.center_y + 90
 
         # Check to see what colour the health bar should be based on
-        # how much health the enemy has.
+        # how much health the boss has.
         if self.health > self.max_health * 2/3:
             self.health_sprite.set_texture(0)
         elif self.health > self.max_health * 1/3:
@@ -283,11 +330,6 @@ class Boss(arcade.Sprite):
         self.health_background_sprite.center_y = self.health_y
 
         self.health_sprite.width = self.health
-
-        if self.change_x < 0:
-            self.set_texture(settings.TEXTURE_LEFT)
-        if self.change_x > 0:
-            self.set_texture(settings.TEXTURE_RIGHT)
 
 
 class AlexMenuView(arcade.View):
