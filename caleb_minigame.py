@@ -14,8 +14,15 @@ HEIGHT = 600
 # GAME_OVER = 2
 
 class CalebMenuView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        file_path = os.path.dirname(os.path.abspath(__file__))
+        os.chdir(file_path)
+
+        self.background_ = None 
+
     def on_show(self):
-        self.background = arcade.load_texture("assets/jungle_background.png")
+        self.background_ = arcade.load_texture("assets/jungle_background.png")
 
     def on_draw(self):
         arcade.start_render()
@@ -45,13 +52,17 @@ class CalebInstructionView(arcade.View):
         arcade.start_render()
         arcade.draw_text("How to Play?", settings.WIDTH/2, 500,
                          arcade.color.BLACK, font_size=40, anchor_x="center")
-        arcade.draw_text("Gameplay: Use the mouse to move around and click to shoot.", settings.WIDTH/2, 450,
+        arcade.draw_text("Gameplay: Use the mouse to move around and click to shoot.", 
+                         settings.WIDTH/2, 450, arcade.color.BLACK, font_size=18,
+                         anchor_x="center")
+        arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the rocks, monkeys and kill", 
+                         settings.WIDTH/2, settings.HEIGHT/2 + 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Goal: You have 3 lives. Shoot to destroy all the rocks, monkeys and kill", settings.WIDTH/2, settings.HEIGHT/2 + 50,
+        arcade.draw_text("the jungle monster to obtain a key to advance to the next level.", 
+                         settings.WIDTH/2, settings.HEIGHT/2,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("the jungle monster to obtain a key to advance to the next level.", settings.WIDTH/2, settings.HEIGHT/2,
-                         arcade.color.BLACK, font_size=18, anchor_x="center")
-        arcade.draw_text("Be Careful! If any of them touch you or leave the screen, you will lose a life.", settings.WIDTH/2, settings.HEIGHT/2 - 50,
+        arcade.draw_text("Be Careful! If any of them touch you or leave the screen, you will lose a life.", 
+                         settings.WIDTH/2, settings.HEIGHT/2 - 50,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
         arcade.draw_text("Good Luck!", settings.WIDTH/2, settings.HEIGHT/2 - 100,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
