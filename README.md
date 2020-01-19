@@ -3,7 +3,7 @@ Game Story: You are Indiana Jones, the best adventurer of the century. Your task
 
 Alexander's MiniGame: You are searching for the first key. You must go through a maze and collect all of the gems to progress. Once completed, you must enter the boss room and fight the sand boss and the sand enemies. Once you kill the sand boss, you will find the key. Collect the key to progress to the next adventure.
 
-Caleb's MiniGame: In this game, you are in a jungle with falling rocks, monkeys and a jungle monster. In order to advance to the next minigame, you must shoot down all falling objects and defeat the jungle monster. If any objects hit you or leave the screen, you will lose a life. Once you lose all of your 3 lives, you must restart the game.
+Caleb's MiniGame: In this game, you are in a jungle with falling rocks, monkeys and a jungle monster. In order to advance to the next minigame, you must shoot down all falling objects and defeat the jungle monster. Once the jungle monster is defeated, a key will appear which will lead you to the next minigame. If any objects hit you or leave the screen, you will lose a life. Once you lose all of your 3 lives, you must restart the game.
 
 Owen's MiniGame:
 
