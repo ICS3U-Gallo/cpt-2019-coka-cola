@@ -128,7 +128,8 @@ class CalebGameView(arcade.View):
             heart.center_y = 500
             heart.center_x = x
             self.hearts_list.append(heart)
-
+        
+        # Set up Time and Score
         self.total_time = 0.0
         self.score = 0
 
