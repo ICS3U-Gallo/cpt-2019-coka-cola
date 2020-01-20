@@ -4,14 +4,6 @@ import random
 import settings
 import os
 
-WIDTH = 800
-HEIGHT = 600
-ARCADE_FONT = "assets/trench-font.zip/TrenchThin-aZ1J"
-
-# INSTRUCTION_PAGE = 0
-# GAME_RUNNING = 1
-# GAME_OVER = 2
-
 
 class CalebMenuView(arcade.View):
     # Set the background color
@@ -23,8 +15,7 @@ class CalebMenuView(arcade.View):
         arcade.start_render()
         arcade.draw_text("Welcome to Caleb's Minigame!", settings.WIDTH/2,
                          settings.HEIGHT//(3/2), arcade.color.BLACK,
-                         font_size=42, font_name = ARCADE_FONT,
-                         anchor_x="center")
+                         font_size=42, anchor_x="center")
 
         arcade.draw_text("Press SPACE to Continue", settings.WIDTH/2,
                          settings.HEIGHT/2-125, arcade.color.WHITE_SMOKE,
@@ -121,11 +112,15 @@ class CalebGameView(arcade.View):
 
         # Set up Rocks
         self.rock_texture = arcade.make_soft_circle_texture(40,
-                         arcade.color.GRAY_BLUE, outer_alpha=255)
+                                                            arcade.color.
+                                                            GRAY_BLUE,
+                                                            outer_alpha=255)
 
         # Set up Bullets
         self.bullets_texture = arcade.make_soft_circle_texture(15,
-                         arcade.color.BLACK, outer_alpha=255)
+                                                               arcade.color.
+                                                               BLACK,
+                                                               outer_alpha=255)
 
         # Put 3 hearts in the top left corner
         for x in range(50, 190, 60):
@@ -140,8 +135,8 @@ class CalebGameView(arcade.View):
         # Setup the falling rocks
         for _ in range(30):
             rock = arcade.Sprite()
-            rock.center_x = random.randrange(0, WIDTH)
-            rock.center_y = HEIGHT + 200
+            rock.center_x = random.randrange(0, settings.WIDTH)
+            rock.center_y = settings.HEIGHT + 200
             rock.texture = self.rock_texture
             rock.speed = random.randrange(30, 60)
             rock.angle = random.uniform(math.pi, math.pi * 2)
@@ -150,8 +145,8 @@ class CalebGameView(arcade.View):
         # Setup the falling monkeys
         for _ in range(18):
             monkey = arcade.Sprite("assets/monkey.png", 0.20)
-            monkey.center_x = random.randrange(100, WIDTH)
-            monkey.center_y = HEIGHT + 425
+            monkey.center_x = random.randrange(100, settings.WIDTH)
+            monkey.center_y = settings.HEIGHT + 425
             monkey.speed_x = 50
             monkey.speed_y = random.randrange(20, 30)
             self.monkeys_list.append(monkey)
@@ -160,14 +155,16 @@ class CalebGameView(arcade.View):
         for _ in range(1):
             jungle_monster = arcade.Sprite("assets/junglemonster.PNG")
             jungle_monster.center_x = 400
-            jungle_monster.center_y = HEIGHT + 480
+            jungle_monster.center_y = settings.HEIGHT + 480
             jungle_monster.speed_x = 0
-            jungle_monster.speed_y = 10
+            jungle_monster.speed_y = 12
             self.jungle_monster_list.append(jungle_monster)
 
         # Set up Jungle bullets
-        self.jungle_bullets_texture = arcade.make_soft_circle_texture(10,
-                         arcade.color.GREEN, outer_alpha=255)
+        self.jungle_bullets_texture = arcade.make_soft_circle_texture(
+                                        10,
+                                        arcade.color.GREEN,
+                                        outer_alpha=255)
 
         # Import the jungle background
         self.background = arcade.load_texture("assets/jungle.PNG")
@@ -177,8 +174,8 @@ class CalebGameView(arcade.View):
         arcade.start_render()
 
         arcade.draw_texture_rectangle(settings.WIDTH // 2,
-                             settings.HEIGHT // 2, settings.WIDTH,
-                             settings.HEIGHT, self.background)
+                                      settings.HEIGHT // 2, settings.WIDTH,
+                                      settings.HEIGHT, self.background)
 
         # Draw the sprites
         self.player.draw()
@@ -195,13 +192,14 @@ class CalebGameView(arcade.View):
         minutes = int(self.total_time) // 60
         seconds = int(self.total_time) % 60
         output = f"Time: {minutes:02d}:{seconds:02d}"
-        arcade.draw_text(output, WIDTH - 200, 50, arcade.color.WHITE, 30)
+        arcade.draw_text(output, settings.WIDTH - 200, 50, arcade.color.WHITE,
+                         30)
 
         # Draw score
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 200, HEIGHT - 490,
-                         arcade.color.BLUE, 36)
-        arcade.draw_text(f"Score: {self.score}", WIDTH - 198, HEIGHT - 490,
-                         arcade.color.BABY_BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 200,
+                         settings.HEIGHT - 490, arcade.color.BLUE, 36)
+        arcade.draw_text(f"Score: {self.score}", settings.WIDTH - 198,
+                         settings.HEIGHT - 490, arcade.color.BABY_BLUE, 36)
 
     def update(self, delta_time):
         # Update the sprites
@@ -314,7 +312,8 @@ class CalebGameView(arcade.View):
                 self.jungle_bullets_list.append(jungle_bullets)
 
             # Player must hit the jungle monster 100 times to kill him
-            bullets_hit_jungle_monster = jungle_monster.collides_with_list(self.bullets_list)
+            bullets_hit_jungle_monster = jungle_monster.collides_with_list(
+                                        self.bullets_list)
 
             if bullets_hit_jungle_monster and jungle_monster.center_y < 700:
                 self.count += 1
@@ -329,28 +328,32 @@ class CalebGameView(arcade.View):
                         self.key_list.append(key_sprite)
 
             # If player hits jungle monster, player loses lives
-            jungle_monster_hit_player = jungle_monster.collides_with_sprite(self.player)
+            jungle_monster_hit_player = jungle_monster.collides_with_sprite(
+                                        self.player)
 
             if jungle_monster_hit_player or jungle_monster.center_y < 0:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
                     self.hearts_list.remove(heart)
 
-            # See if player got the key
-            key_collected = arcade.check_for_collision_with_list(self.player, self.key_list)
-            for key in key_collected:
-                key.remove_from_sprite_lists()
-                completed = True
+        # See if player got the key
+        key_collected = arcade.check_for_collision_with_list(self.player,
+                                                             self.key_list)
+        for key in key_collected:
+            key.remove_from_sprite_lists()
+            completed = True
 
-                # If player got the key, go to the game completed view
-                if completed is True:
-                    game_completed_view = GameCompleteView()
-                    game_completed_view.director = self.director
-                    self.window.show_view(game_completed_view)
+            # If player got the key, go to the game completed view
+            if completed is True:
+                game_completed_view = GameCompleteView()
+                game_completed_view.director = self.director
+                self.window.show_view(game_completed_view)
 
         # If jungle bullets hit player, remove a heart
         for jungle_bullets in self.jungle_bullets_list:
-            jungle_bullets_hit_player = jungle_bullets.collides_with_sprite(self.player)
+            jungle_bullets_hit_player = jungle_bullets.collides_with_sprite(
+                                        self.player)
+
             if jungle_bullets_hit_player:
                 if len(self.hearts_list) is not 0:
                     heart = self.hearts_list[0]
@@ -362,11 +365,6 @@ class CalebGameView(arcade.View):
             game_over_view = GameOverView()
             game_over_view.director = self.director
             self.window.show_view(game_over_view)
-
-    def on_key_press(self, key, key_modifiers):
-        # If A is pressed, switch to the next view
-        if key == arcade.key.A:
-            self.director.next_view()
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         # Restricts where the player can go
@@ -399,8 +397,7 @@ class GameOverView(arcade.View):
         arcade.start_render()
 
         # Draw Text
-        arcade.draw_text("Game Over", 250, 400, arcade.color.WHITE, 54,
-                         font_name = ARCADE_FONT)
+        arcade.draw_text("Game Over", 250, 400, arcade.color.WHITE, 54,)
         arcade.draw_text("Press R to Restart", 300, 200,
                          arcade.color.WHITE, 24)
 
@@ -424,7 +421,7 @@ class GameCompleteView(arcade.View):
         """
         Draw "Game over" across the screen.
         """
-        arcade.draw_text("Congratulations! Game Complete", 140, 400,
+        arcade.draw_text("Congratulations! Game Complete", 120, 400,
                          arcade.color.WHITE, font_size=35)
         arcade.draw_text("Press Space to Advance", 255, 200,
                          arcade.color.WHITE, font_size=24)
@@ -437,9 +434,8 @@ class GameCompleteView(arcade.View):
 if __name__ == "__main__":
     from utils import FakeDirector
     window = arcade.Window(settings.WIDTH, settings.HEIGHT,
-                     title=settings.TITLE)
+                           title=settings.TITLE)
     my_view = CalebMenuView()
     my_view.director = FakeDirector(close_on_next_view=True)
     window.show_view(my_view)
-    # main()
     arcade.run()
