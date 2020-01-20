@@ -219,6 +219,7 @@ class CalebGameView(arcade.View):
             # Get rid of rock and bullets when they collide
             if bullets_hit_rock:
                 rock.kill()
+                # Add 1 to score if rock is destroyed
                 self.score += 1
                 for bullet in bullets_hit_rock:
                     bullet.kill()
@@ -248,6 +249,7 @@ class CalebGameView(arcade.View):
             # Get rid of monkey and bullet when they collide
             if bullets_hit_monkey and monkey.center_y <= 600:
                 monkey.kill()
+                # Add 1 to score is monkey is killed
                 self.score += 1
                 for bullet in bullets_hit_monkey:
                     bullet.kill()
@@ -393,7 +395,6 @@ class GameOverView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.RED_DEVIL)
 
-    # Draw the text
     def on_draw(self):
         arcade.start_render()
 
@@ -416,12 +417,10 @@ class GameCompleteView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
 
-    # Draw the text
+ 
     def on_draw(self):
         arcade.start_render()
-        """
-        Draw "Game over" across the screen.
-        """
+        # Draw the text
         arcade.draw_text("Congratulations! Game Complete", 120, 400,
                          arcade.color.WHITE, font_size=35)
         arcade.draw_text("Press Space to Advance", 255, 200,
