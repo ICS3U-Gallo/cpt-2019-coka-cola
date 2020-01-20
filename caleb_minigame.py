@@ -128,7 +128,7 @@ class CalebGameView(arcade.View):
             heart.center_y = 500
             heart.center_x = x
             self.hearts_list.append(heart)
-        
+
         # Set up Time and Score
         self.total_time = 0.0
         self.score = 0
@@ -417,7 +417,6 @@ class GameCompleteView(arcade.View):
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
 
- 
     def on_draw(self):
         arcade.start_render()
         # Draw the text
