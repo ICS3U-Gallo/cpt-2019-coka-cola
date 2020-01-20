@@ -6,6 +6,7 @@ from menu import MenuView
 from alex_minigame import AlexMenuView
 from caleb_minigame import CalebMenuView
 from kevin_minigame import KevinView
+from owen_minigame import OwenMenuView
 
 
 class Director(arcade.Window):
@@ -16,7 +17,8 @@ class Director(arcade.Window):
             MenuView,
             AlexMenuView,
             CalebMenuView,
-            KevinView
+            KevinView,
+            OwenMenuView
         ]
         self.next_view()
 

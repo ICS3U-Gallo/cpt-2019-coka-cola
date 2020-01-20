@@ -50,6 +50,7 @@ class KevinMenuView(arcade.View):
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             instruction_view = KevinInstructionView()
+            instruction_view.director = self.director
             self.window.show_view(instruction_view)
 
 
@@ -74,11 +75,13 @@ class KevinInstructionView(arcade.View):
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         game_view = KevinView()
+        game_view.director = self.director
         self.window.show_view(game_view)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
             game_view = KevinView()
+            game_view.director = self.director
             self.window.show_view(game_view)
 
 class KevinView(arcade.View):
@@ -166,7 +169,7 @@ class KevinView(arcade.View):
         
 
         #boss
-        boss = arcade.Sprite("assets/ufoboss.png", 0.5)
+        boss = arcade.Sprite("assets/ufo_boss.png", 0.75)
         boss.center_x = -700
         boss.center_y = 100
         self.boss_list.append(boss)
@@ -254,7 +257,7 @@ class KevinView(arcade.View):
         door_top.center_y = 230
 
         #troll
-        self.jetpack = arcade.Sprite("assets/jetpack.png", 0.03)
+        self.jetpack = arcade.Sprite("assets/jetpack.png", 0.1)
         self.jetpack.center_x = -2900
         self.jetpack.center_y = 150
         self.jetpack_list.append(self.jetpack)
@@ -298,8 +301,11 @@ class KevinView(arcade.View):
             self.key.center_x = self.player_sprite.center_x
             self.key.center_y = self.player_sprite.center_y + 70
         if self.hasjet == True:
-            self.jetpack.center_x = self.player_sprite.center_x
-            self.jetpack.center_y = self.player_sprite.center_y
+            if self.player_sprite.change_x < 0:
+                self.jetpack.center_x = self.player_sprite.center_x + 30
+            elif self.player_sprite.change_x > 0:
+                self.jetpack.center_x = self.player_sprite.center_x - 30
+            self.jetpack.center_y = self.player_sprite.center_y 
         if self.slime.center_x > 0:
             self.slime.center_x -= 7
         self.bee.center_x -= self.BEEMOVE
@@ -394,14 +400,15 @@ class KevinView(arcade.View):
             
 
                 #bullet collision
-            for bullet in self.bullet_list:
-                bullet_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bullet_list)
-                if len(bullet_hit_list) > 0:
-                    self.view_left = 5
-                    self.player_sprite.center_x = 50
-                    self.slime.center_x = 3500
-                    self.bee.center_x = 4000
-                    self.BEEMOVE = 7
+            # for bullet in self.bullet_list:
+            #     bullet_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.bullet_list)
+            #     if len(bullet_hit_list) > 0:
+            #         self.view_left = 5
+            #         self.player_sprite.center_x = 50
+            #         self.slime.center_x = 3500
+            #         self.bee.center_x = 4000
+            #         self.BEEMOVE = 7
+
         for finish in self.finish_list:
             finish_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.finish_list)
             if len(finish_hit_list) > 0 and self.haskey == True:
