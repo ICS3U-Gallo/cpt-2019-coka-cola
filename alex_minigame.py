@@ -565,7 +565,7 @@ class AlexGameView(arcade.View):
                      0, 1, 1, 0, 1, 1, 1, 1, 0, 1],
                     [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1,
                      0, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-                    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
                      0, 1, 1, 0, 0, 0, 1, 0, 1, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
                      1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -734,7 +734,7 @@ class AlexGameView(arcade.View):
 
             # If hit, the boss loses health.
             for boss in boss_hit_list:
-                boss.health -= 25
+                boss.health -= 10
                 if boss.health <= 0:
                     boss.remove_from_sprite_lists()
                     boss.health_outline_sprite.remove_from_sprite_lists()
@@ -773,8 +773,8 @@ class AlexGameView(arcade.View):
             # Boss aims and shoots at player.
             for boss in self.boss_list:
 
-                # A 1 in 50 chance that the boss shoots.
-                if random.randrange(50) == 0:
+                # A 1 in 25 chance that the boss shoots.
+                if random.randrange(25) == 0:
                     # Position the bullet at the player's current location.
                     start_x = boss.center_x
                     start_y = boss.center_y
@@ -1079,7 +1079,7 @@ class AlexGameView(arcade.View):
 
 
 class GameOverView(arcade.View):
-    """A class for the instructions view."""
+    """A class for the game over view."""
     def on_show(self):
         """When view is shown, initializes variables."""
         # Set the background colour.
@@ -1097,6 +1097,9 @@ class GameOverView(arcade.View):
         arcade.draw_text("Game Over", 240, 400, arcade.color.WHITE, 54)
         arcade.draw_text("Press R to restart", 310, 300, arcade.color.WHITE,
                          24)
+        arcade.draw_text("Game Over", settings.WIDTH/2,
+                         settings.HEIGHT/2 - 250, arcade.color.WHITE,
+                         font_size=10, anchor_x="center")
 
         # Set the viewport
         arcade.set_viewport(self.view_left,
@@ -1114,7 +1117,7 @@ class GameOverView(arcade.View):
 
 
 class GameCompletedView(arcade.View):
-    """A class for the instructions view."""
+    """A class for the game completed view."""
     def on_show(self):
         """When view is shown, initializes variables."""
         # Set the background colour.
